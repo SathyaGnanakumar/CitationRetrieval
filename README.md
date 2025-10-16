@@ -1,3 +1,5 @@
+Data : https://huggingface.co/datasets/TIGER-Lab/ScholarCopilot-Data-v1
+
 # CitationRetrieval
 
 Week 1:
