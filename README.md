@@ -1,4 +1,5 @@
-Data : https://huggingface.co/datasets/TIGER-Lab/ScholarCopilot-Data-v1
+Database of Papers : https://huggingface.co/datasets/TIGER-Lab/ScholarCopilot-Data-v1
+training dataset: https://huggingface.co/datasets/ubowang/ScholarCopilot-TrainingData
 
 # CitationRetrieval
 
