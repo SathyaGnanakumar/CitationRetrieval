@@ -1,3 +1,6 @@
+Database of Papers : https://huggingface.co/datasets/TIGER-Lab/ScholarCopilot-Data-v1
+training dataset: https://huggingface.co/datasets/ubowang/ScholarCopilot-TrainingData
+
 # CitationRetrieval
 
 Week 1:
@@ -8,6 +11,12 @@ tasks:
 - test 2 LLMs: gemini, claude (potentially)
 
 Dataset : https://huggingface.co/datasets/bethgelab/CiteME
+
+Week 2:
+- Gained clarity on our baselines in talking with Rifaa and Tom (We will be using BM25, CiteAgent, and ScholarCopilot as our baseline agents). We will run ScholarCopilot and BM25 on the Scholar Copilot data and CiteAgent will be tested on the CiteMe benchmark.
+- We determined that ScholarCopilot will serve as our official dataset. Clone both CiteMe and ScholarCopilot code locally and test how these models work. Then run these baseline models to accumulate results.
+- Clarified how we want to implement our multi-agent pipeline (agents will be trained on subset of ScholarCopilot data) and then our pipeline will narrow down possible options to produce the most accurate citation)
+- Researching BM25 algorithms and goal is to finish script and test on some data by the end of this week 
 
 Background
 
