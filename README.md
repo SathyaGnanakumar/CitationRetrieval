@@ -1,49 +1,28 @@
-Database of Papers : https://huggingface.co/datasets/TIGER-Lab/ScholarCopilot-Data-v1
-training dataset: https://huggingface.co/datasets/ubowang/ScholarCopilot-TrainingData
-
 # CitationRetrieval
 
+Sathya Gnanakumar, Ishaan Kalra, Dhruv Suri, Kushal Kapoor, Vishnu Sreekanth, Vibhu Singh
+
+# Timeline of Progess
+
 Week 1:
-- Accumulate training data from ArXiv based on CiteMe Benchmark. Begin TF/IDF and BM25 baseline model development on retrieved data.
+- Accumulated training data from ArXiv based on CiteMe Benchmark. Began looking into TF/IDF and BM25 baseline model development on retrieved data.
 
-tasks:
-- each person, find 1 excerpt from 10 different papers. remove the source from each excerpt and add to dataset. overall, we have 60 new data points to add to the dataset of 130 we already found
-- test 2 LLMs: gemini, claude (potentially)
+Weeks 2-4:
+- Pivoted our approach for our baselines as we gained further clarity from talking with Rifaa and Tom. We will be using BM25 and Dense Retrieval as our baselines. We will then run the baselines on the ScholarCopilot eval data from the training dataset.
+- We determined that ScholarCopilot will serve as our official dataset for training and evaluating our pipeline. 
+- Clarified how we want to implement our multi-agent pipeline. The agents will be trained on a subset of the ScholarCopilot data and then the pipeline will narrow down possible options to produce the most accurate citation.
 
-Dataset : https://huggingface.co/datasets/bethgelab/CiteME
+Week 5:
+- Identified database of papers and training dataset from ScholarCopilot containing sentences with in-text citations and the corresponding cited papers
+- Worked on and obtained results from BM25 and Dense Retrieval Baselines (SPECTER2 and E5-Large) 
 
-Week 2:
-- Gained clarity on our baselines in talking with Rifaa and Tom (We will be using BM25, CiteAgent, and ScholarCopilot as our baseline agents). We will run ScholarCopilot and BM25 on the Scholar Copilot data and CiteAgent will be tested on the CiteMe benchmark.
-- We determined that ScholarCopilot will serve as our official dataset. Clone both CiteMe and ScholarCopilot code locally and test how these models work. Then run these baseline models to accumulate results.
-- Clarified how we want to implement our multi-agent pipeline (agents will be trained on subset of ScholarCopilot data) and then our pipeline will narrow down possible options to produce the most accurate citation)
-- Researching BM25 algorithms and goal is to finish script and test on some data by the end of this week 
 
-Background
+## ScholarCopilot Database of Papers:
+https://huggingface.co/datasets/TIGER-Lab/ScholarCopilot-Data-v1
+## ScholarCopilot Training Dataset:
+https://huggingface.co/datasets/ubowang/ScholarCopilot-TrainingData
+## CiteME Dataset:
+https://huggingface.co/datasets/bethgelab/CiteME
 
-To ensure that CiteMe is a challenging and robust dataset, we remove all dataset instances that GPT-4o can correctly answer. Filtering datasets by removing the samples that a strong model can correctly answer was previously done in Bamboogle [71] and the Graduate-Level Google-Proof Q&A Benchmark [73]. In our filtering process, GPT-4o was used with no Internet access or any other external tools. Therefore, it could answer only correctly specified papers that it memorized from its training process. We ran each sample through GPT-4o five times to cover its different outcomes. In the end, we filtered out 124 samples, leaving 130 samples in total.
-
-CiteME measures how well models can identify which scientific paper a given statement (excerpt) should cite.
-Each excerpt in the dataset is curated to satisfy four strict criteria:
-- Attributable – The citation directly supports the claim.
-- Unambiguous – Only one paper could reasonably be cited.
-- Non-Trivial – The excerpt does not include author names or title keywords.
-- Reasonable – The excerpt is coherent and provides sufficient context.
-
-Additionally, easy examples that a strong LLM can recall from memory are filtered out through closed-book GPT-4o evaluation—mirroring the filtering procedure used in the CiteME paper itself.
-
-Data Cleaning:
-- We create a script called `data_cleaning.py` that evaluates the new examples we are adding to the 
-CiteMe benchmark with the same criteria posed in the paper. We run GPT-4o offline so it only can evaluate
-citations based on its internal knowledge and cannot refer to the internet. 
-
-data.csv
-   │
-   ├─► evaluate_criteria() → Uses GPT-4o to assess each excerpt on the four CiteMe criteria
-   │
-   ├─► filtering_stage()   → Runs closed-book filtering to check if the model can recall the cited paper
-   │
-   └─► verified_examples.json / .csv -> output verified citations
-
-31/130 examples survived closed-book filtering on GPT-4o based on the current script paremeters
-
-Do we just keep the 31 verified examples or stick with the 130 examples from CiteMe? Ask Dr. Goldstein about this and whether we need to relax the criteria + find more examples to augment these new verified examples. 
+## Our Dense Retrieval Baseline Results: 
+https://drive.google.com/drive/folders/1L1Eo1dE77bOelBOvWEy466Hhir8OSYPE?usp=sharing
