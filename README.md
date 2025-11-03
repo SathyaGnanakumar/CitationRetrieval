@@ -5,11 +5,11 @@ Sathya Gnanakumar, Ishaan Kalra, Dhruv Suri, Kushal Kapoor, Vishnu Sreekanth, Vi
 # Timeline of Progess
 
 Week 1:
-- Accumulated training data from ArXiv based on CiteMe Benchmark. Began looking into TF/IDF and BM25 baseline model development on retrieved data.
+- Explored CiteMe paper and determined that it will serve as our final benchmark for our model. Began looking into TF/IDF and BM25 baseline model development on retrieved data.
 
 Weeks 2-4:
 - Pivoted our approach for our baselines as we gained further clarity from talking with Rifaa and Tom. We will be using BM25 and Dense Retrieval as our baselines. We will then run the baselines on the ScholarCopilot eval data from the training dataset.
-- We determined that ScholarCopilot will serve as our official dataset for training and evaluating our pipeline. 
+- We determined that ScholarCopilot will serve as our official dataset for training and evaluating our pipeline. Currently training on a smaller 1K dataset due to compute constraints but will need to determine how to split the larger training dataset of 600K examples into batches for bigger training runs. 
 - Clarified how we want to implement our multi-agent pipeline. The agents will be trained on a subset of the ScholarCopilot data and then the pipeline will narrow down possible options to produce the most accurate citation.
 
 Week 5:
