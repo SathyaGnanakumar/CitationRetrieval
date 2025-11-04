@@ -24,5 +24,76 @@ https://huggingface.co/datasets/ubowang/ScholarCopilot-TrainingData
 ## CiteME Dataset:
 https://huggingface.co/datasets/bethgelab/CiteME
 
-## Our Dense Retrieval Baseline Results: 
+## Our Dense Retrieval Baseline Results:
 https://drive.google.com/drive/folders/1L1Eo1dE77bOelBOvWEy466Hhir8OSYPE?usp=sharing
+
+---
+
+## Evaluation Framework
+
+Week 6+:
+- Built comprehensive evaluation framework for citation retrieval models
+- Unified evaluation harness supporting BM25, SPECTER2, E5-Large baselines
+- Comprehensive metrics: Recall@k, Precision@k, MRR, Exact Match
+- Automatic error analysis and failure logging
+
+### Quick Start
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run example (quick test on 50 examples)
+python example_evaluation.py
+
+# Run full baseline evaluation
+python run_baseline_evaluation.py --data_path BM25/scholar_copilot_eval_data_1k.json
+
+# Evaluate specific models only
+python run_baseline_evaluation.py --models bm25 specter2
+```
+
+### Framework Structure
+
+```
+evaluation/
+├── evaluator.py        # Main evaluation harness
+├── metrics.py          # Metrics calculation (Recall@k, MRR, etc.)
+├── data_loader.py      # Dataset loading and preprocessing
+├── models/
+│   ├── base_model.py   # Abstract base class
+│   ├── bm25_model.py   # BM25 baseline
+│   └── dense_model.py  # Dense retrieval (SPECTER2, E5)
+└── README.md           # Detailed documentation
+```
+
+**See [evaluation/README.md](evaluation/README.md) for detailed documentation.**
+
+### Usage Example
+
+```python
+from evaluation import CitationEvaluator, CitationDataLoader
+from evaluation.models import BM25Model, DenseRetrievalModel
+
+# Load data
+loader = CitationDataLoader("BM25/scholar_copilot_eval_data_1k.json")
+examples = loader.extract_examples()
+
+# Initialize models
+models = {
+    'BM25': BM25Model(),
+    'SPECTER2': DenseRetrievalModel('allenai/specter2'),
+    'E5-Large': DenseRetrievalModel('intfloat/e5-large-v2')
+}
+
+# Run comparison
+evaluator = CitationEvaluator()
+comparison = evaluator.compare_models(models, examples)
+```
+
+### Next Steps
+1. Run baseline evaluation on full 1K dataset
+2. Implement CiteAgent multi-agent pipeline
+3. Compare CiteAgent vs baselines
+4. Scale to 600K dataset
+5. Benchmark on CiteME test set
