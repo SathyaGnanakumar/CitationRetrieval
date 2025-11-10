@@ -65,6 +65,9 @@ CitationRetrieval/
 - **ScholarCopilot Database**: [600K papers](https://huggingface.co/datasets/TIGER-Lab/ScholarCopilot-Data-v1)
 - **Note**: Currently using 1K subset due to compute constraints
 
+### Additional Resources
+- **All Datasets (Google Drive)**: [Download Link](https://drive.google.com/drive/folders/1BsRwzx_CGlXdSRT_at1LPdgmwXB8CUcC?usp=sharing)
+
 ## 🚀 Quick Start
 
 ### Installation
@@ -310,37 +313,6 @@ See [multi_agent_pipeline/README.md](multi_agent_pipeline/README.md) for the det
 
 See `pyproject.toml` for complete dependency list.
 
-## 📝 Development Notes
-
-### Dataset Migration
-If you need to switch between datasets, see:
-- `baselines/cite_agent/DATASET_MIGRATION_GUIDE.md` - Comprehensive guide for adapting code between CiteME and ScholarCopilot formats
-
-### Code Organization
-- **Baselines**: All three baseline implementations in `baselines/` (BM25, Dense, CiteAgent)
-- **Evaluation**: Unified evaluation framework in `evaluation/` with model wrappers for all baselines
-- **Datasets**: Single source of truth in `datasets/` (no duplicates)
-- **Data Processing**: Data cleaning scripts in `data_processing/`
-- **Future Work**: Multi-agent pipeline placeholder in `multi_agent_pipeline/`
-
-### Recent Cleanup (Nov 2024)
-- ✅ Removed duplicate `citeagent_src/` folder (95% code duplication)
-- ✅ Centralized all datasets to `datasets/` folder
-- ✅ Moved all baselines under `baselines/` directory (including cite_agent)
-- ✅ Renamed `citeme_dataset/` to `data_processing/` for clarity
-- ✅ Created `multi_agent_pipeline/` placeholder with architecture plan
-- ✅ Removed legacy `LangGraphTesting/` template folder
-- ✅ Eliminated 158-237MB of duplicate data files
-- ✅ Clean, cohesive folder structure ready for development
-
-## 👥 Contributing
-
-This is a class project for CMSC473. Team members should:
-1. Work in feature branches
-2. Keep baselines independent
-3. Use the unified evaluation framework
-4. Document changes in respective README files
-
 ## 📚 Resources
 
 - [ScholarCopilot Paper](https://arxiv.org/abs/2305.11041)
@@ -349,17 +321,6 @@ This is a class project for CMSC473. Team members should:
 - [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
 - [Semantic Scholar API Docs](https://api.semanticscholar.org/)
 
-## 📧 Contact
-
-For questions or collaboration:
-- See team member list at top of README
-- Course: CMSC473, Fall 2024
-
 ## 📄 License
 
 Academic use only - CMSC473 course project
-
----
-
-**Last Updated**: November 2024
-**Status**: Active Development - Baseline Evaluation Phase
