@@ -1,89 +1,206 @@
-# CitationRetrieval
+# Citation Retrieval Project
 
-Sathya Gnanakumar, Ishaan Kalra, Dhruv Suri, Kushal Kapoor, Vishnu Sreekanth, Vibhu Singh
+**CMSC473 - Natural Language Processing**
 
-# Timeline of Progess
+**Team**: Sathya Gnanakumar, Ishaan Kalra, Dhruv Suri, Kushal Kapoor, Vishnu Sreekanth, Vibhu Singh
 
-Week 1:
-- Explored CiteMe paper and determined that it will serve as our final benchmark for our model. Began looking into TF/IDF and BM25 baseline model development on retrieved data.
+## 🎯 Project Overview
 
-Weeks 2-4:
-- Pivoted our approach for our baselines as we gained further clarity from talking with Rifaa and Tom. We will be using BM25 and Dense Retrieval as our baselines. We will then run the baselines on the ScholarCopilot eval data from the training dataset.
-- We determined that ScholarCopilot will serve as our official dataset for training and evaluating our pipeline. Currently training on a smaller 1K dataset due to compute constraints but will need to determine how to split the larger training dataset of 600K examples into batches for bigger training runs. 
-- Clarified how we want to implement our multi-agent pipeline. The agents will be trained on a subset of the ScholarCopilot data and then the pipeline will narrow down possible options to produce the most accurate citation.
+This project develops and evaluates multiple approaches for **automatic citation retrieval** - the task of identifying which paper is cited given a citation context from a scientific document. We implement and compare three baseline approaches and plan to develop a novel multi-agent system using LangGraph.
 
-Week 5:
-- Identified database of papers and training dataset from ScholarCopilot containing sentences with in-text citations and the corresponding cited papers
-- Worked on and obtained results from BM25 and Dense Retrieval Baselines (SPECTER2 and E5-Large) 
+## 📁 Project Structure
 
+```
+CitationRetrieval/
+├── datasets/                    # Centralized datasets
+│   ├── scholar_copilot_eval_data_1k.json  # ScholarCopilot benchmark (1K examples)
+│   └── CiteME.tsv                          # CiteME benchmark (100 examples)
+│
+├── baselines/                   # All baseline implementations
+│   ├── bm25/                   # BM25 sparse retrieval baseline
+│   ├── dense/                  # Dense retrieval (SPECTER2, E5-Large)
+│   └── cite_agent/             # LLM-based agent baseline
+│       ├── src/                # Source code
+│       ├── CiteME/             # CiteME dataset metadata
+│       └── README.md           # Agent documentation
+│
+├── evaluation/                  # Unified evaluation framework
+│   ├── evaluator.py           # Main evaluation harness
+│   ├── metrics.py             # Metrics (Recall@k, MRR, etc.)
+│   ├── data_loader.py         # Dataset loading
+│   ├── models/                # Model wrappers for all baselines
+│   └── README.md              # Evaluation documentation
+│
+├── multi_agent_pipeline/       # 🚧 Future: Multi-agent system (LangGraph)
+│   ├── src/                   # Source code (placeholder)
+│   ├── configs/               # Configuration files (placeholder)
+│   ├── tests/                 # Tests (placeholder)
+│   └── README.md              # Architecture plan
+│
+├── data_processing/            # Data cleaning and processing scripts
+│   ├── data_cleaning.py       # Data cleaning utilities
+│   └── *.csv, *.json          # Processed data files
+│
+├── example_evaluation.py       # Quick start evaluation script
+└── README.md                   # This file
+```
 
-## ScholarCopilot Database of Papers:
-https://huggingface.co/datasets/TIGER-Lab/ScholarCopilot-Data-v1
-## ScholarCopilot Training Dataset:
-https://huggingface.co/datasets/ubowang/ScholarCopilot-TrainingData
-## CiteME Dataset:
-https://huggingface.co/datasets/bethgelab/CiteME
+## 📊 Datasets
 
-## Our Dense Retrieval Baseline Results:
-https://drive.google.com/drive/folders/1L1Eo1dE77bOelBOvWEy466Hhir8OSYPE?usp=sharing
+### ScholarCopilot Eval Data (Primary)
+- **Location**: `datasets/scholar_copilot_eval_data_1k.json`
+- **Size**: 1,000 papers, ~5,000-10,000 citation instances
+- **Format**: JSON with full paper text and citation markers
+- **Source**: [ScholarCopilot Training Dataset](https://huggingface.co/datasets/ubowang/ScholarCopilot-TrainingData)
+- **Use**: Primary evaluation benchmark
 
----
+### CiteME (Secondary)
+- **Location**: `datasets/CiteME.tsv`
+- **Size**: ~100 citation instances
+- **Format**: TSV with curated citation excerpts
+- **Source**: [CiteME Dataset](https://huggingface.co/datasets/bethgelab/CiteME)
+- **Use**: Secondary benchmark for comparison
 
-## Evaluation Framework
+### Full Training Data
+- **ScholarCopilot Database**: [600K papers](https://huggingface.co/datasets/TIGER-Lab/ScholarCopilot-Data-v1)
+- **Note**: Currently using 1K subset due to compute constraints
 
-Week 6+:
-- Built comprehensive evaluation framework for citation retrieval models
-- Unified evaluation harness supporting BM25, SPECTER2, E5-Large baselines
-- Comprehensive metrics: Recall@k, Precision@k, MRR, Exact Match
-- Automatic error analysis and failure logging
+## 🚀 Quick Start
 
-### Quick Start
+### Installation
+
+This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management.
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Clone the repository
+git clone <repo-url>
+cd CitationRetrieval
 
-# Run example (quick test on 50 examples)
-python example_evaluation.py
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Run full baseline evaluation
-python run_baseline_evaluation.py --data_path BM25/scholar_copilot_eval_data_1k.json
+# Create virtual environment and install dependencies
+uv sync
 
-# Evaluate specific models only
-python run_baseline_evaluation.py --models bm25 specter2
+# Activate virtual environment
+source .venv/bin/activate  # On macOS/Linux
+# .venv\Scripts\activate   # On Windows
 ```
 
-### Framework Structure
+### Environment Setup
 
+1. **Copy the environment template**:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Add your API keys** to `.env`:
+   ```bash
+   # Required for CiteAgent baseline
+   OPENAI_API_KEY=your_openai_api_key_here          # For GPT-4o models
+   ANTHROPIC_API_KEY=your_anthropic_api_key_here    # For Claude models
+   TOGETHER_API_KEY=your_together_api_key_here      # For open-source models
+
+   # Required for paper search
+   S2_API_KEY=your_semantic_scholar_api_key_here
+   ```
+
+3. **Get your API keys**:
+   - **OpenAI**: https://platform.openai.com/api-keys
+   - **Anthropic**: https://console.anthropic.com/
+   - **Together AI**: https://api.together.xyz/settings/api-keys
+   - **Semantic Scholar**: https://www.semanticscholar.org/product/api#api-key (free tier available)
+
+> **Note**: BM25 and Dense Retrieval baselines don't require API keys. Only CiteAgent needs them.
+
+### Run Quick Evaluation
+
+```bash
+# Test on 50 examples (quick) - No API keys needed
+uv run main.py
+
+# Test CiteAgent (requires API keys)
+cd baselines/cite_agent
+uv run src/main.py
 ```
-evaluation/
-├── evaluator.py        # Main evaluation harness
-├── metrics.py          # Metrics calculation (Recall@k, MRR, etc.)
-├── data_loader.py      # Dataset loading and preprocessing
-├── models/
-│   ├── base_model.py   # Abstract base class
-│   ├── bm25_model.py   # BM25 baseline
-│   └── dense_model.py  # Dense retrieval (SPECTER2, E5)
-└── README.md           # Detailed documentation
+
+## 📈 Baseline Methods
+
+### 1. BM25 (Sparse Retrieval)
+**Location**: `baselines/bm25/`
+
+Traditional information retrieval using BM25 ranking algorithm.
+
+```bash
+cd baselines/bm25
+uv run bm25ScholarCopilot.py
 ```
 
-**See [evaluation/README.md](evaluation/README.md) for detailed documentation.**
+**Results**: See `baselines/bm25/bm25_scholarcopilot_full_results.csv`
 
-### Usage Example
+### 2. Dense Retrieval
+**Location**: `baselines/dense/`
+
+Neural embedding-based retrieval using:
+- **SPECTER2**: Scientific paper embeddings
+- **E5-Large**: General-purpose dense embeddings
+
+```bash
+cd baselines/dense
+uv run jupyter notebook Dense_Retrieval.ipynb
+```
+
+**Results**: [Google Drive Results](https://drive.google.com/drive/folders/1L1Eo1dE77bOelBOvWEy466Hhir8OSYPE?usp=sharing)
+
+### 3. CiteAgent (LLM Agent)
+**Location**: `baselines/cite_agent/`
+
+LLM-powered agent using structured actions:
+- Search by relevance/citation count
+- Read paper abstracts
+- Select best match
+
+```bash
+cd baselines/cite_agent
+uv run src/main.py
+```
+
+**Features**:
+- Multiple LLM backends (GPT-4, Claude, Together AI)
+- Semantic Scholar API integration
+- Pydantic-structured outputs
+- Few-shot prompting
+
+**Requirements**: Requires API keys (see Environment Setup above)
+
+See [baselines/cite_agent/README.md](baselines/cite_agent/README.md) for details.
+
+## 📊 Evaluation Framework
+
+**Location**: `evaluation/`
+
+Unified evaluation harness supporting all baselines with comprehensive metrics:
+
+### Metrics
+- **Recall@k**: Citation found in top-k results
+- **Precision@k**: Precision in top-k results
+- **MRR**: Mean Reciprocal Rank
+- **Exact Match**: Perfect match rate
+
+### Usage
 
 ```python
 from evaluation import CitationEvaluator, CitationDataLoader
 from evaluation.models import BM25Model, DenseRetrievalModel
 
 # Load data
-loader = CitationDataLoader("BM25/scholar_copilot_eval_data_1k.json")
+loader = CitationDataLoader("datasets/scholar_copilot_eval_data_1k.json")
 examples = loader.extract_examples()
 
 # Initialize models
 models = {
     'BM25': BM25Model(),
     'SPECTER2': DenseRetrievalModel('allenai/specter2'),
-    'E5-Large': DenseRetrievalModel('intfloat/e5-large-v2')
 }
 
 # Run comparison
@@ -91,9 +208,158 @@ evaluator = CitationEvaluator()
 comparison = evaluator.compare_models(models, examples)
 ```
 
-### Next Steps
-1. Run baseline evaluation on full 1K dataset
-2. Implement CiteAgent multi-agent pipeline
-3. Compare CiteAgent vs baselines
-4. Scale to 600K dataset
-5. Benchmark on CiteME test set
+See [evaluation/README.md](evaluation/README.md) for detailed documentation.
+
+## 🤖 Future: Multi-Agent Pipeline
+
+**Location**: `multi_agent_pipeline/` (Not yet implemented)
+
+Planned multi-agent system using **LangGraph** and **Context7**:
+
+### Planned Architecture
+1. **Query Reformulation Agent**: Enhances citation context
+2. **Search Agent**: Multi-source paper retrieval
+3. **Ranking Agent**: Candidate scoring
+4. **Verification Agent**: Citation validation
+5. **Coordinator Agent**: Pipeline orchestration
+
+### Technology Stack
+- LangGraph for agent workflow
+- Context7 for coordination
+- Semantic Scholar API
+- Fine-tuning on ScholarCopilot subset
+
+See [multi_agent_pipeline/README.md](multi_agent_pipeline/README.md) for the detailed plan.
+
+## 📅 Project Timeline
+
+### ✅ Completed
+
+**Week 1**: Initial exploration of CiteME paper and baseline planning
+
+**Weeks 2-4**:
+- Pivoted to BM25 and Dense Retrieval baselines
+- Selected ScholarCopilot as primary dataset
+- Designed multi-agent pipeline architecture
+
+**Week 5**:
+- Implemented BM25 baseline
+- Implemented Dense Retrieval (SPECTER2, E5-Large)
+- Collected baseline results
+
+**Week 6+**:
+- Built unified evaluation framework
+- Implemented CiteAgent LLM baseline
+- Comprehensive metrics and error analysis
+
+### 🚧 In Progress
+
+- Full evaluation on 1K ScholarCopilot examples
+- CiteAgent performance optimization
+- Error analysis and failure case studies
+
+### 📋 Planned
+
+- Multi-agent pipeline implementation (LangGraph)
+- Training on full 600K ScholarCopilot dataset
+- Final benchmark on CiteME test set
+- Comparative analysis vs. baselines
+
+## 🎯 Research Goals
+
+1. **Establish Baselines**: Benchmark BM25, Dense Retrieval, and LLM agents
+2. **Multi-Agent Innovation**: Develop novel multi-agent retrieval system
+3. **Scalability**: Scale to 600K training examples
+4. **Generalization**: Test on multiple benchmarks (ScholarCopilot, CiteME)
+5. **Real-world Application**: Deploy as citation recommendation service
+
+## 📊 Current Results
+
+### BM25 Baseline
+- Evaluation on ScholarCopilot 1K subset
+- Results: `baselines/bm25/bm25_scholarcopilot_full_results.csv`
+
+### Dense Retrieval
+- SPECTER2 and E5-Large embeddings
+- Results: [Google Drive](https://drive.google.com/drive/folders/1L1Eo1dE77bOelBOvWEy466Hhir8OSYPE?usp=sharing)
+
+### CiteAgent
+- LLM-powered agent with search capabilities
+- Evaluation in progress
+
+## 🔧 Technical Details
+
+### Project Structure
+- **Unified uv project**: Single `pyproject.toml` at root manages all dependencies
+- **Python 3.12+**: Required for all baselines
+- **Environment variables**: Managed via `.env` file (see `.env.example`)
+
+### APIs Used
+- **Semantic Scholar API**: Paper search and metadata
+- **OpenAI API**: GPT-4o for LLM agent
+- **Anthropic API**: Claude for alternative LLM backend
+- **Together AI**: Open-source LLM hosting
+
+### Key Dependencies
+- `uv`: Fast Python package installer and resolver
+- `langchain`: LLM orchestration
+- `sentence-transformers`: Dense embeddings
+- `bm25s`: BM25 implementation
+- `pydantic`: Structured outputs
+- `pandas`, `numpy`: Data processing
+
+See `pyproject.toml` for complete dependency list.
+
+## 📝 Development Notes
+
+### Dataset Migration
+If you need to switch between datasets, see:
+- `baselines/cite_agent/DATASET_MIGRATION_GUIDE.md` - Comprehensive guide for adapting code between CiteME and ScholarCopilot formats
+
+### Code Organization
+- **Baselines**: All three baseline implementations in `baselines/` (BM25, Dense, CiteAgent)
+- **Evaluation**: Unified evaluation framework in `evaluation/` with model wrappers for all baselines
+- **Datasets**: Single source of truth in `datasets/` (no duplicates)
+- **Data Processing**: Data cleaning scripts in `data_processing/`
+- **Future Work**: Multi-agent pipeline placeholder in `multi_agent_pipeline/`
+
+### Recent Cleanup (Nov 2024)
+- ✅ Removed duplicate `citeagent_src/` folder (95% code duplication)
+- ✅ Centralized all datasets to `datasets/` folder
+- ✅ Moved all baselines under `baselines/` directory (including cite_agent)
+- ✅ Renamed `citeme_dataset/` to `data_processing/` for clarity
+- ✅ Created `multi_agent_pipeline/` placeholder with architecture plan
+- ✅ Removed legacy `LangGraphTesting/` template folder
+- ✅ Eliminated 158-237MB of duplicate data files
+- ✅ Clean, cohesive folder structure ready for development
+
+## 👥 Contributing
+
+This is a class project for CMSC473. Team members should:
+1. Work in feature branches
+2. Keep baselines independent
+3. Use the unified evaluation framework
+4. Document changes in respective README files
+
+## 📚 Resources
+
+- [ScholarCopilot Paper](https://arxiv.org/abs/2305.11041)
+- [CiteME Paper](https://arxiv.org/abs/2310.04685)
+- [SPECTER2 Paper](https://arxiv.org/abs/2004.07180)
+- [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
+- [Semantic Scholar API Docs](https://api.semanticscholar.org/)
+
+## 📧 Contact
+
+For questions or collaboration:
+- See team member list at top of README
+- Course: CMSC473, Fall 2024
+
+## 📄 License
+
+Academic use only - CMSC473 course project
+
+---
+
+**Last Updated**: November 2024
+**Status**: Active Development - Baseline Evaluation Phase

@@ -296,7 +296,7 @@ if __name__ == "__main__":
     from evaluation import CitationEvaluator, CitationDataLoader
 
     # Load data
-    loader = CitationDataLoader("BM25/scholar_copilot_eval_data_1k.json")
+    loader = CitationDataLoader("datasets/scholar_copilot_eval_data_1k.json")
     loader.load_data()
     examples = loader.extract_examples()[:10]  # Test on 10 examples
 

@@ -11,7 +11,7 @@ if str(repo_root) not in sys.path:
     sys.path.insert(0, str(repo_root))
 
 from evaluation import CitationEvaluator, CitationDataLoader
-from evaluation.models.citeagent_local import CiteAgentLocal
+from evaluation.models.citeagent_model import CiteAgentLocal
 from evaluation.models.bm25_model import BM25Model
 
 
@@ -19,10 +19,10 @@ def main():
     print("="*70)
     print("TESTING LOCAL CITEAGENT (NO API KEYS NEEDED)")
     print("="*70)
-    
+
     # Load dataset
     print("\nLoading dataset...")
-    loader = CitationDataLoader("BM25/scholar_copilot_eval_data_1k.json")
+    loader = CitationDataLoader("datasets/scholar_copilot_eval_data_1k.json")
     loader.load_data()
     examples = loader.extract_examples()[:50]  # Test on 50 examples
     

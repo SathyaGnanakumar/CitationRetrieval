@@ -14,11 +14,8 @@ literature
 downloads
 archive
 
+# Environment variables
 .env
-# env files
-.env
-.env*
-server/.env
 
 .DS_Store
 

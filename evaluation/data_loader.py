@@ -312,7 +312,7 @@ def main():
     parser.add_argument(
         "--data_path",
         type=str,
-        default="BM25/scholar_copilot_eval_data_1k.json",
+        default="datasets/scholar_copilot_eval_data_1k.json",
         help="Path to ScholarCopilot JSON file"
     )
     parser.add_argument(
