@@ -8,19 +8,44 @@ This script shows how to:
 4. Analyze results
 
 Usage:
-    uv run main.py
+    uv run main.py [--num-examples N] [--top-k K]
 """
 
 import sys
+import argparse
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
 from evaluation import CitationEvaluator, CitationDataLoader
-from evaluation.models import BM25Model
+from evaluation.models import BM25Model, CiteAgentLocal
 
 
 def main():
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(
+        description="Evaluate citation retrieval models on Scholar Copilot dataset"
+    )
+    parser.add_argument(
+        "--num-examples",
+        type=int,
+        default=50,
+        help="Number of examples to evaluate (default: 50)"
+    )
+    parser.add_argument(
+        "--top-k",
+        type=int,
+        default=20,
+        help="Number of top candidates to retrieve (default: 20)"
+    )
+    parser.add_argument(
+        "--model",
+        type=str,
+        choices=["citeagent", "bm25"],
+        default="citeagent",
+        help="Model to use for evaluation (default: citeagent)"
+    )
+    args = parser.parse_args()
     print("=" * 70)
     print("CITATION RETRIEVAL EVALUATION - QUICK EXAMPLE")
     print("=" * 70)
@@ -31,9 +56,9 @@ def main():
     loader.load_data()
     examples = loader.extract_examples()
 
-    # Use subset for quick demo
-    examples = examples[:50]
-    print(f"   Using {len(examples)} examples for demo")
+    # Use subset based on CLI argument
+    examples = examples[:args.num_examples]
+    print(f"   Using {len(examples)} examples for evaluation")
 
     # Show dataset statistics
     print("\n📊 Dataset info:")
@@ -43,8 +68,11 @@ def main():
     print(f"   Avg corpus size: {stats['avg_corpus_size']:.1f}")
 
     # 2. Initialize model
-    print("\n🤖 Step 2: Initializing BM25 model...")
-    model = BM25Model(use_stemming=True, use_stopwords=True)
+    print(f"\n🤖 Step 2: Initializing {args.model.upper()} model...")
+    if args.model == "citeagent":
+        model = CiteAgentLocal(use_llm=False)
+    else:  # bm25
+        model = BM25Model(use_stemming=True, use_stopwords=True)
     print(f"   Model config: {model.get_config()}")
 
     # 3. Run evaluation
@@ -58,7 +86,7 @@ def main():
     results = evaluator.evaluate_model(
         model=model,
         examples=examples,
-        top_k=20,
+        top_k=args.top_k,
         verbose=True
     )
 
@@ -95,7 +123,7 @@ def main():
     evaluator.save_results(
         results=results,
         output_dir="results/example",
-        model_name="bm25_demo",
+        model_name=f"{args.model}_demo",
         include_predictions=True
     )
 
@@ -103,12 +131,12 @@ def main():
     print("✅ EXAMPLE COMPLETE!")
     print("=" * 70)
     print("\nGenerated files in results/example/:")
-    print("  - bm25_demo_*_metrics.json")
-    print("  - bm25_demo_*_failures.json")
-    print("  - bm25_demo_*_predictions.json")
+    print(f"  - {args.model}_demo_*_metrics.json")
+    print(f"  - {args.model}_demo_*_failures.json")
+    print(f"  - {args.model}_demo_*_predictions.json")
     print("\nNext steps:")
-    print("  1. Try with SPECTER2: DenseRetrievalModel('allenai/specter2')")
-    print("  2. Run full evaluation: python run_baseline_evaluation.py")
+    print("  1. Run with different settings: uv run main.py --num-examples 100 --top-k 10")
+    print("  2. Try BM25: uv run main.py --model bm25")
     print("  3. Compare multiple models with evaluator.compare_models()")
 
 
