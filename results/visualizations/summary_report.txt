@@ -1,0 +1,75 @@
+================================================================================
+CITATION RETRIEVAL EVALUATION - SUMMARY REPORT
+================================================================================
+
+Generated: 2025-11-11 14:13:47
+Models evaluated: 3
+
+================================================================================
+
+DENSE
+----------------------------------------
+Timestamp: 20251111_141330
+Total predictions: 5
+Failures: 0
+Failure rate: 0.0%
+
+Key Metrics:
+  MRR: 0.5611
+  Recall@1: 0.4000
+  Recall@5: 0.8000
+  Recall@10: 0.8000
+  Recall@20: 1.0000
+  Precision@5: 0.1600
+  Precision@10: 0.0800
+  Exact Match Rate: 0.4000
+  Avg Latency: 3834.82ms
+
+
+CITEAGENT
+----------------------------------------
+Timestamp: 20251111_141311
+Total predictions: 5
+Failures: 0
+Failure rate: 0.0%
+
+Key Metrics:
+  MRR: 0.4400
+  Recall@1: 0.2000
+  Recall@5: 0.8000
+  Recall@10: 1.0000
+  Recall@20: 1.0000
+  Precision@5: 0.1600
+  Precision@10: 0.1000
+  Exact Match Rate: 0.2000
+  Avg Latency: 36924.38ms
+
+
+BM25
+----------------------------------------
+Timestamp: 20251111_141311
+Total predictions: 5
+Failures: 0
+Failure rate: 0.0%
+
+Key Metrics:
+  MRR: 0.2992
+  Recall@1: 0.2000
+  Recall@5: 0.4000
+  Recall@10: 0.6000
+  Recall@20: 1.0000
+  Precision@5: 0.0800
+  Precision@10: 0.0600
+  Exact Match Rate: 0.2000
+  Avg Latency: 11.78ms
+
+================================================================================
+
+Best performing model by metric:
+----------------------------------------
+  mrr: DENSE (0.5611)
+  recall@10: CITEAGENT (1.0000)
+  recall@20: DENSE (1.0000)
+  precision@10: CITEAGENT (0.1000)
+
+================================================================================

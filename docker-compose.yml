@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  citation-retrieval:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: citation-retrieval
+    volumes:
+      # Mount source code for development
+      - ./evaluation:/app/evaluation
+      - ./baselines:/app/baselines
+      - ./datasets:/app/datasets
+      - ./main.py:/app/main.py
+      - ./visualization.py:/app/visualization.py
+      # Mount results directory for persistence
+      - ./results:/app/results
+      # Mount .env file for API keys (create from .env.example)
+      - ./.env:/app/.env:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+    working_dir: /app
+    # Keep container running
+    stdin_open: true
+    tty: true
+    command: /bin/bash

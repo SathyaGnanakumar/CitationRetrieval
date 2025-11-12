@@ -72,6 +72,10 @@ CitationRetrieval/
 
 ### Installation
 
+Choose either the **native installation** (recommended for development) or **Docker** (for isolated environment).
+
+#### Option 1: Native Installation (Recommended)
+
 This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management.
 
 ```bash
@@ -89,6 +93,53 @@ uv sync
 source .venv/bin/activate  # On macOS/Linux
 # .venv\Scripts\activate   # On Windows
 ```
+
+#### Option 2: Docker Installation
+
+Use Docker for an isolated, reproducible environment without installing dependencies locally.
+
+**Prerequisites**: [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
+
+```bash
+# Clone the repository
+git clone <repo-url>
+cd CitationRetrieval
+
+# Set up environment variables (see Environment Setup below)
+cp .env.example .env
+# Edit .env with your API keys if needed
+
+# Build and start the container
+docker-compose up -d
+
+# Enter the container
+docker-compose exec citation-retrieval bash
+
+# Now you're inside the container - run any command
+uv run main.py
+uv run visualization.py
+```
+
+**Docker Commands**:
+```bash
+# Start container
+docker-compose up -d
+
+# Stop container
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# Rebuild after code changes
+docker-compose up -d --build
+
+# Run commands without entering container
+docker-compose exec citation-retrieval uv run main.py
+docker-compose exec citation-retrieval uv run visualization.py
+```
+
+**Note**: Results are saved to `./results/` which is mounted from your host machine, so they persist after the container stops.
 
 ### Environment Setup
 
@@ -119,13 +170,48 @@ source .venv/bin/activate  # On macOS/Linux
 ### Run Quick Evaluation
 
 ```bash
-# Test on 50 examples (quick) - No API keys needed
+# Run all three models (CiteAgent, BM25, Dense Retrieval) on 50 examples
+# Note: CiteAgent requires API keys (see Environment Setup)
 uv run main.py
 
-# Test CiteAgent (requires API keys)
-cd baselines/cite_agent
-uv run src/main.py
+# Run with custom settings
+uv run main.py --num-examples 100 --top-k 10
+
+# Run specific model only
+uv run main.py --model bm25                    # BM25 only
+uv run main.py --model dense                   # Dense retrieval only
+
+# Use CiteAgent with LLM + Semantic Scholar API (requires API keys!)
+uv run main.py --model citeagent --llm-backend gpt-4o --num-examples 5
+uv run main.py --model citeagent --llm-backend claude-3-5-sonnet-20241022 --num-examples 5
+
+# Use different dataset
+uv run main.py --dataset datasets/citeme_data.json
+
+# Use different dense model
+uv run main.py --dense-model intfloat/e5-large-v2
 ```
+
+**Available Options**:
+- `--num-examples N`: Number of examples to evaluate (default: 50)
+- `--top-k K`: Number of top candidates to retrieve (default: 20)
+- `--model {all,citeagent,bm25,dense}`: Model to use (default: all)
+- `--dataset PATH`: Path to dataset JSON file
+- `--dense-model MODEL`: Dense retrieval model name (default: intfloat/e5-base-v2)
+- `--llm-backend {gpt-4o,claude-3-5-sonnet-20241022,meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo}`: LLM for CiteAgent (default: gpt-4o)
+- `--citeagent-search-limit N`: Papers per CiteAgent search (default: 10)
+- `--citeagent-max-actions N`: Max actions per CiteAgent query (default: 15)
+
+**Important Notes**:
+- **CiteAgent** requires API keys (OPENAI_API_KEY, ANTHROPIC_API_KEY, or TOGETHER_API_KEY) and S2_API_KEY
+- **Cost**: ~$0.01-0.05 per query with CiteAgent
+- **Speed**: CiteAgent is much slower (15-30s per query) but more accurate
+- When using `--model all` without API keys, CiteAgent will be skipped
+
+**Output**: Results saved to `results/example/` directory:
+- `{model}_demo_*_metrics.json` - Performance metrics
+- `{model}_demo_*_predictions.json` - Detailed predictions
+- `{model}_demo_*_failures.json` - Failed cases for analysis
 
 ## 📈 Baseline Methods
 
@@ -212,6 +298,99 @@ comparison = evaluator.compare_models(models, examples)
 ```
 
 See [evaluation/README.md](evaluation/README.md) for detailed documentation.
+
+## 📊 Visualization
+
+**Location**: `visualization.py`
+
+Generate comprehensive comparison visualizations for all evaluated models.
+
+### Quick Start
+
+```bash
+# Generate visualizations from evaluation results
+uv run visualization.py
+
+# Use custom directories
+uv run visualization.py --results-dir results/custom --output-dir outputs/viz
+```
+
+### Generated Visualizations
+
+The script automatically scans the results directory and generates:
+
+1. **recall_comparison.png** - Recall@K comparison across all models
+2. **mrr_comparison.png** - Mean Reciprocal Rank (MRR) bar chart
+3. **precision_comparison.png** - Precision@K comparison
+4. **exact_match_comparison.png** - Exact match rate comparison
+5. **latency_comparison.png** - Average latency comparison
+6. **metrics_heatmap.png** - Heatmap of all key metrics
+7. **comprehensive_overview.png** - Multi-panel dashboard with all metrics
+8. **summary_report.txt** - Text summary with best performing models
+
+### Output
+
+All visualizations are saved to `results/visualizations/` by default.
+
+### Example Workflow
+
+```bash
+# 1. Run evaluation on all models
+uv run main.py --num-examples 100
+
+# 2. Generate visualizations
+uv run visualization.py
+
+# 3. View results
+open results/visualizations/comprehensive_overview.png  # macOS
+xdg-open results/visualizations/comprehensive_overview.png  # Linux
+start results/visualizations/comprehensive_overview.png  # Windows
+```
+
+### Available Options
+
+```bash
+uv run visualization.py --help
+```
+
+- `--results-dir DIR`: Directory containing result JSON files (default: `results/example`)
+- `--output-dir DIR`: Directory to save visualizations (default: `results/visualizations`)
+
+### Features
+
+- **Automatic Model Detection**: Scans for all `*_metrics.json` files
+- **Multi-Model Comparison**: Compares all models found in results directory
+- **Comprehensive Metrics**: Recall, Precision, MRR, Exact Match, Latency
+- **High-Quality Plots**: 300 DPI publication-ready figures
+- **Summary Report**: Text-based summary with best performing models
+
+### Sample Output
+
+```
+📊 COMPARISON SUMMARY:
+======================================================================
+
+DENSE (E5-base-v2):
+  Recall@20: 0.880
+  MRR: 0.360
+  Avg Latency: 3179.0ms
+
+BM25:
+  Recall@20: 0.840
+  MRR: 0.329
+  Avg Latency: 5.9ms
+
+CITEAGENT:
+  Recall@20: 0.640
+  MRR: 0.228
+  Avg Latency: 9.3ms
+
+Best performing model by metric:
+  mrr: DENSE (0.3602)
+  recall@10: DENSE (0.7400)
+  recall@20: DENSE (0.8800)
+  precision@10: DENSE (0.0740)
+```
 
 ## 🤖 Future: Multi-Agent Pipeline
 

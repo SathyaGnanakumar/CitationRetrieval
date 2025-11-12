@@ -27,6 +27,7 @@ dependencies = [
     # Dense retrieval baseline dependencies
     "sentence-transformers>=2.2.0",
     "torch>=2.0.0",
+    "peft>=0.7.0",
     # Evaluation framework dependencies
     # (mostly covered above, adding any extras)
     "ipykernel>=7.1.0",

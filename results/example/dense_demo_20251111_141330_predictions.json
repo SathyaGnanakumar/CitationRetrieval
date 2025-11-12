@@ -1,0 +1,152 @@
+[
+  {
+    "query_id": "q_0",
+    "true_titles": [
+      "{Attention is All you Need"
+    ],
+    "retrieved_titles": [
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "{Augmenting self-attention with persistent memory",
+      "{The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation",
+      "{Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation",
+      "{Neural Machine Translation in Linear Time",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "Generating Long Sequences with Sparse Transformers",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{Convolutional Sequence to Sequence Learning",
+      "{Effective Approaches to Attention-based Neural Machine Translation"
+    ],
+    "paper_id": "paper_0",
+    "context": "Introduction\nTransformer<|cite_0|> is widely used in natural language processing due to its high training efficiency and superior capa..."
+  },
+  {
+    "query_id": "q_1",
+    "true_titles": [
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding"
+    ],
+    "retrieved_titles": [
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation",
+      "{Augmenting self-attention with persistent memory",
+      "{The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation",
+      "{Convolutional Sequence to Sequence Learning",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "Generating Long Sequences with Sparse Transformers",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{Neural Machine Translation in Linear Time",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{A Deep Reinforced Model for Abstractive Summarization",
+      "{Scaling Neural Machine Translation",
+      "{Scaling Neural Machine Translation"
+    ],
+    "paper_id": "paper_0",
+    "context": "ng long-distance dependencies. Building on top of them, modern state-of-the-art models, such as BERT<|cite_1|>, are able to learn powerful language representations from unlabeled text and even surpass..."
+  },
+  {
+    "query_id": "q_2",
+    "true_titles": [
+      "{Neural Architecture Search with Reinforcement Learning"
+    ],
+    "retrieved_titles": [
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation",
+      "{Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation",
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{Convolutional Sequence to Sequence Learning",
+      "{Scaling Neural Machine Translation",
+      "{Scaling Neural Machine Translation",
+      "{Depthwise Separable Convolutions for Neural Machine Translation"
+    ],
+    "paper_id": "paper_0",
+    "context": "tecture specialized for real-time NLP applications on the edge. Automatic neural architecture search<|cite_2|> is a choice for high accuracy model design, but the massive search cost (GPU hours and $C..."
+  },
+  {
+    "query_id": "q_3",
+    "true_titles": [
+      "{Energy and Policy Considerations for Deep Learning in NLP"
+    ],
+    "retrieved_titles": [
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Quantizing Deep Convolutional Networks for Efficient Inference: A Whitepaper",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "Point-Voxel CNN for efficient 3D deep learning",
+      "{NetAdapt: Platform-Aware Neural Network Adaptation for Mobile Applications",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Learning both Weights and Connections for Efficient Neural Networks",
+      "{Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "Generating Long Sequences with Sparse Transformers",
+      "{Trained Ternary Quantization",
+      "{Binarized Neural Networks: Training Deep Neural Networks with Weights and Activations Constrained to +1 or -1",
+      "{Scaling Neural Machine Translation",
+      "{Scaling Neural Machine Translation"
+    ],
+    "paper_id": "paper_0",
+    "context": "gn, but the massive search cost (GPU hours and $CO_2$ emission) raises severe environmental concerns<|cite_3|>, shown in \\fig{fig:teaser:b}.\n\nIn this paper, we focus on the efficient inference for mob..."
+  },
+  {
+    "query_id": "q_4",
+    "true_titles": [
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions"
+    ],
+    "retrieved_titles": [
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{Convolutional Sequence to Sequence Learning",
+      "Generating Long Sequences with Sparse Transformers",
+      "{The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation",
+      "{Neural Machine Translation in Linear Time",
+      "{Depthwise Separable Convolutions for Neural Machine Translation",
+      "{Augmenting self-attention with persistent memory",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{Scaling Neural Machine Translation",
+      "{Scaling Neural Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate"
+    ],
+    "paper_id": "paper_0",
+    "context": "ttnshort dedicates \\textit{specialized} heads to model long and short distance contexts. Inspired by<|cite_4|>, \\attnshort introduces convolution in a parallel branch to capture \\textbf{local} depende..."
+  }
+]
