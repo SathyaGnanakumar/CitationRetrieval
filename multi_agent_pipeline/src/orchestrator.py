@@ -1,30 +1,64 @@
-from langgraph.graph import StateGraph, START, END
-from src.state import PipelineState
-from src.agents.query_reformulator import query_reformulator
-from src.agents.search_agent import search_agent
-from src.agents.ranking_agent import ranking_agent
-from src.agents.verifier_agent import verifier_agent
+# orchestrator.py
+
+from langgraph.graph import StateGraph, MessagesState, START, END
+
+# Import agent functions
 from src.agents.coordinator import coordinator
+from src.agents.bm25_agent import bm25_agent
+from src.agents.dense_agent import dense_agent
+from src.agents.specter_agent import specter_agent
+from src.agents.cite_agent import cite_agent
 
-graph = StateGraph(PipelineState)
 
-# Add all agents as nodes
+############################################################
+# 1️⃣  BUILD THE STATE GRAPH (use MessagesState!)
+############################################################
+
+# IMPORTANT: Studio REQUIRES MessagesState or Annotated fields
+graph = StateGraph(MessagesState)
+
+############################################################
+# 2️⃣  ADD AGENTS (nodes)
+############################################################
+
 graph.add_node("coordinator", coordinator, tags=["agent"])
-graph.add_node("query_reformulator", query_reformulator, tags=["agent"])
-graph.add_node("search_agent", search_agent, tags=["agent"])
-graph.add_node("ranking_agent", ranking_agent, tags=["agent"])
-graph.add_node("verifier_agent", verifier_agent, tags=["agent"])
+graph.add_node("bm25", bm25_agent, tags=["retriever"])
+graph.add_node("e5", dense_agent, tags=["retriever"])
+graph.add_node("specter", specter_agent, tags=["retriever"])
+graph.add_node("citeagent", cite_agent, tags=["retriever"])
 
-# Define the pipeline order
+############################################################
+# 3️⃣  ADD EDGES
+############################################################
+
+# Start → Coordinator
 graph.add_edge(START, "coordinator")
-graph.add_edge("coordinator", "query_reformulator")
-graph.add_edge("query_reformulator", "search_agent")
-graph.add_edge("search_agent", "ranking_agent")
-graph.add_edge("ranking_agent", "verifier_agent")
-graph.add_edge("verifier_agent", END)
 
-app = graph.compile()
+# Coordinator fans out to all retrieval agents
+graph.add_edge("coordinator", "bm25")
+graph.add_edge("coordinator", "e5")
+graph.add_edge("coordinator", "specter")
+graph.add_edge("coordinator", "citeagent")
+
+# Each retrieval agent flows to END for now
+graph.add_edge("bm25", END)
+graph.add_edge("e5", END)
+graph.add_edge("specter", END)
+graph.add_edge("citeagent", END)
+
+############################################################
+# 4️⃣ EXPOSE PIPELINE FOR LANGGRAPH STUDIO
+############################################################
+
+pipeline = graph.compile()
+
+############################################################
+# 5️⃣ LOCAL TESTING
+############################################################
 
 if __name__ == "__main__":
-    out = app.invoke({"query": "Transformer models for efficient citation retrieval"})
+    out = pipeline.invoke({
+        "messages": [{"role": "user", "content": "Transformer models for citation retrieval"}]
+    })
+    print("\n=== Pipeline Output ===")
     print(out)

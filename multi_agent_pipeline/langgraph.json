@@ -1,0 +1,6 @@
+{
+  "graphs": {
+    "pipeline": "src.orchestrator:pipeline"
+  },
+  "dependencies": ["os"]
+}
