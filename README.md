@@ -434,6 +434,10 @@ See [multi_agent_pipeline/README.md](multi_agent_pipeline/README.md) for the det
 - Implemented CiteAgent LLM baseline
 - Comprehensive metrics and error analysis
 
+### 🌲 Branches
+- ```agent_framwork``` holds the CiteAgent code
+- ```analysis_agent``` holds the code for the analysis agent
+
 ### 🚧 In Progress
 
 - Full evaluation on 1K ScholarCopilot examples
