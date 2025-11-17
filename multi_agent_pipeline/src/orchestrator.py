@@ -8,6 +8,8 @@ from src.agents.bm25_agent import bm25_agent
 from src.agents.dense_agent import dense_agent
 from src.agents.specter_agent import specter_agent
 from src.agents.cite_agent import cite_agent
+from src.agents.query_reformulator import query_reformulator
+from src.agents.analysis_agent import analysis_agent
 
 
 ############################################################
@@ -21,18 +23,21 @@ graph = StateGraph(MessagesState)
 # 2️⃣  ADD AGENTS (nodes)
 ############################################################
 
+graph.add_node("reformulator", query_reformulator, tags=["agent"])
 graph.add_node("coordinator", coordinator, tags=["agent"])
 graph.add_node("bm25", bm25_agent, tags=["retriever"])
 graph.add_node("e5", dense_agent, tags=["retriever"])
 graph.add_node("specter", specter_agent, tags=["retriever"])
 graph.add_node("citeagent", cite_agent, tags=["retriever"])
+graph.add_node("analysis", analysis_agent, tags=["agent"])  # Placeholder analysis agent
 
 ############################################################
 # 3️⃣  ADD EDGES
 ############################################################
 
-# Start → Coordinator
-graph.add_edge(START, "coordinator")
+# Start → Query Reformulator -> Coordinator
+graph.add_edge(START, "reformulator")
+graph.add_edge("reformulator", "coordinator")
 
 # Coordinator fans out to all retrieval agents
 graph.add_edge("coordinator", "bm25")
@@ -40,11 +45,14 @@ graph.add_edge("coordinator", "e5")
 graph.add_edge("coordinator", "specter")
 graph.add_edge("coordinator", "citeagent")
 
-# Each retrieval agent flows to END for now
-graph.add_edge("bm25", END)
-graph.add_edge("e5", END)
-graph.add_edge("specter", END)
-graph.add_edge("citeagent", END)
+# All retrieval agents → analysis agent
+graph.add_edge("bm25", "analysis")
+graph.add_edge("e5", "analysis")
+graph.add_edge("specter", "analysis")
+graph.add_edge("citeagent", "analysis")
+
+# Analysis agent → End for now (placeholder)
+graph.add_edge("analysis", END) 
 
 ############################################################
 # 4️⃣ EXPOSE PIPELINE FOR LANGGRAPH STUDIO
@@ -56,9 +64,29 @@ pipeline = graph.compile()
 # 5️⃣ LOCAL TESTING
 ############################################################
 
+def pretty_print_messages(output):
+    print("\n==================== PIPELINE RESULTS ====================\n")
+    messages = output.get("messages", [])
+
+    for msg in messages:
+        role = msg.__class__.__name__
+        name = getattr(msg, "name", None)
+        title = f"{role}" if not name else f"{role} ({name})"
+
+        print(f"--- {title} ---")
+        print(msg.content)
+        print()
+
+    print("==========================================================\n")
+
+
 if __name__ == "__main__":
     out = pipeline.invoke({
-        "messages": [{"role": "user", "content": "Transformer models for citation retrieval"}]
+        "messages": [{"role": "user", "content": "Building on top of them, modern state-of-the-art models, such as BERT<|cite_1|>, are able to learn powerful language representations from unlabeled text and even surpass the human performance on the challenging question answering task."}]
     })
     print("\n=== Pipeline Output ===")
-    print(out)
+    pretty_print_messages(out)
+
+
+
+

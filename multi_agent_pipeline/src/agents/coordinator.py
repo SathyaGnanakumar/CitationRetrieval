@@ -1,14 +1,30 @@
-from langgraph.graph import MessagesState
+# src/agents/coordinator.py
+
+import ast
+from langchain_core.messages import AIMessage
 
 def coordinator(state):
-    # Safely extract the query
-    query = getattr(state, "query", None)
-    if not query:
-        query = ""  # avoid KeyError cases
+    # from reformulator agent
+    msg = state["messages"][-1].content
+
+    try:
+        queries = ast.literal_eval(msg)
+    except:
+        queries = [msg]
+
+    routing = {
+        "run_bm25": True,
+        "run_dense": True,
+        "run_specter": True,
+        "run_cite": True,
+        "queries": queries
+    }
 
     return {
-        "bm25_query": query,
-        "e5_query": query,
-        "specter_query": query,
-        "cite_query": query,
+        "messages": [
+            AIMessage(
+                name="coordinator",
+                content=str(routing)
+            )
+        ]
     }
