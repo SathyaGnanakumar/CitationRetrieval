@@ -26,6 +26,7 @@ dependencies = [
     "matplotlib>=3.8.0",
     # Dense retrieval baseline dependencies
     "sentence-transformers>=2.2.0",
+    "transformers>=4.40.0",
     "torch>=2.0.0",
     "peft>=0.7.0",
     # Evaluation framework dependencies

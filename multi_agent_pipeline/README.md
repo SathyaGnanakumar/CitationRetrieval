@@ -1,6 +1,6 @@
 # Multi-Agent Pipeline (LangGraph + Context7)
 
-**Status**: 🚧 Not Yet Implemented - Planned for Future Development
+**Status**: 🚧 In Progress - Core agents scaffolding underway
 
 ## Overview
 
@@ -16,6 +16,79 @@ The multi-agent pipeline will consist of:
 3. **Ranking Agent**: Scores and ranks candidate papers
 4. **Verification Agent**: Validates the selected citation
 5. **Coordinator Agent**: Orchestrates the pipeline and makes final decisions
+
+## Implemented Components (current)
+
+- **EntityRecognitionAgent** (`src/agents/entity_recognition.py`): wraps a Hugging Face
+  token-classification pipeline (defaults to `dslim/bert-base-NER`) and annotates the
+  citation context with `RecognizedEntity` instances stored on the shared `AgentContext`.
+- **VerificationAgent** (`src/agents/verification.py`): consumes recognized entities and
+  retrieved citation candidates, producing a `VerificationResult` with heuristic scoring
+  over title/abstract matches, fuzzy alignment, and retrieval confidence.
+- **Shared Types** (`src/types.py`): dataclasses for `AgentContext`, `CandidatePaper`,
+  `RecognizedEntity`, and `VerificationResult` enabling consistent data exchange between
+  pipeline stages.
+- **ScholarCopilotDataset utilities** (`src/data.py`): lightweight wrapper around the
+  evaluation `CitationDataLoader` that yields `TrainingExample` objects with populated
+  `AgentContext`, providing a consistent entry-point for training loops.
+
+### Usage Example
+
+```python
+from multi_agent_pipeline.src import AgentContext, CandidatePaper
+from multi_agent_pipeline.src.agents import EntityRecognitionAgent, VerificationAgent
+
+context = AgentContext(
+    citation_context="Recent work by Smith et al. (2024) introduced the GraphAlign model...",
+    retrieved_candidates=[
+        CandidatePaper(title="GraphAlign: Alignment Models for Graph Data", score=0.72),
+        CandidatePaper(title="Neural Citation Matching with Aligners", score=0.55),
+    ],
+)
+
+ner_agent = EntityRecognitionAgent()
+verify_agent = VerificationAgent()
+
+context = ner_agent(context)
+verification = verify_agent(context)
+
+print(verification.selected_candidate.title)
+print(verification.justification)
+```
+
+### Loading Training Data
+
+```python
+from multi_agent_pipeline.src import ScholarCopilotDataset
+
+dataset = ScholarCopilotDataset()  # defaults to datasets/scholar_copilot_eval_data_1k.json
+examples = dataset.sample(limit=100)
+
+for example in examples:
+    context = example.context
+    # feed context to retrieval/agent pipeline or fine-tuning loop
+```
+
+### Run Verification Workflow
+
+Use the CLI utility to run EntityRecognitionAgent + VerificationAgent (with optional Semantic Scholar lookup) on any ScholarCopilot example:
+
+```bash
+uv run python -m multi_agent_pipeline.src.verify_citation \
+    --dataset datasets/scholar_copilot_eval_data_1k.json \
+    --example-index 0 \
+    --external-title-threshold 0.9
+
+# Disable external lookup if you want local-only scoring
+uv run python -m multi_agent_pipeline.src.verify_citation --disable-external-lookup
+```
+
+> Ensure `S2_API_KEY` is set in your environment when Semantic Scholar verification is enabled.
+
+> **Note**: The NER agent lazily loads the transformers pipeline; ensure the
+> `transformers` package is installed (added to `pyproject.toml`) and optionally
+> pass `device="cuda:0"` to leverage a GPU. Execution on CPU is supported and is
+> sufficient for prototyping.
 
 ### Technology Stack
 - **LangGraph**: For building the agent workflow graph

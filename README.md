@@ -67,6 +67,7 @@ CitationRetrieval/
 
 ### Additional Resources
 - **All Datasets (Google Drive)**: [Download Link](https://drive.google.com/drive/folders/1BsRwzx_CGlXdSRT_at1LPdgmwXB8CUcC?usp=sharing)
+- **Multi-agent training utilities**: see [`multi_agent_pipeline/src/data.py`](multi_agent_pipeline/src/data.py) for loaders that convert ScholarCopilot examples into `AgentContext` objects for agent training.
 
 ## 🚀 Quick Start
 
