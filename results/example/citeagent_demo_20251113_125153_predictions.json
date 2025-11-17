@@ -1,0 +1,152 @@
+[
+  {
+    "query_id": "q_0",
+    "true_titles": [
+      "{Attention is All you Need"
+    ],
+    "retrieved_titles": [
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{Binarized Neural Networks: Training Deep Neural Networks with Weights and Activations Constrained to +1 or -1"
+    ],
+    "paper_id": "paper_0",
+    "context": "Introduction\nTransformer<|cite_0|> is widely used in natural language processing due to its high training efficiency and superior capa..."
+  },
+  {
+    "query_id": "q_1",
+    "true_titles": [
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding"
+    ],
+    "retrieved_titles": [
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "{Augmenting self-attention with persistent memory",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Learning Transferable Architectures for Scalable Image Recognition"
+    ],
+    "paper_id": "paper_0",
+    "context": "ng long-distance dependencies. Building on top of them, modern state-of-the-art models, such as BERT<|cite_1|>, are able to learn powerful language representations from unlabeled text and even surpass..."
+  },
+  {
+    "query_id": "q_2",
+    "true_titles": [
+      "{Neural Architecture Search with Reinforcement Learning"
+    ],
+    "retrieved_titles": [
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning"
+    ],
+    "paper_id": "paper_0",
+    "context": "tecture specialized for real-time NLP applications on the edge. Automatic neural architecture search<|cite_2|> is a choice for high accuracy model design, but the massive search cost (GPU hours and $C..."
+  },
+  {
+    "query_id": "q_3",
+    "true_titles": [
+      "{Energy and Policy Considerations for Deep Learning in NLP"
+    ],
+    "retrieved_titles": [
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{Learning Efficient Convolutional Networks through Network Slimming"
+    ],
+    "paper_id": "paper_0",
+    "context": "gn, but the massive search cost (GPU hours and $CO_2$ emission) raises severe environmental concerns<|cite_3|>, shown in \\fig{fig:teaser:b}.\n\nIn this paper, we focus on the efficient inference for mob..."
+  },
+  {
+    "query_id": "q_4",
+    "true_titles": [
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions"
+    ],
+    "retrieved_titles": [
+      "{Augmenting self-attention with persistent memory",
+      "{A Deep Reinforced Model for Abstractive Summarization",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer"
+    ],
+    "paper_id": "paper_0",
+    "context": "ttnshort dedicates \\textit{specialized} heads to model long and short distance contexts. Inspired by<|cite_4|>, \\attnshort introduces convolution in a parallel branch to capture \\textbf{local} depende..."
+  },
+  {
+    "query_id": "q_5",
+    "true_titles": [
+      "{The Evolved Transformer"
+    ],
+    "retrieved_titles": [
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers"
+    ],
+    "paper_id": "paper_0",
+    "context": "hts, our manually-designed \\model achieves 0.5 higher BLEU than the AutoML-based Evolved Transformer<|cite_5|>, which requires more than 250 GPU years to search, emitting\nas much carbon as five cars i..."
+  },
+  {
+    "query_id": "q_6",
+    "true_titles": [
+      "{Sequence to Sequence Learning with Neural Networks"
+    ],
+    "retrieved_titles": [
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer"
+    ],
+    "paper_id": "paper_0",
+    "context": "s.}\n\nRecurrent neural networks (RNNs) have prevailed various sequence modeling tasks for a long time<|cite_6|>. However, RNNs are not easy to  parallelize across the sequence due to its temporal depen..."
+  },
+  {
+    "query_id": "q_7",
+    "true_titles": [
+      "{Neural Machine Translation in Linear Time"
+    ],
+    "retrieved_titles": [
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices"
+    ],
+    "paper_id": "paper_0",
+    "context": "e-art performance. For instance, researchers have proposed highly-efficient convolution-based models<|cite_7|>. Convolution is an ideal primitive to model the local context information; however, it la..."
+  },
+  {
+    "query_id": "q_8",
+    "true_titles": [
+      "{Attention is All you Need"
+    ],
+    "retrieved_titles": [
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions"
+    ],
+    "paper_id": "paper_0",
+    "context": "native, attention is able to capture global-context information by pairwise correlation. Transformer<|cite_8|> has demonstrated that it is possible to stack the self-attentions to achieve state-of-the..."
+  },
+  {
+    "query_id": "q_9",
+    "true_titles": [
+      "{Weighted Transformer Network for Machine Translation"
+    ],
+    "retrieved_titles": [
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations"
+    ],
+    "paper_id": "paper_0",
+    "context": "achieve state-of-the-art performance. Recently, there have been a lot of variants to the transformer<|cite_9|>. Among them,<|cite_10|> proposed to scale up the batch size;<|cite_11|> leverages the rel..."
+  }
+]

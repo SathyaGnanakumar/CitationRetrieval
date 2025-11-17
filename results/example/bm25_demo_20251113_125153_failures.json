@@ -1,0 +1,92 @@
+[
+  {
+    "query_id": "q_0",
+    "paper_id": "paper_0",
+    "true_title": "{Attention is All you Need",
+    "context": "Introduction\nTransformer<|cite_0|> is widely used in natural language processing due to its high training efficiency and superior capa",
+    "retrieved_titles": [
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Adaptive Attention Span in Transformers"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_2",
+    "paper_id": "paper_0",
+    "true_title": "{Neural Architecture Search with Reinforcement Learning",
+    "context": "tecture specialized for real-time NLP applications on the edge. Automatic neural architecture search<|cite_2|> is a choice for high accuracy model design, but the massive search cost (GPU hours and $CO_2$ emiss",
+    "retrieved_titles": [
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{Energy and Policy Considerations for Deep Learning in NLP"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_4",
+    "paper_id": "paper_0",
+    "true_title": "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+    "context": "ttnshort dedicates \\textit{specialized} heads to model long and short distance contexts. Inspired by<|cite_4|>, \\attnshort introduces convolution in a parallel branch to capture \\textbf{local} dependencies so t",
+    "retrieved_titles": [
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Augmenting self-attention with persistent memory",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_7",
+    "paper_id": "paper_0",
+    "true_title": "{Neural Machine Translation in Linear Time",
+    "context": "e-art performance. For instance, researchers have proposed highly-efficient convolution-based models<|cite_7|>. Convolution is an ideal primitive to model the local context information; however, it lacks the ab",
+    "retrieved_titles": [
+      "Point-Voxel CNN for efficient 3D deep learning",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{Self-Attention with Relative Position Representations"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_8",
+    "paper_id": "paper_0",
+    "true_title": "{Attention is All you Need",
+    "context": "native, attention is able to capture global-context information by pairwise correlation. Transformer<|cite_8|> has demonstrated that it is possible to stack the self-attentions to achieve state-of-the-art perfo",
+    "retrieved_titles": [
+      "Generating Long Sequences with Sparse Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Augmenting self-attention with persistent memory",
+      "{Self-Attention with Relative Position Representations"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_9",
+    "paper_id": "paper_0",
+    "true_title": "{Weighted Transformer Network for Machine Translation",
+    "context": "achieve state-of-the-art performance. Recently, there have been a lot of variants to the transformer<|cite_9|>. Among them,<|cite_10|> proposed to scale up the batch size;<|cite_11|> leverages the relative posi",
+    "retrieved_titles": [
+      "{Depthwise Separable Convolutions for Neural Machine Translation",
+      "{Scaling Neural Machine Translation",
+      "{Scaling Neural Machine Translation",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  }
+]

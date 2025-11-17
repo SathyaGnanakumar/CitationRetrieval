@@ -1,0 +1,20 @@
+{
+  "model": "dense_demo",
+  "timestamp": "20251113_131413",
+  "metrics": {
+    "recall@1": 0.2,
+    "recall@5": 0.4889,
+    "recall@10": 0.7111,
+    "recall@20": 0.7111,
+    "precision@1": 0.2,
+    "precision@5": 0.0978,
+    "precision@10": 0.0711,
+    "mrr": 0.3329,
+    "exact_match_rate": 0.2,
+    "avg_rank": 3.69,
+    "num_queries": 45
+  },
+  "avg_latency_ms": 4547.992489073012,
+  "total_time_sec": 204.65966200828552,
+  "num_queries": 45
+}

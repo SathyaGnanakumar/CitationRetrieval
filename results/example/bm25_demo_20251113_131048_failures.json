@@ -1,0 +1,257 @@
+[
+  {
+    "query_id": "q_0",
+    "paper_id": "paper_0",
+    "true_title": "{Attention is All you Need",
+    "context": "Introduction\nTransformer<|cite_0|> is widely used in natural language processing due to its high training efficiency and superior capa",
+    "retrieved_titles": [
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Adaptive Attention Span in Transformers"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_2",
+    "paper_id": "paper_0",
+    "true_title": "{Neural Architecture Search with Reinforcement Learning",
+    "context": "tecture specialized for real-time NLP applications on the edge. Automatic neural architecture search<|cite_2|> is a choice for high accuracy model design, but the massive search cost (GPU hours and $CO_2$ emiss",
+    "retrieved_titles": [
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{Energy and Policy Considerations for Deep Learning in NLP"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_7",
+    "paper_id": "paper_0",
+    "true_title": "{Neural Machine Translation in Linear Time",
+    "context": "e-art performance. For instance, researchers have proposed highly-efficient convolution-based models<|cite_7|>. Convolution is an ideal primitive to model the local context information; however, it lacks the ab",
+    "retrieved_titles": [
+      "Point-Voxel CNN for efficient 3D deep learning",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{Self-Attention with Relative Position Representations"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_8",
+    "paper_id": "paper_0",
+    "true_title": "{Attention is All you Need",
+    "context": "native, attention is able to capture global-context information by pairwise correlation. Transformer<|cite_8|> has demonstrated that it is possible to stack the self-attentions to achieve state-of-the-art perfo",
+    "retrieved_titles": [
+      "Generating Long Sequences with Sparse Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Augmenting self-attention with persistent memory",
+      "{Self-Attention with Relative Position Representations"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_9",
+    "paper_id": "paper_0",
+    "true_title": "{Weighted Transformer Network for Machine Translation",
+    "context": "achieve state-of-the-art performance. Recently, there have been a lot of variants to the transformer<|cite_9|>. Among them,<|cite_10|> proposed to scale up the batch size;<|cite_11|> leverages the relative posi",
+    "retrieved_titles": [
+      "{Depthwise Separable Convolutions for Neural Machine Translation",
+      "{Scaling Neural Machine Translation",
+      "{Scaling Neural Machine Translation",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_14",
+    "paper_id": "paper_0",
+    "true_title": "{Neural Architecture Search with Reinforcement Learning",
+    "context": "chitecture design space, automating the design with neural architecture search (NAS) becomes popular<|cite_14|>. To make the design efficient, integrating the hardware resource constraints into the optimization ",
+    "retrieved_titles": [
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{The Evolved Transformer"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_19",
+    "paper_id": "paper_0",
+    "true_title": "{Neural Architecture Search with Reinforcement Learning",
+    "context": "17|>. In the NLP community, the evolved transformer<|cite_18|> adopts the neural architecture search<|cite_19|> to design basic blocks and finds a better \\#parameter-BLEU trade-off for the transformer. However, ",
+    "retrieved_titles": [
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Energy and Policy Considerations for Deep Learning in NLP"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_20",
+    "paper_id": "paper_0",
+    "true_title": "Point-Voxel CNN for efficient 3D deep learning",
+    "context": "most researchers.\n\n\\myparagraph{Model Acceleration.}\n\nApart from designing efficient models directly<|cite_20|>, another approach to achieve efficient inference is to compress and accelerate the existing large m",
+    "retrieved_titles": [
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_21",
+    "paper_id": "paper_0",
+    "true_title": "{Learning both Weights and Connections for Efficient Neural Networks",
+    "context": "accelerate the existing large models. For instance, some have proposed to prune the separate neurons<|cite_21|> or the entire channels<|cite_22|>; others have proposed to quantize the network<|cite_23|> to accel",
+    "retrieved_titles": [
+      "{Channel Pruning for Accelerating Very Deep Neural Networks",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Quantizing Deep Convolutional Networks for Efficient Inference: A Whitepaper",
+      "{Trained Ternary Quantization"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_23",
+    "paper_id": "paper_0",
+    "true_title": "{Binarized Neural Networks: Training Deep Neural Networks with Weights and Activations Constrained to +1 or -1",
+    "context": "e neurons<|cite_21|> or the entire channels<|cite_22|>; others have proposed to quantize the network<|cite_23|> to accelerate the model inference. \nRecently, AutoML has also been used to automate the model compr",
+    "retrieved_titles": [
+      "{Quantizing Deep Convolutional Networks for Efficient Inference: A Whitepaper",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{Channel Pruning for Accelerating Very Deep Neural Networks",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_25",
+    "paper_id": "paper_1",
+    "true_title": "Modeling polypharmacy side effects with graph convolutional networks",
+    "context": " has attracted much attention recently,\n\nand have been applied to various tasks such as bio-medicine<|cite_0|>, computational chemistry<|cite_1|>, social networks<|cite_2|>, computer vision, and natural languag",
+    "retrieved_titles": [
+      "Neural message passing for quantum chemistry",
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Graph neural networks for social recommendation",
+      "Sentence-state lstm for text representation",
+      "Graph convolutional networks for text classification"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 38
+  },
+  {
+    "query_id": "q_28",
+    "paper_id": "paper_1",
+    "true_title": "Dynamically fused graph network for multi-hop reasoning",
+    "context": " chemistry<|cite_1|>, social networks<|cite_2|>, computer vision, and natural language understanding<|cite_3|>. GNN assumes structured graphical inputs, for example, molecule graphs, protein-protein interaction",
+    "retrieved_titles": [
+      "Graph neural networks for social recommendation",
+      "Neural message passing for quantum chemistry",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs",
+      "How powerful are graph neural networks?"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 38
+  },
+  {
+    "query_id": "q_30",
+    "paper_id": "paper_1",
+    "true_title": "Inductive representation learning on large graphs",
+    "context": "to learn graph representation,\n\nwhich include Graph Convolutional Network (GCN)<|cite_4|>, GraphSage<|cite_5|>, Graph Isomorphism Network (GIN)<|cite_6|> and Graph Attention Network (GAT)<|cite_7|>. Existing GN",
+    "retrieved_titles": [
+      "Graph convolutional networks for text classification",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Graph attention networks",
+      "Graph attention networks"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 38
+  },
+  {
+    "query_id": "q_35",
+    "paper_id": "paper_1",
+    "true_title": "Dynamic coattention networks for question answering",
+    "context": "as a way to encode query-aware contextual information based on affinity matrix between two sequences<|cite_10|>. In the context of this paper, the advantage of co-attention is that it can encode neighbor-aware i",
+    "retrieved_titles": [
+      "Bidirectional attention flow for machine comprehension",
+      "Bidirectional attention flow for machine comprehension",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 38
+  },
+  {
+    "query_id": "q_38",
+    "paper_id": "paper_1",
+    "true_title": "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+    "context": "ve reasoning ability, and top performance has been achieved with early summarization followed by GNN<|cite_13|>. With thorough experiments, we show that the proposed GSN achieves better performance than standard",
+    "retrieved_titles": [
+      "Sentence-state lstm for text representation",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Bidirectional attention flow for machine comprehension",
+      "Bidirectional attention flow for machine comprehension"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 38
+  },
+  {
+    "query_id": "q_39",
+    "paper_id": "paper_1",
+    "true_title": "Semi-supervised classification with graph convolutional networks",
+    "context": "\nMultiple GNN variants have been proposed with different message passing algorithms. For example GCN<|cite_14|>, Graph Sage<|cite_15|>, GAT<|cite_16|>, GIN<|cite_17|>, etc. Our proposed GSN can be regarded as a ",
+    "retrieved_titles": [
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Neural message passing for quantum chemistry",
+      "How powerful are graph neural networks?"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 38
+  },
+  {
+    "query_id": "q_40",
+    "paper_id": "paper_1",
+    "true_title": "Inductive representation learning on large graphs",
+    "context": "have been proposed with different message passing algorithms. For example GCN<|cite_14|>, Graph Sage<|cite_15|>, GAT<|cite_16|>, GIN<|cite_17|>, etc. Our proposed GSN can be regarded as a variant of GNN. However",
+    "retrieved_titles": [
+      "Neural message passing for quantum chemistry",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "How powerful are graph neural networks?"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 38
+  }
+]

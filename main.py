@@ -90,6 +90,12 @@ def main():
         choices=["few_shot_search", "few_shot_search_no_read", "one_shot_search", "zero_shot_search"],
         help="Prompt template for CiteAgent (default: few_shot_search)"
     )
+    parser.add_argument(
+        "--citeagent-max-candidates",
+        type=int,
+        default=100,
+        help="Max prefiltered candidates to show LLM baseline (default: 100)"
+    )
     args = parser.parse_args()
     print("=" * 70)
     print("CITATION RETRIEVAL EVALUATION - QUICK EXAMPLE")
@@ -131,7 +137,8 @@ def main():
                     llm_backend=args.llm_backend,
                     search_limit=args.citeagent_search_limit,
                     max_actions=args.citeagent_max_actions,
-                    prompt_name=args.citeagent_prompt
+                    prompt_name=args.citeagent_prompt,
+                    max_candidates=args.citeagent_max_candidates
                 )
                 models_to_run = [
                     ("citeagent", cite_model),
@@ -147,18 +154,16 @@ def main():
                 ]
     elif args.model == "citeagent":
         # Use real CiteAgent only
-        if not CITEAGENT_AVAILABLE:
-            print("❌ CiteAgent not available. Please check API keys and dependencies.")
-            sys.exit(1)
         try:
             models_to_run = [("citeagent", CiteAgentAPI(
                 llm_backend=args.llm_backend,
                 search_limit=args.citeagent_search_limit,
                 max_actions=args.citeagent_max_actions,
-                prompt_name=args.citeagent_prompt
+                prompt_name=args.citeagent_prompt,
+                max_candidates=args.citeagent_max_candidates
             ))]
         except ValueError as e:
-            print(f"❌ Could not initialize CiteAgent: {e}")
+            print(f"❌ Could not initialize CiteAgent/LLM baseline: {e}")
             sys.exit(1)
     elif args.model == "bm25":
         models_to_run = [("bm25", BM25Model(use_stemming=True, use_stopwords=True))]

@@ -1,0 +1,20 @@
+{
+  "model": "citeagent_demo",
+  "timestamp": "20251113_131048",
+  "metrics": {
+    "recall@1": 0.0889,
+    "recall@5": 0.2667,
+    "recall@10": 0.4667,
+    "recall@20": 0.4667,
+    "precision@1": 0.0889,
+    "precision@5": 0.0533,
+    "precision@10": 0.0467,
+    "mrr": 0.1721,
+    "exact_match_rate": 0.0889,
+    "avg_rank": 4.76,
+    "num_queries": 45
+  },
+  "avg_latency_ms": 3856.035179562039,
+  "total_time_sec": 173.52158308029175,
+  "num_queries": 45
+}

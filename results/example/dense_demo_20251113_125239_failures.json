@@ -1,0 +1,62 @@
+[
+  {
+    "query_id": "q_4",
+    "paper_id": "paper_0",
+    "true_title": "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+    "context": "ttnshort dedicates \\textit{specialized} heads to model long and short distance contexts. Inspired by<|cite_4|>, \\attnshort introduces convolution in a parallel branch to capture \\textbf{local} dependencies so t",
+    "retrieved_titles": [
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{Convolutional Sequence to Sequence Learning",
+      "Generating Long Sequences with Sparse Transformers",
+      "{The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_7",
+    "paper_id": "paper_0",
+    "true_title": "{Neural Machine Translation in Linear Time",
+    "context": "e-art performance. For instance, researchers have proposed highly-efficient convolution-based models<|cite_7|>. Convolution is an ideal primitive to model the local context information; however, it lacks the ab",
+    "retrieved_titles": [
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "Point-Voxel CNN for efficient 3D deep learning",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_8",
+    "paper_id": "paper_0",
+    "true_title": "{Attention is All you Need",
+    "context": "native, attention is able to capture global-context information by pairwise correlation. Transformer<|cite_8|> has demonstrated that it is possible to stack the self-attentions to achieve state-of-the-art perfo",
+    "retrieved_titles": [
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Augmenting self-attention with persistent memory",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_9",
+    "paper_id": "paper_0",
+    "true_title": "{Weighted Transformer Network for Machine Translation",
+    "context": "achieve state-of-the-art performance. Recently, there have been a lot of variants to the transformer<|cite_9|>. Among them,<|cite_10|> proposed to scale up the batch size;<|cite_11|> leverages the relative posi",
+    "retrieved_titles": [
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  }
+]

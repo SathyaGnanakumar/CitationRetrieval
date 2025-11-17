@@ -1,0 +1,20 @@
+{
+  "model": "bm25_demo",
+  "timestamp": "20251113_131048",
+  "metrics": {
+    "recall@1": 0.1556,
+    "recall@5": 0.4667,
+    "recall@10": 0.6222,
+    "recall@20": 0.6222,
+    "precision@1": 0.1556,
+    "precision@5": 0.0933,
+    "precision@10": 0.0622,
+    "mrr": 0.2703,
+    "exact_match_rate": 0.1556,
+    "avg_rank": 4.14,
+    "num_queries": 45
+  },
+  "avg_latency_ms": 3.8659360673692493,
+  "total_time_sec": 0.1739671230316162,
+  "num_queries": 45
+}
