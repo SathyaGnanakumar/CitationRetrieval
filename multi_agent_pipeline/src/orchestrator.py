@@ -7,7 +7,7 @@ from src.agents.coordinator import coordinator
 from src.agents.bm25_agent import bm25_agent
 from src.agents.dense_agent import dense_agent
 from src.agents.specter_agent import specter_agent
-from src.agents.cite_agent import cite_agent
+from src.agents.llm_agent import llm_agent
 from src.agents.query_reformulator import query_reformulator
 from src.agents.analysis_agent import analysis_agent
 from src.agents.verifier_agent import verifier_agent
@@ -29,7 +29,7 @@ graph.add_node("coordinator", coordinator, tags=["agent"])
 graph.add_node("bm25", bm25_agent, tags=["retriever"])
 graph.add_node("e5", dense_agent, tags=["retriever"])
 graph.add_node("specter", specter_agent, tags=["retriever"])
-graph.add_node("citeagent", cite_agent, tags=["retriever"])
+graph.add_node("llm", llm_agent, tags=["retriever"])
 graph.add_node("analysis", analysis_agent, tags=["agent"])  # Placeholder analysis agent
 graph.add_node("verifier", verifier_agent, tags=["agent"])
 
@@ -45,13 +45,13 @@ graph.add_edge("reformulator", "coordinator")
 graph.add_edge("coordinator", "bm25")
 graph.add_edge("coordinator", "e5")
 graph.add_edge("coordinator", "specter")
-graph.add_edge("coordinator", "citeagent")
+graph.add_edge("coordinator", "llm")
 
 # All retrieval agents → analysis agent
 graph.add_edge("bm25", "analysis")
 graph.add_edge("e5", "analysis")
 graph.add_edge("specter", "analysis")
-graph.add_edge("citeagent", "analysis")
+graph.add_edge("llm", "analysis")
 
 # Analysis -> Verifier agent -> END
 graph.add_edge("analysis", "verifier") 
