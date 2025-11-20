@@ -10,6 +10,7 @@ from src.agents.specter_agent import specter_agent
 from src.agents.cite_agent import cite_agent
 from src.agents.query_reformulator import query_reformulator
 from src.agents.analysis_agent import analysis_agent
+from src.agents.verifier_agent import verifier_agent
 
 
 ############################################################
@@ -30,6 +31,7 @@ graph.add_node("e5", dense_agent, tags=["retriever"])
 graph.add_node("specter", specter_agent, tags=["retriever"])
 graph.add_node("citeagent", cite_agent, tags=["retriever"])
 graph.add_node("analysis", analysis_agent, tags=["agent"])  # Placeholder analysis agent
+graph.add_node("verifier", verifier_agent, tags=["agent"])
 
 ############################################################
 # 3️⃣  ADD EDGES
@@ -51,8 +53,9 @@ graph.add_edge("e5", "analysis")
 graph.add_edge("specter", "analysis")
 graph.add_edge("citeagent", "analysis")
 
-# Analysis agent → End for now (placeholder)
-graph.add_edge("analysis", END) 
+# Analysis -> Verifier agent -> END
+graph.add_edge("analysis", "verifier") 
+graph.add_edge("verifier", END) 
 
 ############################################################
 # 4️⃣ EXPOSE PIPELINE FOR LANGGRAPH STUDIO
@@ -82,7 +85,7 @@ def pretty_print_messages(output):
 
 if __name__ == "__main__":
     out = pipeline.invoke({
-        "messages": [{"role": "user", "content": "Building on top of them, modern state-of-the-art models, such as BERT<|cite_1|>, are able to learn powerful language representations from unlabeled text and even surpass the human performance on the challenging question answering task."}]
+        "messages": [{"role": "user", "content": "Automatic neural architecture search<|cite_2|> is a choice for high accuracy model design, but the massive search cost (GPU hours and $CO_2$ emission) raises severe environmental concerns<|cite_3|>, shown in \\fig{fig:teaser:b}."}]
     })
     print("\n=== Pipeline Output ===")
     pretty_print_messages(out)
