@@ -14,7 +14,7 @@ def coordinator(state):
 
     routing = {
         "run_bm25": True,
-        "run_dense": True,
+        "run_e5": True,
         "run_specter": True,
         "run_cite": True,
         "queries": queries

@@ -15,7 +15,7 @@ The multi-agent pipeline will consist of:
 2. **Search Agent**: Retrieves candidate papers from multiple sources
 3. **Ranking Agent**: Scores and ranks candidate papers
 4. **Verification Agent**: Validates the selected citation
-5. **Coordinator Agent**: Orchestrates the pipeline and makes final decisions
+6. **Coordinator Agent**: Orchestrates the pipeline and makes final decisions
 
 ### Technology Stack
 - **LangGraph**: For building the agent workflow graph

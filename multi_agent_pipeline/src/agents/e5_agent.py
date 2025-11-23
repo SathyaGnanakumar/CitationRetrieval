@@ -55,8 +55,8 @@ for paper in data:
 
 print(f"Corpus size: {len(corpus_texts)} papers")
 
-# Initialize SPECTER2 Model
-model_name = "allenai/specter2_base"
+# Initialize E5-Large Model
+model_name = "intfloat/e5-large-v2"
 print(f"Loading dense retriever model: {model_name}")
 model = SentenceTransformer(model_name)
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -73,9 +73,9 @@ corpus_embeddings = model.encode(
     show_progress_bar=True,
 )
 
-def specter_agent(state: MessagesState):
+def e5_agent(state: MessagesState):
     """
-    SPECTER2 dense retrieval agent.
+    E5 dense retrieval agent.
     Expects coordinator to send:
         {"queries": [...]}  inside the last AIMessage.
     Returns top-5 document titles.
@@ -97,7 +97,7 @@ def specter_agent(state: MessagesState):
     # Extract expanded queries
     queries = routing.get("queries", [])
     if not queries:
-        return {"messages": [AIMessage(content="BM25 received no queries")]}
+        return {"messages": [AIMessage(content="E5 received no queries")]}
     
     query_embedding = model.encode(
         queries[0],
@@ -122,7 +122,7 @@ def specter_agent(state: MessagesState):
         "messages": [
             AIMessage(
                 content=str(results),
-                name="specter2"
+                name="e5"
             )
         ]
     }

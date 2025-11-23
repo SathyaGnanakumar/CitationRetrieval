@@ -7,7 +7,7 @@ class PipelineState(MessagesState):
 
     # retrieval cluster candidates stored here
     bm25_results: List[Dict[str, Any]] = []
-    dense_results: List[Dict[str, Any]] = []
+    e5_results: List[Dict[str, Any]] = []
     specter_results: List[Dict[str, Any]] = []
     citeagent_results: List[Dict[str, Any]] = []
 

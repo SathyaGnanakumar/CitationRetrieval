@@ -5,7 +5,7 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 # Import agent functions
 from src.agents.coordinator import coordinator
 from src.agents.bm25_agent import bm25_agent
-from src.agents.dense_agent import dense_agent
+from src.agents.e5_agent import e5_agent
 from src.agents.specter_agent import specter_agent
 from src.agents.llm_agent import llm_agent
 from src.agents.query_reformulator import query_reformulator
@@ -27,7 +27,7 @@ graph = StateGraph(MessagesState)
 graph.add_node("reformulator", query_reformulator, tags=["agent"])
 graph.add_node("coordinator", coordinator, tags=["agent"])
 graph.add_node("bm25", bm25_agent, tags=["retriever"])
-graph.add_node("e5", dense_agent, tags=["retriever"])
+graph.add_node("e5", e5_agent, tags=["retriever"])
 graph.add_node("specter", specter_agent, tags=["retriever"])
 graph.add_node("llm", llm_agent, tags=["retriever"])
 graph.add_node("analysis", analysis_agent, tags=["agent"])  # Placeholder analysis agent
