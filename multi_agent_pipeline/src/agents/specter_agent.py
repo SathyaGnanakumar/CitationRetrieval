@@ -1,5 +1,5 @@
 from langgraph.graph import MessagesState
-from sentence_transformers import SentenceTransformer, util
+from transformers import AutoTokenizer, AutoModel
 import json
 import torch
 import re
@@ -58,20 +58,23 @@ print(f"Corpus size: {len(corpus_texts)} papers")
 # Initialize SPECTER2 Model
 model_name = "allenai/specter2_base"
 print(f"Loading dense retriever model: {model_name}")
-model = SentenceTransformer(model_name)
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModel.from_pretrained(model_name)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 print(f"Model loaded on device: {device}")
 
+def encode_texts(texts):
+    # Tokenize texts and get embeddings
+    inputs = tokenizer(texts, padding=True, truncation=True, return_tensors='pt', max_length=512).to(device)
+    with torch.no_grad():
+        outputs = model(**inputs)
+    return outputs.last_hidden_state.mean(dim=1)
+
 # Create embeddings of cited papers in corpus and query sentences
 print("Creating corpus embeddings:")
-corpus_embeddings = model.encode(
-    corpus_texts,
-    batch_size=16,
-    convert_to_tensor=True,
-    normalize_embeddings=True,
-    show_progress_bar=True,
-)
+corpus_embeddings = encode_texts(corpus_texts)
 
 def specter_agent(state: MessagesState):
     """
@@ -99,15 +102,10 @@ def specter_agent(state: MessagesState):
     if not queries:
         return {"messages": [AIMessage(content="BM25 received no queries")]}
     
-    query_embedding = model.encode(
-        queries[0],
-        convert_to_tensor=True,
-        normalize_embeddings=True,
-        show_progress_bar=False,
-    )
+    query_embedding = encode_texts(queries[0])
 
     # Get top 5 results from corpus
-    scores = util.cos_sim(query_embedding, corpus_embeddings)[0]
+    scores = torch.cosine_similarity(query_embedding, corpus_embeddings)[0]
     top_5 = torch.topk(scores, k=5)
 
     results = []
