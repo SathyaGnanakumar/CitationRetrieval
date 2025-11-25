@@ -90,7 +90,7 @@ def e5_agent(state: MessagesState):
     except:
         return {
             "messages": [
-                AIMessage(content="BM25_ERROR: Could not parse coordinator message.")
+                AIMessage(content="E5_ERROR: Could not parse coordinator message.")
             ]
         }
 
