@@ -10,6 +10,7 @@ from src.agents.specter_agent import specter_agent
 from src.agents.cite_agent import cite_agent
 from src.agents.query_reformulator import query_reformulator
 from src.agents.analysis_agent import analysis_agent
+from src.agents.entity_recognition_agent import entity_recognition_agent
 
 
 ############################################################
@@ -29,6 +30,7 @@ graph.add_node("bm25", bm25_agent, tags=["retriever"])
 graph.add_node("e5", dense_agent, tags=["retriever"])
 graph.add_node("specter", specter_agent, tags=["retriever"])
 graph.add_node("citeagent", cite_agent, tags=["retriever"])
+graph.add_node("entityrecognition", entity_recognition_agent, tags=["agent"])
 graph.add_node("analysis", analysis_agent, tags=["agent"])  # Placeholder analysis agent
 
 ############################################################
@@ -45,11 +47,14 @@ graph.add_edge("coordinator", "e5")
 graph.add_edge("coordinator", "specter")
 graph.add_edge("coordinator", "citeagent")
 
-# All retrieval agents → analysis agent
-graph.add_edge("bm25", "analysis")
-graph.add_edge("e5", "analysis")
-graph.add_edge("specter", "analysis")
-graph.add_edge("citeagent", "analysis")
+# All retrieval agents → entity recognition agent
+graph.add_edge("bm25", "entityrecognition")
+graph.add_edge("e5", "entityrecognition")
+graph.add_edge("specter", "entityrecognition")
+graph.add_edge("citeagent", "entityrecognition")
+
+# Entity recognition agent → analysis agent
+graph.add_edge("entityrecognition", "analysis")
 
 # Analysis agent → End for now (placeholder)
 graph.add_edge("analysis", END) 
