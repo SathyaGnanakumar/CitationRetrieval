@@ -13,9 +13,7 @@ datasets
 .venv
 
 # Personal Files
-literature
-downloads
-archive
+datasets
 
 # Environment variables
 .env
