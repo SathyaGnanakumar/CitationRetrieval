@@ -1,0 +1,4 @@
+BM25 Evaluation Summary:
+Recall@5:  0.292
+Recall@10: 0.292
+MRR:        0.292
