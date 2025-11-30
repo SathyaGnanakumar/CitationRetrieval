@@ -1,11 +1,11 @@
 """The LangGraph client implementations connect to the LangGraph API.
 
-This module provides both asynchronous ([get_client(url="http://localhost:2024"))](#get_client) or [LangGraphClient](#LangGraphClient))
-and synchronous ([get_sync_client(url="http://localhost:2024"))](#get_sync_client) or [SyncLanggraphClient](#SyncLanggraphClient))
-clients to interacting with the LangGraph API's core resources such as
-Assistants, Threads, Runs, and Cron jobs, as well as its persistent
-document Store.
-"""  # noqa: E501
+This module provides both asynchronous (`get_client(url="http://localhost:2024")` or
+`LangGraphClient`) and synchronous (`get_sync_client(url="http://localhost:2024")` or
+`SyncLanggraphClient`) clients to interacting with the LangGraph API's core resources
+such as Assistants, Threads, Runs, and Cron jobs, as well as its persistent document
+Store.
+"""
 
 from __future__ import annotations
 
@@ -16,14 +16,12 @@ import os
 import re
 import sys
 import warnings
-from collections.abc import AsyncIterator, Iterator, Mapping, Sequence
+from collections.abc import AsyncIterator, Callable, Iterator, Mapping, Sequence
 from types import TracebackType
 from typing import (
     Any,
-    Callable,
     Literal,
-    Optional,
-    Union,
+    cast,
     overload,
 )
 
@@ -31,6 +29,7 @@ import httpx
 import orjson
 
 import langgraph_sdk
+from langgraph_sdk.errors import _araise_for_status_typed, _raise_for_status_typed
 from langgraph_sdk.schema import (
     All,
     Assistant,
@@ -119,9 +118,20 @@ def _get_headers(
 
 
 def _orjson_default(obj: Any) -> Any:
+    is_class = isinstance(obj, type)
     if hasattr(obj, "model_dump") and callable(obj.model_dump):
+        if is_class:
+            raise TypeError(
+                f"Cannot JSON-serialize type object: {obj!r}. Did you mean to pass an instance of the object instead?"
+                f"\nReceived type: {obj!r}"
+            )
         return obj.model_dump()
     elif hasattr(obj, "dict") and callable(obj.dict):
+        if is_class:
+            raise TypeError(
+                f"Cannot JSON-serialize type object: {obj!r}. Did you mean to pass an instance of the object instead?"
+                f"\nReceived type: {obj!r}"
+            )
         return obj.dict()
     elif isinstance(obj, (set, frozenset)):
         return list(obj)
@@ -159,13 +169,13 @@ def get_client(
 ) -> LangGraphClient:
     """Create and configure a LangGraphClient.
 
-    The client provides programmatic access to a LangGraph Platform deployment. It supports
+    The client provides programmatic access to LangSmith Deployment. It supports
     both remote servers and local in-process connections (when running inside a LangGraph server).
 
     Args:
         url:
             Base URL of the LangGraph API.
-            – If `None`, the client first attempts an in-process connection via ASGI transport.
+            - If `None`, the client first attempts an in-process connection via ASGI transport.
               If that fails, it falls back to `http://localhost:8123`.
         api_key:
             API key for authentication. If omitted, the client reads from environment
@@ -178,9 +188,9 @@ def get_client(
             Additional HTTP headers to include in requests. Merged with authentication headers.
         timeout:
             HTTP timeout configuration. May be:
-              – `httpx.Timeout` instance
-              – float (total seconds)
-              – tuple `(connect, read, write, pool)` in seconds
+              - `httpx.Timeout` instance
+              - float (total seconds)
+              - tuple `(connect, read, write, pool)` in seconds
             Defaults: connect=5, read=300, write=300, pool=5.
 
     Returns:
@@ -238,7 +248,7 @@ def get_client(
         base_url=url,
         transport=transport,
         timeout=(
-            httpx.Timeout(timeout)
+            httpx.Timeout(timeout)  # ty: ignore[invalid-argument-type]
             if timeout is not None
             else httpx.Timeout(connect=5, read=300, write=300, pool=5)
         ),
@@ -306,19 +316,11 @@ class HttpClient:
         headers: Mapping[str, str] | None = None,
         on_response: Callable[[httpx.Response], None] | None = None,
     ) -> Any:
-        """Send a GET request."""
+        """Send a `GET` request."""
         r = await self.client.get(path, params=params, headers=headers)
         if on_response:
             on_response(r)
-        try:
-            r.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            body = (await r.aread()).decode()
-            if sys.version_info >= (3, 11):
-                e.add_note(body)
-            else:
-                logger.error(f"Error from langgraph-api: {body}", exc_info=e)
-            raise e
+        await _araise_for_status_typed(r)
         return await _adecode_json(r)
 
     async def post(
@@ -330,7 +332,7 @@ class HttpClient:
         headers: Mapping[str, str] | None = None,
         on_response: Callable[[httpx.Response], None] | None = None,
     ) -> Any:
-        """Send a POST request."""
+        """Send a `POST` request."""
         if json is not None:
             request_headers, content = await _aencode_json(json)
         else:
@@ -343,15 +345,7 @@ class HttpClient:
         )
         if on_response:
             on_response(r)
-        try:
-            r.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            body = (await r.aread()).decode()
-            if sys.version_info >= (3, 11):
-                e.add_note(body)
-            else:
-                logger.error(f"Error from langgraph-api: {body}", exc_info=e)
-            raise e
+        await _araise_for_status_typed(r)
         return await _adecode_json(r)
 
     async def put(
@@ -363,7 +357,7 @@ class HttpClient:
         headers: Mapping[str, str] | None = None,
         on_response: Callable[[httpx.Response], None] | None = None,
     ) -> Any:
-        """Send a PUT request."""
+        """Send a `PUT` request."""
         request_headers, content = await _aencode_json(json)
         if headers:
             request_headers.update(headers)
@@ -372,15 +366,7 @@ class HttpClient:
         )
         if on_response:
             on_response(r)
-        try:
-            r.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            body = (await r.aread()).decode()
-            if sys.version_info >= (3, 11):
-                e.add_note(body)
-            else:
-                logger.error(f"Error from langgraph-api: {body}", exc_info=e)
-            raise e
+        await _araise_for_status_typed(r)
         return await _adecode_json(r)
 
     async def patch(
@@ -392,7 +378,7 @@ class HttpClient:
         headers: Mapping[str, str] | None = None,
         on_response: Callable[[httpx.Response], None] | None = None,
     ) -> Any:
-        """Send a PATCH request."""
+        """Send a `PATCH` request."""
         request_headers, content = await _aencode_json(json)
         if headers:
             request_headers.update(headers)
@@ -401,15 +387,7 @@ class HttpClient:
         )
         if on_response:
             on_response(r)
-        try:
-            r.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            body = (await r.aread()).decode()
-            if sys.version_info >= (3, 11):
-                e.add_note(body)
-            else:
-                logger.error(f"Error from langgraph-api: {body}", exc_info=e)
-            raise e
+        await _araise_for_status_typed(r)
         return await _adecode_json(r)
 
     async def delete(
@@ -421,21 +399,13 @@ class HttpClient:
         headers: Mapping[str, str] | None = None,
         on_response: Callable[[httpx.Response], None] | None = None,
     ) -> None:
-        """Send a DELETE request."""
+        """Send a `DELETE` request."""
         r = await self.client.request(
             "DELETE", path, json=json, params=params, headers=headers
         )
         if on_response:
             on_response(r)
-        try:
-            r.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            body = (await r.aread()).decode()
-            if sys.version_info >= (3, 11):
-                e.add_note(body)
-            else:
-                logger.error(f"Error from langgraph-api: {body}", exc_info=e)
-            raise e
+        await _araise_for_status_typed(r)
 
     async def request_reconnect(
         self,
@@ -536,15 +506,7 @@ class HttpClient:
                 if reconnect_path is None and on_response:
                     on_response(res)
                 # check status
-                try:
-                    res.raise_for_status()
-                except httpx.HTTPStatusError as e:
-                    body = (await res.aread()).decode()
-                    if sys.version_info >= (3, 11):
-                        e.add_note(body)
-                    else:
-                        logger.error(f"Error from langgraph-api: {body}", exc_info=e)
-                    raise e
+                await _araise_for_status_typed(res)
                 # check content type
                 content_type = res.headers.get("content-type", "").partition(";")[0]
                 if "text/event-stream" not in content_type:
@@ -561,7 +523,7 @@ class HttpClient:
                 decoder = SSEDecoder()
                 try:
                     async for line in aiter_lines_raw(res):
-                        sse = decoder.decode(line=line.rstrip(b"\n"))
+                        sse = decoder.decode(line=cast("bytes", line).rstrip(b"\n"))
                         if sse is not None:
                             if decoder.last_event_id is not None:
                                 last_event_id = decoder.last_event_id
@@ -675,7 +637,7 @@ class AssistantsClient:
                 'name': 'my_assistant'
             }
             ```
-        """  # noqa: E501
+        """
         return await self.http.get(
             f"/assistants/{assistant_id}", headers=headers, params=params
         )
@@ -729,7 +691,7 @@ class AssistantsClient:
             ```
 
 
-        """  # noqa: E501
+        """
         query_params = {"xray": xray}
         if params:
             query_params.update(params)
@@ -854,7 +816,7 @@ class AssistantsClient:
             }
             ```
 
-        """  # noqa: E501
+        """
         return await self.http.get(
             f"/assistants/{assistant_id}/schemas", headers=headers, params=params
         )
@@ -880,7 +842,7 @@ class AssistantsClient:
         Returns:
             Subgraphs: The graph schema for the assistant.
 
-        """  # noqa: E501
+        """
         get_params = {"recurse": recurse}
         if params:
             get_params = {**get_params, **params}
@@ -920,7 +882,7 @@ class AssistantsClient:
             config: Configuration to use for the graph.
             metadata: Metadata to add to assistant.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             assistant_id: Assistant ID to use, will default to a random UUID if not provided.
             if_exists: How to handle duplicate creation. Defaults to 'raise' under the hood.
                 Must be either 'raise' (raise error if duplicate), or 'do_nothing' (return existing assistant).
@@ -946,7 +908,7 @@ class AssistantsClient:
                 name="my_name"
             )
             ```
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {
             "graph_id": graph_id,
         }
@@ -988,10 +950,10 @@ class AssistantsClient:
         Args:
             assistant_id: Assistant to update.
             graph_id: The ID of the graph the assistant should use.
-                The graph ID is normally set in your langgraph.json configuration. If None, assistant will keep pointing to same graph.
+                The graph ID is normally set in your langgraph.json configuration. If `None`, assistant will keep pointing to same graph.
             config: Configuration to use for the graph.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             metadata: Metadata to merge with existing assistant metadata.
             name: The new name for the assistant.
             headers: Optional custom headers to include with the request.
@@ -1000,7 +962,7 @@ class AssistantsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Assistant: The updated assistant.
+            The updated assistant.
 
         ???+ example "Example Usage"
 
@@ -1014,7 +976,7 @@ class AssistantsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {}
         if graph_id:
             payload["graph_id"] = graph_id
@@ -1050,7 +1012,7 @@ class AssistantsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -1061,7 +1023,7 @@ class AssistantsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         await self.http.delete(
             f"/assistants/{assistant_id}", headers=headers, params=params
         )
@@ -1071,6 +1033,7 @@ class AssistantsClient:
         *,
         metadata: Json = None,
         graph_id: str | None = None,
+        name: str | None = None,
         limit: int = 10,
         offset: int = 0,
         sort_by: AssistantSortBy | None = None,
@@ -1085,6 +1048,8 @@ class AssistantsClient:
             metadata: Metadata to filter by. Exact match filter for each KV pair.
             graph_id: The ID of the graph to filter by.
                 The graph ID is normally set in your langgraph.json configuration.
+            name: The name of the assistant to filter by.
+                The filtering logic will match assistants where 'name' is a substring (case insensitive) of the assistant name.
             limit: The maximum number of results to return.
             offset: The number of results to skip.
             sort_by: The field to sort by.
@@ -1093,7 +1058,7 @@ class AssistantsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            list[Assistant]: A list of assistants.
+            A list of assistants.
 
         ???+ example "Example Usage"
 
@@ -1115,6 +1080,8 @@ class AssistantsClient:
             payload["metadata"] = metadata
         if graph_id:
             payload["graph_id"] = graph_id
+        if name:
+            payload["name"] = name
         if sort_by:
             payload["sort_by"] = sort_by
         if sort_order:
@@ -1177,7 +1144,7 @@ class AssistantsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            list[AssistantVersion]: A list of assistant versions.
+            A list of assistant versions.
 
         ???+ example "Example Usage"
 
@@ -1187,7 +1154,7 @@ class AssistantsClient:
                 assistant_id="my_assistant_id"
             )
             ```
-        """  # noqa: E501
+        """
 
         payload: dict[str, Any] = {
             "limit": limit,
@@ -1219,7 +1186,7 @@ class AssistantsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Assistant: Assistant Object.
+            Assistant Object.
 
         ???+ example "Example Usage"
 
@@ -1231,7 +1198,7 @@ class AssistantsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
 
         payload: dict[str, Any] = {"version": version}
 
@@ -1276,7 +1243,7 @@ class ThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Thread: Thread object.
+            Thread object.
 
         ???+ example "Example Usage"
 
@@ -1299,7 +1266,7 @@ class ThreadsClient:
             }
             ```
 
-        """  # noqa: E501
+        """
 
         return await self.http.get(
             f"/threads/{thread_id}", headers=headers, params=params
@@ -1322,7 +1289,7 @@ class ThreadsClient:
         Args:
             metadata: Metadata to add to thread.
             thread_id: ID of thread.
-                If None, ID will be a randomly generated UUID.
+                If `None`, ID will be a randomly generated UUID.
             if_exists: How to handle duplicate creation. Defaults to 'raise' under the hood.
                 Must be either 'raise' (raise error if duplicate), or 'do_nothing' (return existing thread).
             supersteps: Apply a list of supersteps when creating a thread, each containing a sequence of updates.
@@ -1335,7 +1302,7 @@ class ThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Thread: The created thread.
+            The created thread.
 
         ???+ example "Example Usage"
 
@@ -1347,7 +1314,7 @@ class ThreadsClient:
                 if_exists="raise"
             )
             ```
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {}
         if thread_id:
             payload["thread_id"] = thread_id
@@ -1403,7 +1370,7 @@ class ThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Thread: The created thread.
+            The created thread.
 
         ???+ example "Example Usage"
 
@@ -1415,7 +1382,7 @@ class ThreadsClient:
                 ttl=43_200,
             )
             ```
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {"metadata": metadata}
         if ttl is not None:
             if isinstance(ttl, (int, float)):
@@ -1444,7 +1411,7 @@ class ThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -1455,7 +1422,7 @@ class ThreadsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         await self.http.delete(f"/threads/{thread_id}", headers=headers, params=params)
 
     async def search(
@@ -1489,7 +1456,7 @@ class ThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            list[Thread]: List of the threads matching the search parameters.
+            List of the threads matching the search parameters.
 
         ???+ example "Example Usage"
 
@@ -1503,7 +1470,7 @@ class ThreadsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {
             "limit": limit,
             "offset": offset,
@@ -1576,7 +1543,7 @@ class ThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -1587,7 +1554,7 @@ class ThreadsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         return await self.http.post(
             f"/threads/{thread_id}/copy", json=None, headers=headers, params=params
         )
@@ -1613,7 +1580,7 @@ class ThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            ThreadState: the thread of the state.
+            The thread of the state.
 
         ???+ example "Example Usage"
 
@@ -1701,7 +1668,7 @@ class ThreadsClient:
                     }
             }
             ```
-        """  # noqa: E501
+        """
         if checkpoint:
             return await self.http.post(
                 f"/threads/{thread_id}/state/checkpoint",
@@ -1751,7 +1718,7 @@ class ThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            ThreadUpdateStateResponse: Response after updating a thread's state.
+            Response after updating a thread's state.
 
         ???+ example "Example Usage"
 
@@ -1777,7 +1744,7 @@ class ThreadsClient:
                 }
             }
             ```
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {
             "values": values,
         }
@@ -1814,7 +1781,7 @@ class ThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            list[ThreadState]: the state history of the thread.
+            The state history of the thread.
 
         ???+ example "Example Usage"
 
@@ -1826,7 +1793,7 @@ class ThreadsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {
             "limit": limit,
         }
@@ -1861,7 +1828,7 @@ class ThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Iterator[StreamPart]: An iterator of stream parts.
+            An iterator of stream parts.
 
         ???+ example "Example Usage"
 
@@ -1874,7 +1841,7 @@ class ThreadsClient:
                 print(chunk)
             ```
 
-        """  # noqa: E501
+        """
         query_params = {
             "stream_mode": stream_mode,
         }
@@ -1999,7 +1966,7 @@ class RunsClient:
 
         Args:
             thread_id: the thread ID to assign to the thread.
-                If None will create a stateless run.
+                If `None` will create a stateless run.
             assistant_id: The assistant ID or graph name to stream from.
                 If using graph name, will default to first assistant created from that graph.
             input: The input to the graph.
@@ -2011,7 +1978,7 @@ class RunsClient:
             metadata: Metadata to assign to the run.
             config: The configuration for the assistant.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             checkpoint: The checkpoint to resume from.
             checkpoint_during: (deprecated) Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
@@ -2037,7 +2004,7 @@ class RunsClient:
                 "exit" means checkpoints are only persisted when the run exits, does not save intermediate steps
 
         Returns:
-            AsyncIterator[StreamPart]: Asynchronous iterator of stream results.
+            Asynchronous iterator of stream results.
 
         ???+ example "Example Usage"
 
@@ -2069,7 +2036,7 @@ class RunsClient:
             StreamPart(event='end', data=None)
             ```
 
-        """  # noqa: E501
+        """
         if checkpoint_during is not None:
             warnings.warn(
                 "`checkpoint_during` is deprecated and will be removed in a future version. Use `durability` instead.",
@@ -2209,7 +2176,7 @@ class RunsClient:
 
         Args:
             thread_id: the thread ID to assign to the thread.
-                If None will create a stateless run.
+                If `None` will create a stateless run.
             assistant_id: The assistant ID or graph name to stream from.
                 If using graph name, will default to first assistant created from that graph.
             input: The input to the graph.
@@ -2221,7 +2188,7 @@ class RunsClient:
             metadata: Metadata to assign to the run.
             config: The configuration for the assistant.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             checkpoint: The checkpoint to resume from.
             checkpoint_during: (deprecated) Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
@@ -2243,7 +2210,7 @@ class RunsClient:
                 "exit" means checkpoints are only persisted when the run exits, does not save intermediate steps
 
         Returns:
-            Run: The created background run.
+            The created background run.
 
         ???+ example "Example Usage"
 
@@ -2315,7 +2282,7 @@ class RunsClient:
                 'multitask_strategy': 'interrupt'
             }
             ```
-        """  # noqa: E501
+        """
         if checkpoint_during is not None:
             warnings.warn(
                 "`checkpoint_during` is deprecated and will be removed in a future version. Use `durability` instead.",
@@ -2461,7 +2428,7 @@ class RunsClient:
 
         Args:
             thread_id: the thread ID to create the run on.
-                If None will create a stateless run.
+                If `None` will create a stateless run.
             assistant_id: The assistant ID or graph name to run.
                 If using graph name, will default to first assistant created from that graph.
             input: The input to the graph.
@@ -2469,7 +2436,7 @@ class RunsClient:
             metadata: Metadata to assign to the run.
             config: The configuration for the assistant.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             checkpoint: The checkpoint to resume from.
             checkpoint_during: (deprecated) Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
@@ -2493,7 +2460,7 @@ class RunsClient:
                 "exit" means checkpoints are only persisted when the run exits, does not save intermediate steps
 
         Returns:
-            Union[list[dict], dict[str, Any]]: The output of the run.
+            The output of the run.
 
         ???+ example "Example Usage"
 
@@ -2543,7 +2510,7 @@ class RunsClient:
             }
             ```
 
-        """  # noqa: E501
+        """
         if checkpoint_during is not None:
             warnings.warn(
                 "`checkpoint_during` is deprecated and will be removed in a future version. Use `durability` instead.",
@@ -2622,7 +2589,7 @@ class RunsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            list[Run]: The runs for the thread.
+            The runs for the thread.
 
         ???+ example "Example Usage"
 
@@ -2635,7 +2602,7 @@ class RunsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         query_params: dict[str, Any] = {
             "limit": limit,
             "offset": offset,
@@ -2667,7 +2634,7 @@ class RunsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Run: Run object.
+            `Run` object.
 
         ???+ example "Example Usage"
 
@@ -2679,7 +2646,7 @@ class RunsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
 
         return await self.http.get(
             f"/threads/{thread_id}/runs/{run_id}", headers=headers, params=params
@@ -2707,7 +2674,7 @@ class RunsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -2721,7 +2688,7 @@ class RunsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         query_params = {
             "wait": 1 if wait else 0,
             "action": action,
@@ -2760,7 +2727,7 @@ class RunsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -2772,7 +2739,7 @@ class RunsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         return await self.http.request_reconnect(
             f"/threads/{thread_id}/runs/{run_id}/join",
             "GET",
@@ -2807,7 +2774,7 @@ class RunsClient:
             last_event_id: The last event ID to use for the stream.
 
         Returns:
-            AsyncIterator[StreamPart]: The stream of parts.
+            The stream of parts.
 
         ???+ example "Example Usage"
 
@@ -2821,7 +2788,7 @@ class RunsClient:
                 print(part)
             ```
 
-        """  # noqa: E501
+        """
         query_params = {
             "cancel_on_disconnect": cancel_on_disconnect,
             "stream_mode": stream_mode,
@@ -2856,7 +2823,7 @@ class RunsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -2868,7 +2835,7 @@ class RunsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         await self.http.delete(
             f"/threads/{thread_id}/runs/{run_id}", headers=headers, params=params
         )
@@ -2893,6 +2860,7 @@ class CronClient:
         ```
 
     !!! note "Feature Availability"
+
         The crons client functionality is not supported on all licenses.
         Please check the relevant license documentation for the most up-to-date
         details on feature availability.
@@ -2930,7 +2898,7 @@ class CronClient:
             metadata: Metadata to assign to the cron job runs.
             config: The configuration for the assistant.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             checkpoint_during: Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
 
@@ -2943,7 +2911,7 @@ class CronClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Run: The cron run.
+            The cron run.
 
         ???+ example "Example Usage"
 
@@ -2962,7 +2930,7 @@ class CronClient:
                 multitask_strategy="interrupt"
             )
             ```
-        """  # noqa: E501
+        """
         payload = {
             "schedule": schedule,
             "input": input,
@@ -3012,7 +2980,7 @@ class CronClient:
             metadata: Metadata to assign to the cron job runs.
             config: The configuration for the assistant.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             checkpoint_during: Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
             interrupt_after: Nodes to Nodes to interrupt immediately after they get executed.
@@ -3023,7 +2991,7 @@ class CronClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Run: The cron run.
+            The cron run.
 
         ???+ example "Example Usage"
 
@@ -3042,7 +3010,7 @@ class CronClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         payload = {
             "schedule": schedule,
             "input": input,
@@ -3077,7 +3045,7 @@ class CronClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -3088,7 +3056,7 @@ class CronClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         await self.http.delete(f"/runs/crons/{cron_id}", headers=headers, params=params)
 
     async def search(
@@ -3115,7 +3083,7 @@ class CronClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            list[Cron]: The list of cron jobs returned by the search,
+            The list of cron jobs returned by the search,
 
         ???+ example "Example Usage"
 
@@ -3154,7 +3122,7 @@ class CronClient:
             ]
             ```
 
-        """  # noqa: E501
+        """
         payload = {
             "assistant_id": assistant_id,
             "thread_id": thread_id,
@@ -3241,7 +3209,7 @@ class StoreClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -3285,7 +3253,7 @@ class StoreClient:
         Args:
             key: The unique identifier for the item.
             namespace: Optional list of strings representing the namespace path.
-            refresh_ttl: Whether to refresh the TTL on this read operation. If None, uses the store's default behavior.
+            refresh_ttl: Whether to refresh the TTL on this read operation. If `None`, uses the store's default behavior.
 
         Returns:
             Item: The retrieved item.
@@ -3344,7 +3312,7 @@ class StoreClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -3383,12 +3351,12 @@ class StoreClient:
             limit: Maximum number of items to return (default is 10).
             offset: Number of items to skip before returning results (default is 0).
             query: Optional query for natural language search.
-            refresh_ttl: Whether to refresh the TTL on items returned by this search. If None, uses the store's default behavior.
+            refresh_ttl: Whether to refresh the TTL on items returned by this search. If `None`, uses the store's default behavior.
             headers: Optional custom headers to include with the request.
             params: Optional query parameters to include with the request.
 
         Returns:
-            list[Item]: A list of items matching the search criteria.
+            A list of items matching the search criteria.
 
         ???+ example "Example Usage"
 
@@ -3461,7 +3429,7 @@ class StoreClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            list[list[str]]: A list of namespaces matching the criteria.
+            A list of namespaces matching the criteria.
 
         ???+ example "Example Usage"
 
@@ -3546,7 +3514,7 @@ def get_sync_client(
         base_url=url,
         transport=transport,
         timeout=(
-            httpx.Timeout(timeout)
+            httpx.Timeout(timeout)  # ty: ignore[invalid-argument-type]
             if timeout is not None
             else httpx.Timeout(connect=5, read=300, write=300, pool=5)
         ),
@@ -3618,19 +3586,11 @@ class SyncHttpClient:
         headers: Mapping[str, str] | None = None,
         on_response: Callable[[httpx.Response], None] | None = None,
     ) -> Any:
-        """Send a GET request."""
+        """Send a `GET` request."""
         r = self.client.get(path, params=params, headers=headers)
         if on_response:
             on_response(r)
-        try:
-            r.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            body = r.read().decode()
-            if sys.version_info >= (3, 11):
-                e.add_note(body)
-            else:
-                logger.error(f"Error from langgraph-api: {body}", exc_info=e)
-            raise e
+        _raise_for_status_typed(r)
         return _decode_json(r)
 
     def post(
@@ -3642,7 +3602,7 @@ class SyncHttpClient:
         headers: Mapping[str, str] | None = None,
         on_response: Callable[[httpx.Response], None] | None = None,
     ) -> Any:
-        """Send a POST request."""
+        """Send a `POST` request."""
         if json is not None:
             request_headers, content = _encode_json(json)
         else:
@@ -3654,15 +3614,7 @@ class SyncHttpClient:
         )
         if on_response:
             on_response(r)
-        try:
-            r.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            body = r.read().decode()
-            if sys.version_info >= (3, 11):
-                e.add_note(body)
-            else:
-                logger.error(f"Error from langgraph-api: {body}", exc_info=e)
-            raise e
+        _raise_for_status_typed(r)
         return _decode_json(r)
 
     def put(
@@ -3674,7 +3626,7 @@ class SyncHttpClient:
         headers: Mapping[str, str] | None = None,
         on_response: Callable[[httpx.Response], None] | None = None,
     ) -> Any:
-        """Send a PUT request."""
+        """Send a `PUT` request."""
         request_headers, content = _encode_json(json)
         if headers:
             request_headers.update(headers)
@@ -3684,15 +3636,7 @@ class SyncHttpClient:
         )
         if on_response:
             on_response(r)
-        try:
-            r.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            body = r.read().decode()
-            if sys.version_info >= (3, 11):
-                e.add_note(body)
-            else:
-                logger.error(f"Error from langgraph-api: {body}", exc_info=e)
-            raise e
+        _raise_for_status_typed(r)
         return _decode_json(r)
 
     def patch(
@@ -3704,7 +3648,7 @@ class SyncHttpClient:
         headers: Mapping[str, str] | None = None,
         on_response: Callable[[httpx.Response], None] | None = None,
     ) -> Any:
-        """Send a PATCH request."""
+        """Send a `PATCH` request."""
         request_headers, content = _encode_json(json)
         if headers:
             request_headers.update(headers)
@@ -3713,15 +3657,7 @@ class SyncHttpClient:
         )
         if on_response:
             on_response(r)
-        try:
-            r.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            body = r.read().decode()
-            if sys.version_info >= (3, 11):
-                e.add_note(body)
-            else:
-                logger.error(f"Error from langgraph-api: {body}", exc_info=e)
-            raise e
+        _raise_for_status_typed(r)
         return _decode_json(r)
 
     def delete(
@@ -3733,21 +3669,13 @@ class SyncHttpClient:
         headers: Mapping[str, str] | None = None,
         on_response: Callable[[httpx.Response], None] | None = None,
     ) -> None:
-        """Send a DELETE request."""
+        """Send a `DELETE` request."""
         r = self.client.request(
             "DELETE", path, json=json, params=params, headers=headers
         )
         if on_response:
             on_response(r)
-        try:
-            r.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            body = r.read().decode()
-            if sys.version_info >= (3, 11):
-                e.add_note(body)
-            else:
-                logger.error(f"Error from langgraph-api: {body}", exc_info=e)
-            raise e
+        _raise_for_status_typed(r)
 
     def request_reconnect(
         self,
@@ -3850,15 +3778,7 @@ class SyncHttpClient:
                 if reconnect_path is None and on_response:
                     on_response(res)
                 # check status
-                try:
-                    res.raise_for_status()
-                except httpx.HTTPStatusError as e:
-                    body = (res.read()).decode()
-                    if sys.version_info >= (3, 11):
-                        e.add_note(body)
-                    else:
-                        logger.error(f"Error from langgraph-api: {body}", exc_info=e)
-                    raise e
+                _raise_for_status_typed(res)
                 # check content type
                 content_type = res.headers.get("content-type", "").partition(";")[0]
                 if "text/event-stream" not in content_type:
@@ -3874,7 +3794,7 @@ class SyncHttpClient:
                 decoder = SSEDecoder()
                 try:
                     for line in iter_lines_raw(res):
-                        sse = decoder.decode(line.rstrip(b"\n"))
+                        sse = decoder.decode(cast(bytes, line).rstrip(b"\n"))
                         if sse is not None:
                             if decoder.last_event_id is not None:
                                 last_event_id = decoder.last_event_id
@@ -3926,7 +3846,7 @@ class SyncAssistantsClient:
 
     This class provides methods to interact with assistants, which are versioned configurations of your graph.
 
-    ???+ example "Examples"
+    ???+ example "Example"
 
         ```python
         client = get_sync_client(url="http://localhost:2024")
@@ -3952,7 +3872,7 @@ class SyncAssistantsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Assistant: Assistant Object.
+            `Assistant` Object.
 
         ???+ example "Example Usage"
 
@@ -3977,7 +3897,7 @@ class SyncAssistantsClient:
             }
             ```
 
-        """  # noqa: E501
+        """
         return self.http.get(
             f"/assistants/{assistant_id}", headers=headers, params=params
         )
@@ -3999,7 +3919,7 @@ class SyncAssistantsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Graph: The graph information for the assistant in JSON format.
+            The graph information for the assistant in JSON format.
 
         ???+ example "Example Usage"
 
@@ -4027,7 +3947,7 @@ class SyncAssistantsClient:
             }
             ```
 
-        """  # noqa: E501
+        """
         query_params = {"xray": xray}
         if params:
             query_params.update(params)
@@ -4052,7 +3972,7 @@ class SyncAssistantsClient:
         Returns:
             GraphSchema: The graph schema for the assistant.
 
-        ???+ example "  Example Usage"
+        ???+ example "Example Usage"
 
             ```python
             client = get_sync_client(url="http://localhost:2024")
@@ -4163,7 +4083,7 @@ class SyncAssistantsClient:
             }
             ```
 
-        """  # noqa: E501
+        """
         return self.http.get(
             f"/assistants/{assistant_id}/schemas", headers=headers, params=params
         )
@@ -4187,7 +4107,7 @@ class SyncAssistantsClient:
         Returns:
             Subgraphs: The graph schema for the assistant.
 
-        """  # noqa: E501
+        """
         get_params = {"recurse": recurse}
         if params:
             get_params = {**get_params, **params}
@@ -4226,7 +4146,7 @@ class SyncAssistantsClient:
             graph_id: The ID of the graph the assistant should use. The graph ID is normally set in your langgraph.json configuration.
             config: Configuration to use for the graph.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             metadata: Metadata to add to assistant.
             assistant_id: Assistant ID to use, will default to a random UUID if not provided.
             if_exists: How to handle duplicate creation. Defaults to 'raise' under the hood.
@@ -4238,7 +4158,7 @@ class SyncAssistantsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Assistant: The created assistant.
+            The created assistant.
 
         ???+ example "Example Usage"
 
@@ -4253,7 +4173,7 @@ class SyncAssistantsClient:
                 name="my_name"
             )
             ```
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {
             "graph_id": graph_id,
         }
@@ -4295,10 +4215,10 @@ class SyncAssistantsClient:
         Args:
             assistant_id: Assistant to update.
             graph_id: The ID of the graph the assistant should use.
-                The graph ID is normally set in your langgraph.json configuration. If None, assistant will keep pointing to same graph.
+                The graph ID is normally set in your langgraph.json configuration. If `None`, assistant will keep pointing to same graph.
             config: Configuration to use for the graph.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             metadata: Metadata to merge with existing assistant metadata.
             name: The new name for the assistant.
             headers: Optional custom headers to include with the request.
@@ -4306,7 +4226,7 @@ class SyncAssistantsClient:
                 The description field is available for langgraph-api server version>=0.0.45
 
         Returns:
-            Assistant: The updated assistant.
+            The updated assistant.
 
         ???+ example "Example Usage"
 
@@ -4319,7 +4239,7 @@ class SyncAssistantsClient:
                 metadata={"number":2}
             )
             ```
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {}
         if graph_id:
             payload["graph_id"] = graph_id
@@ -4355,7 +4275,7 @@ class SyncAssistantsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -4366,7 +4286,7 @@ class SyncAssistantsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         self.http.delete(f"/assistants/{assistant_id}", headers=headers, params=params)
 
     def search(
@@ -4374,6 +4294,7 @@ class SyncAssistantsClient:
         *,
         metadata: Json = None,
         graph_id: str | None = None,
+        name: str | None = None,
         limit: int = 10,
         offset: int = 0,
         sort_by: AssistantSortBy | None = None,
@@ -4388,12 +4309,14 @@ class SyncAssistantsClient:
             metadata: Metadata to filter by. Exact match filter for each KV pair.
             graph_id: The ID of the graph to filter by.
                 The graph ID is normally set in your langgraph.json configuration.
+            name: The name of the assistant to filter by.
+                The filtering logic will match assistants where 'name' is a substring (case insensitive) of the assistant name.
             limit: The maximum number of results to return.
             offset: The number of results to skip.
             headers: Optional custom headers to include with the request.
 
         Returns:
-            list[Assistant]: A list of assistants.
+            A list of assistants.
 
         ???+ example "Example Usage"
 
@@ -4415,6 +4338,8 @@ class SyncAssistantsClient:
             payload["metadata"] = metadata
         if graph_id:
             payload["graph_id"] = graph_id
+        if name:
+            payload["name"] = name
         if sort_by:
             payload["sort_by"] = sort_by
         if sort_order:
@@ -4476,7 +4401,7 @@ class SyncAssistantsClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            list[Assistant]: A list of assistants.
+            A list of assistants.
 
         ???+ example "Example Usage"
 
@@ -4487,7 +4412,7 @@ class SyncAssistantsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
 
         payload: dict[str, Any] = {
             "limit": limit,
@@ -4518,7 +4443,7 @@ class SyncAssistantsClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            Assistant: Assistant Object.
+            `Assistant` Object.
 
         ???+ example "Example Usage"
 
@@ -4530,7 +4455,7 @@ class SyncAssistantsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
 
         payload: dict[str, Any] = {"version": version}
 
@@ -4573,7 +4498,7 @@ class SyncThreadsClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            Thread: Thread object.
+            `Thread` object.
 
         ???+ example "Example Usage"
 
@@ -4595,7 +4520,7 @@ class SyncThreadsClient:
             }
             ```
 
-        """  # noqa: E501
+        """
 
         return self.http.get(f"/threads/{thread_id}", headers=headers, params=params)
 
@@ -4616,7 +4541,7 @@ class SyncThreadsClient:
         Args:
             metadata: Metadata to add to thread.
             thread_id: ID of thread.
-                If None, ID will be a randomly generated UUID.
+                If `None`, ID will be a randomly generated UUID.
             if_exists: How to handle duplicate creation. Defaults to 'raise' under the hood.
                 Must be either 'raise' (raise error if duplicate), or 'do_nothing' (return existing thread).
             supersteps: Apply a list of supersteps when creating a thread, each containing a sequence of updates.
@@ -4628,7 +4553,7 @@ class SyncThreadsClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            Thread: The created thread.
+            The created `Thread`.
 
         ???+ example "Example Usage"
 
@@ -4641,7 +4566,7 @@ class SyncThreadsClient:
             )
             ```
             )
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {}
         if thread_id:
             payload["thread_id"] = thread_id
@@ -4695,7 +4620,7 @@ class SyncThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Thread: The created thread.
+            The created `Thread`.
 
         ???+ example "Example Usage"
 
@@ -4707,7 +4632,7 @@ class SyncThreadsClient:
                 ttl=43_200,
             )
             ```
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {"metadata": metadata}
         if ttl is not None:
             if isinstance(ttl, (int, float)):
@@ -4736,7 +4661,7 @@ class SyncThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -4746,7 +4671,7 @@ class SyncThreadsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         self.http.delete(f"/threads/{thread_id}", headers=headers, params=params)
 
     def search(
@@ -4777,7 +4702,7 @@ class SyncThreadsClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            list[Thread]: List of the threads matching the search parameters.
+            List of the threads matching the search parameters.
 
         ???+ example "Example Usage"
 
@@ -4790,7 +4715,7 @@ class SyncThreadsClient:
                 offset=5
             )
             ```
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {
             "limit": limit,
             "offset": offset,
@@ -4860,7 +4785,7 @@ class SyncThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -4871,7 +4796,7 @@ class SyncThreadsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         return self.http.post(
             f"/threads/{thread_id}/copy", json=None, headers=headers, params=params
         )
@@ -4895,7 +4820,7 @@ class SyncThreadsClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            ThreadState: the thread of the state.
+            The thread of the state.
 
         ???+ example "Example Usage"
 
@@ -4984,7 +4909,7 @@ class SyncThreadsClient:
             }
             ```
 
-        """  # noqa: E501
+        """
         if checkpoint:
             return self.http.post(
                 f"/threads/{thread_id}/state/checkpoint",
@@ -5032,7 +4957,7 @@ class SyncThreadsClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            ThreadUpdateStateResponse: Response after updating a thread's state.
+            Response after updating a thread's state.
 
         ???+ example "Example Usage"
 
@@ -5057,7 +4982,7 @@ class SyncThreadsClient:
             }
             ```
 
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {
             "values": values,
         }
@@ -5093,7 +5018,7 @@ class SyncThreadsClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            list[ThreadState]: the state history of the thread.
+            The state history of the `Thread`.
 
         ???+ example "Example Usage"
 
@@ -5107,7 +5032,7 @@ class SyncThreadsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         payload: dict[str, Any] = {
             "limit": limit,
         }
@@ -5142,7 +5067,7 @@ class SyncThreadsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            Iterator[StreamPart]: An iterator of stream parts.
+            An iterator of stream parts.
 
         ???+ example "Example Usage"
 
@@ -5156,7 +5081,7 @@ class SyncThreadsClient:
                 print(chunk)
             ```
 
-        """  # noqa: E501
+        """
         query_params = {
             "stream_mode": stream_mode,
         }
@@ -5281,7 +5206,7 @@ class SyncRunsClient:
 
         Args:
             thread_id: the thread ID to assign to the thread.
-                If None will create a stateless run.
+                If `None` will create a stateless run.
             assistant_id: The assistant ID or graph name to stream from.
                 If using graph name, will default to first assistant created from that graph.
             input: The input to the graph.
@@ -5293,7 +5218,7 @@ class SyncRunsClient:
             metadata: Metadata to assign to the run.
             config: The configuration for the assistant.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             checkpoint: The checkpoint to resume from.
             checkpoint_during: (deprecated) Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
@@ -5319,7 +5244,7 @@ class SyncRunsClient:
 
 
         Returns:
-            Iterator[StreamPart]: Iterator of stream results.
+            Iterator of stream results.
 
         ???+ example "Example Usage"
 
@@ -5348,7 +5273,7 @@ class SyncRunsClient:
             StreamPart(event='values', data={'messages': [{'content': 'how are you?', 'additional_kwargs': {}, 'response_metadata': {}, 'type': 'human', 'name': None, 'id': 'fe0a5778-cfe9-42ee-b807-0adaa1873c10', 'example': False}, {'content': "I'm doing well, thanks for asking! I'm an AI assistant created by Anthropic to be helpful, honest, and harmless.", 'additional_kwargs': {}, 'response_metadata': {}, 'type': 'ai', 'name': None, 'id': 'run-159b782c-b679-4830-83c6-cef87798fe8b', 'example': False, 'tool_calls': [], 'invalid_tool_calls': [], 'usage_metadata': None}]})
             StreamPart(event='end', data=None)
             ```
-        """  # noqa: E501
+        """
         if checkpoint_during is not None:
             warnings.warn(
                 "`checkpoint_during` is deprecated and will be removed in a future version. Use `durability` instead.",
@@ -5487,7 +5412,7 @@ class SyncRunsClient:
 
         Args:
             thread_id: the thread ID to assign to the thread.
-                If None will create a stateless run.
+                If `None` will create a stateless run.
             assistant_id: The assistant ID or graph name to stream from.
                 If using graph name, will default to first assistant created from that graph.
             input: The input to the graph.
@@ -5499,7 +5424,7 @@ class SyncRunsClient:
             metadata: Metadata to assign to the run.
             config: The configuration for the assistant.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             checkpoint: The checkpoint to resume from.
             checkpoint_during: (deprecated) Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
@@ -5521,7 +5446,7 @@ class SyncRunsClient:
                 "exit" means checkpoints are only persisted when the run exits, does not save intermediate steps
 
         Returns:
-            Run: The created background run.
+            The created background `Run`.
 
         ???+ example "Example Usage"
 
@@ -5593,7 +5518,7 @@ class SyncRunsClient:
                 'multitask_strategy': 'interrupt'
             }
             ```
-        """  # noqa: E501
+        """
         if checkpoint_during is not None:
             warnings.warn(
                 "`checkpoint_during` is deprecated and will be removed in a future version. Use `durability` instead.",
@@ -5739,7 +5664,7 @@ class SyncRunsClient:
 
         Args:
             thread_id: the thread ID to create the run on.
-                If None will create a stateless run.
+                If `None` will create a stateless run.
             assistant_id: The assistant ID or graph name to run.
                 If using graph name, will default to first assistant created from that graph.
             input: The input to the graph.
@@ -5747,7 +5672,7 @@ class SyncRunsClient:
             metadata: Metadata to assign to the run.
             config: The configuration for the assistant.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             checkpoint: The checkpoint to resume from.
             checkpoint_during: (deprecated) Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
@@ -5772,7 +5697,7 @@ class SyncRunsClient:
                 "exit" means checkpoints are only persisted when the run exits, does not save intermediate steps
 
         Returns:
-            Union[list[dict], dict[str, Any]]: The output of the run.
+            The output of the `Run`.
 
         ???+ example "Example Usage"
 
@@ -5823,7 +5748,7 @@ class SyncRunsClient:
             }
             ```
 
-        """  # noqa: E501
+        """
         if checkpoint_during is not None:
             warnings.warn(
                 "`checkpoint_during` is deprecated and will be removed in a future version. Use `durability` instead.",
@@ -5892,7 +5817,7 @@ class SyncRunsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            list[Run]: The runs for the thread.
+            The runs for the thread.
 
         ???+ example "Example Usage"
 
@@ -5905,7 +5830,7 @@ class SyncRunsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         query_params: dict[str, Any] = {"limit": limit, "offset": offset}
         if status is not None:
             query_params["status"] = status
@@ -5933,7 +5858,7 @@ class SyncRunsClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            Run: Run object.
+            `Run` object.
 
         ???+ example "Example Usage"
 
@@ -5944,7 +5869,7 @@ class SyncRunsClient:
                 run_id="run_id_to_delete",
             )
             ```
-        """  # noqa: E501
+        """
 
         return self.http.get(
             f"/threads/{thread_id}/runs/{run_id}", headers=headers, params=params
@@ -5972,7 +5897,7 @@ class SyncRunsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -5986,7 +5911,7 @@ class SyncRunsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         query_params = {
             "wait": 1 if wait else 0,
             "action": action,
@@ -6025,7 +5950,7 @@ class SyncRunsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -6037,7 +5962,7 @@ class SyncRunsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         return self.http.request_reconnect(
             f"/threads/{thread_id}/runs/{run_id}/join",
             "GET",
@@ -6072,7 +5997,7 @@ class SyncRunsClient:
             last_event_id: The last event ID to use for the stream.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -6085,7 +6010,7 @@ class SyncRunsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         query_params = {
             "stream_mode": stream_mode,
             "cancel_on_disconnect": cancel_on_disconnect,
@@ -6120,7 +6045,7 @@ class SyncRunsClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -6132,7 +6057,7 @@ class SyncRunsClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         self.http.delete(
             f"/threads/{thread_id}/runs/{run_id}", headers=headers, params=params
         )
@@ -6151,6 +6076,7 @@ class SyncCronClient:
         ```
 
     !!! note "Feature Availability"
+
         The crons client functionality is not supported on all licenses.
         Please check the relevant license documentation for the most up-to-date
         details on feature availability.
@@ -6188,7 +6114,7 @@ class SyncCronClient:
             metadata: Metadata to assign to the cron job runs.
             config: The configuration for the assistant.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             checkpoint_during: Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
             interrupt_after: Nodes to Nodes to interrupt immediately after they get executed.
@@ -6198,7 +6124,7 @@ class SyncCronClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            Run: The cron run.
+            The cron `Run`.
 
         ???+ example "Example Usage"
 
@@ -6217,7 +6143,7 @@ class SyncCronClient:
                 multitask_strategy="interrupt"
             )
             ```
-        """  # noqa: E501
+        """
         payload = {
             "schedule": schedule,
             "input": input,
@@ -6266,7 +6192,7 @@ class SyncCronClient:
             metadata: Metadata to assign to the cron job runs.
             config: The configuration for the assistant.
             context: Static context to add to the assistant.
-                !!! version-added "Supported with langgraph>=0.6.0"
+                !!! version-added "Added in version 0.6.0"
             checkpoint_during: Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
             interrupt_after: Nodes to Nodes to interrupt immediately after they get executed.
@@ -6276,7 +6202,7 @@ class SyncCronClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            Run: The cron run.
+            The cron `Run`.
 
         ???+ example "Example Usage"
 
@@ -6296,7 +6222,7 @@ class SyncCronClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         payload = {
             "schedule": schedule,
             "input": input,
@@ -6330,7 +6256,7 @@ class SyncCronClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -6341,7 +6267,7 @@ class SyncCronClient:
             )
             ```
 
-        """  # noqa: E501
+        """
         self.http.delete(f"/runs/crons/{cron_id}", headers=headers, params=params)
 
     def search(
@@ -6367,7 +6293,7 @@ class SyncCronClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            list[Cron]: The list of cron jobs returned by the search,
+            The list of cron jobs returned by the search,
 
         ???+ example "Example Usage"
 
@@ -6405,7 +6331,7 @@ class SyncCronClient:
                 }
             ]
             ```
-        """  # noqa: E501
+        """
         payload = {
             "assistant_id": assistant_id,
             "thread_id": thread_id,
@@ -6492,7 +6418,7 @@ class SyncStoreClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -6536,11 +6462,11 @@ class SyncStoreClient:
         Args:
             key: The unique identifier for the item.
             namespace: Optional list of strings representing the namespace path.
-            refresh_ttl: Whether to refresh the TTL on this read operation. If None, uses the store's default behavior.
+            refresh_ttl: Whether to refresh the TTL on this read operation. If `None`, uses the store's default behavior.
             headers: Optional custom headers to include with the request.
 
         Returns:
-            Item: The retrieved item.
+            The retrieved item.
 
         ???+ example "Example Usage"
 
@@ -6595,7 +6521,7 @@ class SyncStoreClient:
             params: Optional query parameters to include with the request.
 
         Returns:
-            None
+            `None`
 
         ???+ example "Example Usage"
 
@@ -6634,12 +6560,12 @@ class SyncStoreClient:
             limit: Maximum number of items to return (default is 10).
             offset: Number of items to skip before returning results (default is 0).
             query: Optional query for natural language search.
-            refresh_ttl: Whether to refresh the TTL on items returned by this search. If None, uses the store's default behavior.
+            refresh_ttl: Whether to refresh the TTL on items returned by this search. If `None`, uses the store's default behavior.
             headers: Optional custom headers to include with the request.
             params: Optional query parameters to include with the request.
 
         Returns:
-            list[Item]: A list of items matching the search criteria.
+            A list of items matching the search criteria.
 
         ???+ example "Example Usage"
 
@@ -6710,7 +6636,7 @@ class SyncStoreClient:
             headers: Optional custom headers to include with the request.
 
         Returns:
-            list[list[str]]: A list of namespaces matching the criteria.
+            A list of namespaces matching the criteria.
 
         ???+ example "Example Usage"
 
@@ -6774,10 +6700,10 @@ def get_asgi_transport() -> type[httpx.ASGITransport]:
         return httpx.ASGITransport
 
 
-TimeoutTypes = Union[
-    None,
-    float,
-    tuple[Optional[float], Optional[float]],
-    tuple[Optional[float], Optional[float], Optional[float], Optional[float]],
-    httpx.Timeout,
-]
+TimeoutTypes = (
+    None
+    | float
+    | tuple[float | None, float | None]
+    | tuple[float | None, float | None, float | None, float | None]
+    | httpx.Timeout
+)

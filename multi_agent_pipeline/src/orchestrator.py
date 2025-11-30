@@ -1,6 +1,9 @@
 # orchestrator.py
 
-from langgraph.graph import StateGraph, MessagesState, START, END
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph import MessagesState
+from pydantic import Field
+from typing import List, Dict, Any
 
 # Import agent functions
 from src.agents.coordinator import coordinator
@@ -14,59 +17,69 @@ from src.agents.entity_recognition_agent import entity_recognition_agent
 
 
 ############################################################
-# 1️⃣  BUILD THE STATE GRAPH (use MessagesState!)
+# 1️⃣  DEFINE GLOBAL STATE (extends MessagesState)
 ############################################################
 
-# IMPORTANT: Studio REQUIRES MessagesState or Annotated fields
-graph = StateGraph(MessagesState)
+class RetrievalState(MessagesState):
+    bm25_results: List[Dict[str, Any]] = Field(default_factory=list)
+    retrieved_docs: List[str] = Field(default_factory=list)
+
 
 ############################################################
-# 2️⃣  ADD AGENTS (nodes)
+# 2️⃣  BUILD THE STATE GRAPH
 ############################################################
 
-graph.add_node("reformulator", query_reformulator, tags=["agent"])
-graph.add_node("coordinator", coordinator, tags=["agent"])
-graph.add_node("bm25", bm25_agent, tags=["retriever"])
-graph.add_node("e5", dense_agent, tags=["retriever"])
-graph.add_node("specter", specter_agent, tags=["retriever"])
-graph.add_node("citeagent", cite_agent, tags=["retriever"])
-graph.add_node("entityrecognition", entity_recognition_agent, tags=["agent"])
-graph.add_node("analysis", analysis_agent, tags=["agent"])  # Placeholder analysis agent
+graph = StateGraph(RetrievalState)
 
 ############################################################
-# 3️⃣  ADD EDGES
+# 3️⃣  ADD AGENTS (nodes)
 ############################################################
 
-# Start → Query Reformulator -> Coordinator
+graph.add_node("reformulator", query_reformulator)
+graph.add_node("coordinator", coordinator)
+
+graph.add_node("bm25", bm25_agent)
+graph.add_node("e5", dense_agent)
+graph.add_node("specter", specter_agent)
+graph.add_node("citeagent", cite_agent)
+
+graph.add_node("entityrecognition", entity_recognition_agent)
+graph.add_node("analysis", analysis_agent)
+
+############################################################
+# 4️⃣  ADD EDGES
+############################################################
+
+# Core query flow
 graph.add_edge(START, "reformulator")
 graph.add_edge("reformulator", "coordinator")
 
-# Coordinator fans out to all retrieval agents
+# Coordinator → all retrievers
 graph.add_edge("coordinator", "bm25")
 graph.add_edge("coordinator", "e5")
 graph.add_edge("coordinator", "specter")
 graph.add_edge("coordinator", "citeagent")
 
-# All retrieval agents → entity recognition agent
+# All retrievers → entity-recognition
 graph.add_edge("bm25", "entityrecognition")
 graph.add_edge("e5", "entityrecognition")
 graph.add_edge("specter", "entityrecognition")
 graph.add_edge("citeagent", "entityrecognition")
 
-# Entity recognition agent → analysis agent
+# Entity recognition → final analysis
 graph.add_edge("entityrecognition", "analysis")
 
-# Analysis agent → End for now (placeholder)
-graph.add_edge("analysis", END) 
+# Analysis → End
+graph.add_edge("analysis", END)
 
 ############################################################
-# 4️⃣ EXPOSE PIPELINE FOR LANGGRAPH STUDIO
+# 5️⃣  COMPILE PIPELINE
 ############################################################
 
 pipeline = graph.compile()
 
 ############################################################
-# 5️⃣ LOCAL TESTING
+# 6️⃣  LOCAL TESTING HARNESS
 ############################################################
 
 def pretty_print_messages(output):
@@ -87,11 +100,6 @@ def pretty_print_messages(output):
 
 if __name__ == "__main__":
     out = pipeline.invoke({
-        "messages": [{"role": "user", "content": "Building on top of them, modern state-of-the-art models, such as BERT<|cite_1|>, are able to learn powerful language representations from unlabeled text and even surpass the human performance on the challenging question answering task."}]
+        "messages": [{"role": "user", "content": "Building on top of them, modern state-of-the-art models, such as BERT<|cite_1|>, are able to learn powerful language representations from unlabeled text."}]
     })
-    print("\n=== Pipeline Output ===")
     pretty_print_messages(out)
-
-
-
-
