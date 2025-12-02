@@ -77,51 +77,67 @@ class CitationEvaluator:
         latencies = []
         self.failure_log = []
 
-        # Process examples
-        for idx, example in enumerate(examples):
-            if verbose and (idx + 1) % 100 == 0:
-                print(f"   Processed {idx + 1}/{len(examples)} queries...")
+        # Group examples by paper_id to optimize retrieval
+        examples_by_paper = {}
+        for ex in examples:
+            if ex.paper_id not in examples_by_paper:
+                examples_by_paper[ex.paper_id] = []
+            examples_by_paper[ex.paper_id].append(ex)
 
-            # Prepare query and corpus
-            query = example.citation_context
-            corpus = example.corpus_entries
-            true_title = example.true_title
+        # Process each paper group
+        total_papers = len(examples_by_paper)
+        for i, (paper_id, paper_examples) in enumerate(examples_by_paper.items()):
+            if verbose and (i + 1) % 10 == 0:
+                print(f"   Processed {i + 1}/{total_papers} papers...")
 
-            # Retrieve candidates
+            # All examples in this group share the same corpus (bibliography)
+            corpus = paper_examples[0].corpus_entries
+            queries = [ex.citation_context for ex in paper_examples]
+
+            # Batch retrieve
             start_time = time.time()
             try:
-                retrieved = model.retrieve(query, corpus, k=top_k)
+                # This will encode corpus ONCE and queries in batch
+                if hasattr(model, 'retrieve_batch'):
+                    batch_retrieved = model.retrieve_batch(queries, corpus, k=top_k)
+                else:
+                    # Fallback for models without batch support
+                    batch_retrieved = [model.retrieve(q, corpus, k=top_k) for q in queries]
             except Exception as e:
-                print(f"⚠️  Error on query {example.query_id}: {e}")
-                retrieved = []
+                print(f"⚠️  Error on paper {paper_id}: {e}")
+                batch_retrieved = [[] for _ in queries]
 
-            latency_ms = (time.time() - start_time) * 1000
+            # Calculate average latency per query in this batch
+            total_latency_ms = (time.time() - start_time) * 1000
+            avg_latency_ms = total_latency_ms / len(queries) if queries else 0
 
-            # Extract retrieved titles
-            retrieved_titles = [item['title'] for item in retrieved]
+            # Process results
+            for j, ex in enumerate(paper_examples):
+                retrieved = batch_retrieved[j]
+                retrieved_titles = [item['title'] for item in retrieved]
 
-            # Store prediction
-            prediction = {
-                'query_id': example.query_id,
-                'true_titles': [true_title],
-                'retrieved_titles': retrieved_titles,
-                'paper_id': example.paper_id,
-                'context': example.citation_context[:200] + "..."  # Truncate for storage
-            }
-            predictions.append(prediction)
+                # Store prediction
+                prediction = {
+                    'query_id': ex.query_id,
+                    'true_titles': [ex.true_title],
+                    'retrieved_titles': retrieved_titles,
+                    'paper_id': ex.paper_id,
+                    'context': ex.citation_context[:200] + "..."
+                }
+                predictions.append(prediction)
 
-            if self.track_latency:
-                latencies.append(latency_ms)
+                if self.track_latency:
+                    latencies.append(avg_latency_ms)
 
-            # Log failure if ground truth not in top-k
-            per_query_metrics = self.metrics_calculator.calculate_per_query_metrics(
-                [true_title],
-                retrieved_titles,
-                k=top_k
-            )
+                # Log failure
+                per_query_metrics = self.metrics_calculator.calculate_per_query_metrics(
+                    [ex.true_title],
+                    retrieved_titles,
+                    k=top_k
+                )
 
-            if not per_query_metrics['hit'] and self.log_failures:
-                self._log_failure(example, retrieved_titles, "not_in_top_k")
+                if not per_query_metrics['hit'] and self.log_failures:
+                    self._log_failure(ex, retrieved_titles, "not_in_top_k")
 
         # Calculate overall metrics
         metrics = self.metrics_calculator.calculate_metrics(predictions)

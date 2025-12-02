@@ -141,6 +141,83 @@ class DenseRetrievalModel(BaseRetrievalModel):
 
         return results
 
+    def precompute_corpus_embeddings(self, corpus: List[Dict]) -> np.ndarray:
+        """
+        Pre-compute and cache corpus embeddings.
+        
+        Args:
+            corpus: List of corpus entries
+            
+        Returns:
+            Numpy array of embeddings
+        """
+        corpus_texts = [item.get('text', '') for item in corpus]
+        return self.encode(corpus_texts)
+
+    def retrieve_batch(
+        self,
+        queries: List[str],
+        corpus: List[Dict],
+        k: int = 10
+    ) -> List[List[Dict]]:
+        """
+        Retrieve top-k documents for multiple queries using dense embeddings.
+        
+        Args:
+            queries: List of citation contexts
+            corpus: List of candidate papers
+            k: Number to retrieve
+            
+        Returns:
+            List of lists of top-k ranked papers
+        """
+        if not corpus:
+            return [[] for _ in queries]
+
+        # 1. Encode queries
+        query_embeddings = self.encode(queries)
+        
+        # 2. Get corpus embeddings (compute if not cached or size mismatch)
+        # Note: In a real system we'd have a more robust caching mechanism.
+        # Here we assume if corpus object is same, we can reuse (but we can't easily check identity).
+        # So we'll just recompute for now unless we add a specific cache method.
+        # Ideally, the evaluator calls precompute_corpus_embeddings explicitly.
+        # For now, let's just compute them here.
+        corpus_texts = [item.get('text', '') for item in corpus]
+        corpus_embeddings = self.encode(corpus_texts)
+
+        # 3. Compute similarities (Matrix Multiplication)
+        # query_embeddings: [num_queries, dim]
+        # corpus_embeddings: [num_docs, dim]
+        # scores: [num_queries, num_docs]
+        
+        if self.normalize_embeddings:
+            scores = query_embeddings @ corpus_embeddings.T
+        else:
+            # Manual cosine similarity
+            q_norm = query_embeddings / np.linalg.norm(query_embeddings, axis=1, keepdims=True)
+            c_norm = corpus_embeddings / np.linalg.norm(corpus_embeddings, axis=1, keepdims=True)
+            scores = q_norm @ c_norm.T
+
+        # 4. Get top-k for each query
+        top_k = min(k, len(corpus))
+        # argsort gives indices of sorted elements. We want descending order.
+        # [:, ::-1] reverses the columns
+        top_indices = np.argsort(scores, axis=1)[:, ::-1][:, :top_k]
+        
+        # 5. Build results
+        batch_results = []
+        for i, row_indices in enumerate(top_indices):
+            query_results = []
+            for rank, idx in enumerate(row_indices, start=1):
+                result = corpus[idx].copy()
+                result['score'] = float(scores[i, idx])
+                result['rank'] = rank
+                query_results.append(result)
+            batch_results.append(query_results)
+
+        return batch_results
+
     def get_config(self) -> Dict[str, Any]:
         """Return model configuration"""
         return {
