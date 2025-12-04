@@ -2,6 +2,7 @@ from langchain_core.messages import AIMessage
 import langextract as lx
 from langextract import data
 from pydantic import BaseModel
+from rapidfuzz import process, fuzz 
 import re
 
 class ResearchEntities(BaseModel):
@@ -21,6 +22,43 @@ example = lx.data.ExampleData(
     ]
 )
 
+# find span offsets
+# use str.find() to find exact match
+def exact_span(text, span):
+    if not span:
+        return None, None
+    start = text.find(span)
+    if start == -1:
+        return None, None
+    return start, start + len(span)
+
+# use rapidfuzz to find approximate match
+def approx_span(text, span, threshold=85):
+    matches = process.extract(span, [text], scorer=fuzz.partial_ratio)
+    score = matches[0][1]
+    if score < threshold:
+        return None, None
+    start = text.lower().find(span.lower().split()[0])
+    return start, start + len(span)
+
+def spanning(lx_result):
+    for doc_extractions in lx_result:
+        text = doc_extractions.text
+        for extraction in doc_extractions.extractions:
+            span = extraction.extraction_text
+            
+            start, end = exact_span(text, span)
+            if start is None:
+                start, end = approx_span(text, span)
+            
+            extraction.attributes["span_offsets"] = {
+                "start": start,
+                "end": end,
+                "text": span
+            }
+            
+    return lx_result
+
 def entity_recognition_agent(state):    
     messages = state["messages"]
 
@@ -35,6 +73,8 @@ def entity_recognition_agent(state):
         examples=[example],
         model_id="gemini-2.5-flash"
     )
+    
+    result = spanning(result)
 
     return {
         "messages": [
