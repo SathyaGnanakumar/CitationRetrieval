@@ -23,13 +23,6 @@ corpus_titles = []
 corpus_abstracts = []
 corpus_texts = []
 
-"""
-Note: Normally the corpus should be built from the citations in every paper's 
-bib_info, but in this version I built it from just the papers since I'm testing
-this locally. When we move this code to the cluster, the loop needs to be
-changed to the loop inside this comment so that it iterates through every
-citation in bib_info for every paper.
-
 for paper in data:
     for bib in paper.get("bib_info", {}).values():
         for citation in bib:
@@ -41,17 +34,6 @@ for paper in data:
             corpus_titles.append(title)
             corpus_abstracts.append(abstract)
             corpus_texts.append(f"{title}. {abstract}")
-"""
-
-for paper in data:
-    citation_key = paper.get("paper_id")
-    title = paper.get("title", "")
-    abstract = paper.get("abstract", "")
-
-    corpus_ids.append(citation_key)
-    corpus_titles.append(title)
-    corpus_abstracts.append(abstract)
-    corpus_texts.append(f"{title}. {abstract}")
 
 print(f"Corpus size: {len(corpus_texts)} papers")
 

@@ -27,14 +27,16 @@ corpus_abstracts = []
 corpus_texts = []
 
 for paper in data:
-    citation_key = paper.get("paper_id")
-    title = paper.get("title", "")
-    abstract = paper.get("abstract", "")
+    for bib in paper.get("bib_info", {}).values():
+        for citation in bib:
+            citation_key = citation.get("citation_key")
+            title = citation.get("title", "")
+            abstract = citation.get("abstract", "")
 
-    corpus_ids.append(citation_key)
-    corpus_titles.append(title)
-    corpus_abstracts.append(abstract)
-    corpus_texts.append(f"{title}. {abstract}")
+            corpus_ids.append(citation_key)
+            corpus_titles.append(title)
+            corpus_abstracts.append(abstract)
+            corpus_texts.append(f"{title}. {abstract}")
 
 print(f"Corpus size: {len(corpus_texts)} papers")
 
