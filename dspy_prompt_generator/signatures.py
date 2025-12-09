@@ -9,7 +9,16 @@ from typing import List
 
 
 class CitationRetrieval(dspy.Signature):
-    """Given a citation context from a scientific paper, identify which paper is being cited."""
+    """
+    You are an expert citation retrieval system as described in the paper "Multi-Agent System for Reliable Citation Retrieval".
+    Your goal is to autonomously retrieve, verify, and recommend academic references given a query or document excerpt.
+    
+    Task:
+    Given a citation context from a scientific paper (where a citation is missing), identify the correct paper from a list of candidates.
+    Analyze the context to understand the specific claim, method, or result being cited.
+    Then, evaluate each candidate paper to see if it matches the context.
+    Finally, select the best matching paper.
+    """
     
     citation_context: str = dspy.InputField(
         desc="Text excerpt from a paper containing [CITATION] marker where a reference was removed"
