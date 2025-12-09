@@ -31,6 +31,8 @@ dependencies = [
     # Evaluation framework dependencies
     # (mostly covered above, adding any extras)
     "ipykernel>=7.1.0",
+    # DSPy prompt optimization
+    "dspy-ai>=2.5.0",
 ]
 
 [project.optional-dependencies]

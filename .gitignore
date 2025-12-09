@@ -9,6 +9,9 @@ wheels/
 #datasets
 datasets
 
+# DSPy generated data (large files - regenerate with data_prep.py)
+dspy_prompt_generator/data/
+
 # Virtual environments
 .venv
 
