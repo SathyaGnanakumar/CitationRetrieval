@@ -1,0 +1,1502 @@
+[
+  {
+    "query_id": "q_0",
+    "true_titles": [
+      "{Attention is All you Need"
+    ],
+    "retrieved_titles": [
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Binarized Neural Networks: Training Deep Neural Networks with Weights and Activations Constrained to +1 or -1",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Augmenting self-attention with persistent memory",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "{Neural Machine Translation in Linear Time",
+      "{Learning Efficient Convolutional Networks through Network Slimming"
+    ],
+    "paper_id": "paper_0",
+    "context": "Introduction\nTransformer<|cite_0|> is widely used in natural language processing due to its high training efficiency and superior capa..."
+  },
+  {
+    "query_id": "q_1",
+    "true_titles": [
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding"
+    ],
+    "retrieved_titles": [
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{Augmenting self-attention with persistent memory",
+      "Generating Long Sequences with Sparse Transformers",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Trained Ternary Quantization",
+      "{Channel Pruning for Accelerating Very Deep Neural Networks",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Machine Translation in Linear Time",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{The Evolved Transformer"
+    ],
+    "paper_id": "paper_0",
+    "context": "ng long-distance dependencies. Building on top of them, modern state-of-the-art models, such as BERT<|cite_1|>, are able to learn powerful language representations from unlabeled text and even surpass..."
+  },
+  {
+    "query_id": "q_2",
+    "true_titles": [
+      "{Neural Architecture Search with Reinforcement Learning"
+    ],
+    "retrieved_titles": [
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{Quantizing Deep Convolutional Networks for Efficient Inference: A Whitepaper",
+      "{NetAdapt: Platform-Aware Neural Network Adaptation for Mobile Applications",
+      "{Scaling Neural Machine Translation"
+    ],
+    "paper_id": "paper_0",
+    "context": "tecture specialized for real-time NLP applications on the edge. Automatic neural architecture search<|cite_2|> is a choice for high accuracy model design, but the massive search cost (GPU hours and $C..."
+  },
+  {
+    "query_id": "q_3",
+    "true_titles": [
+      "{Energy and Policy Considerations for Deep Learning in NLP"
+    ],
+    "retrieved_titles": [
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "Point-Voxel CNN for efficient 3D deep learning",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{Scaling Neural Machine Translation",
+      "{Scaling Neural Machine Translation",
+      "{NetAdapt: Platform-Aware Neural Network Adaptation for Mobile Applications",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Depthwise Separable Convolutions for Neural Machine Translation",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Quantizing Deep Convolutional Networks for Efficient Inference: A Whitepaper",
+      "{Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding"
+    ],
+    "paper_id": "paper_0",
+    "context": "gn, but the massive search cost (GPU hours and $CO_2$ emission) raises severe environmental concerns<|cite_3|>, shown in \\fig{fig:teaser:b}.\n\nIn this paper, we focus on the efficient inference for mob..."
+  },
+  {
+    "query_id": "q_4",
+    "true_titles": [
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions"
+    ],
+    "retrieved_titles": [
+      "{Augmenting self-attention with persistent memory",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Effective Approaches to Attention-based Neural Machine Translation",
+      "{Depthwise Separable Convolutions for Neural Machine Translation",
+      "Generating Long Sequences with Sparse Transformers",
+      "{Channel Pruning for Accelerating Very Deep Neural Networks",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{A Deep Reinforced Model for Abstractive Summarization",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Quantizing Deep Convolutional Networks for Efficient Inference: A Whitepaper",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{Neural Architecture Search with Reinforcement Learning"
+    ],
+    "paper_id": "paper_0",
+    "context": "ttnshort dedicates \\textit{specialized} heads to model long and short distance contexts. Inspired by<|cite_4|>, \\attnshort introduces convolution in a parallel branch to capture \\textbf{local} depende..."
+  },
+  {
+    "query_id": "q_5",
+    "true_titles": [
+      "{The Evolved Transformer"
+    ],
+    "retrieved_titles": [
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "Point-Voxel CNN for efficient 3D deep learning",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{Scaling Neural Machine Translation",
+      "{Scaling Neural Machine Translation",
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Effective Approaches to Attention-based Neural Machine Translation"
+    ],
+    "paper_id": "paper_0",
+    "context": "hts, our manually-designed \\model achieves 0.5 higher BLEU than the AutoML-based Evolved Transformer<|cite_5|>, which requires more than 250 GPU years to search, emitting\nas much carbon as five cars i..."
+  },
+  {
+    "query_id": "q_6",
+    "true_titles": [
+      "{Sequence to Sequence Learning with Neural Networks"
+    ],
+    "retrieved_titles": [
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{Neural Machine Translation in Linear Time",
+      "Generating Long Sequences with Sparse Transformers",
+      "{Convolutional Sequence to Sequence Learning",
+      "{Trained Ternary Quantization",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation",
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{Augmenting self-attention with persistent memory",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer"
+    ],
+    "paper_id": "paper_0",
+    "context": "s.}\n\nRecurrent neural networks (RNNs) have prevailed various sequence modeling tasks for a long time<|cite_6|>. However, RNNs are not easy to  parallelize across the sequence due to its temporal depen..."
+  },
+  {
+    "query_id": "q_7",
+    "true_titles": [
+      "{Neural Machine Translation in Linear Time"
+    ],
+    "retrieved_titles": [
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Effective Approaches to Attention-based Neural Machine Translation",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{Depthwise Separable Convolutions for Neural Machine Translation",
+      "Point-Voxel CNN for efficient 3D deep learning",
+      "{A Deep Reinforced Model for Abstractive Summarization",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "{Neural Machine Translation in Linear Time",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers"
+    ],
+    "paper_id": "paper_0",
+    "context": "e-art performance. For instance, researchers have proposed highly-efficient convolution-based models<|cite_7|>. Convolution is an ideal primitive to model the local context information; however, it la..."
+  },
+  {
+    "query_id": "q_8",
+    "true_titles": [
+      "{Attention is All you Need"
+    ],
+    "retrieved_titles": [
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Augmenting self-attention with persistent memory",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "Generating Long Sequences with Sparse Transformers",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "{Effective Approaches to Attention-based Neural Machine Translation",
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{A Deep Reinforced Model for Abstractive Summarization",
+      "{Channel Pruning for Accelerating Very Deep Neural Networks",
+      "{Binarized Neural Networks: Training Deep Neural Networks with Weights and Activations Constrained to +1 or -1",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer"
+    ],
+    "paper_id": "paper_0",
+    "context": "native, attention is able to capture global-context information by pairwise correlation. Transformer<|cite_8|> has demonstrated that it is possible to stack the self-attentions to achieve state-of-the..."
+  },
+  {
+    "query_id": "q_9",
+    "true_titles": [
+      "{Weighted Transformer Network for Machine Translation"
+    ],
+    "retrieved_titles": [
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Scaling Neural Machine Translation",
+      "{Scaling Neural Machine Translation",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{Augmenting self-attention with persistent memory"
+    ],
+    "paper_id": "paper_0",
+    "context": "achieve state-of-the-art performance. Recently, there have been a lot of variants to the transformer<|cite_9|>. Among them,<|cite_10|> proposed to scale up the batch size;<|cite_11|> leverages the rel..."
+  },
+  {
+    "query_id": "q_10",
+    "true_titles": [
+      "{Scaling Neural Machine Translation"
+    ],
+    "retrieved_titles": [
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{Scaling Neural Machine Translation",
+      "{Scaling Neural Machine Translation",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Neural Machine Translation in Linear Time",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Augmenting self-attention with persistent memory",
+      "Generating Long Sequences with Sparse Transformers",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Adaptive Attention Span in Transformers"
+    ],
+    "paper_id": "paper_0",
+    "context": "t performance. Recently, there have been a lot of variants to the transformer<|cite_9|>. Among them,<|cite_10|> proposed to scale up the batch size;<|cite_11|> leverages the relative position represen..."
+  },
+  {
+    "query_id": "q_11",
+    "true_titles": [
+      "{Self-Attention with Relative Position Representations"
+    ],
+    "retrieved_titles": [
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Channel Pruning for Accelerating Very Deep Neural Networks",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Scaling Neural Machine Translation",
+      "{Scaling Neural Machine Translation",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs"
+    ],
+    "paper_id": "paper_0",
+    "context": "f variants to the transformer<|cite_9|>. Among them,<|cite_10|> proposed to scale up the batch size;<|cite_11|> leverages the relative position representations;<|cite_12|> introduces the weighted mult..."
+  },
+  {
+    "query_id": "q_12",
+    "true_titles": [
+      "{Weighted Transformer Network for Machine Translation"
+    ],
+    "retrieved_titles": [
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "Generating Long Sequences with Sparse Transformers",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Channel Pruning for Accelerating Very Deep Neural Networks",
+      "{Augmenting self-attention with persistent memory",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{Effective Approaches to Attention-based Neural Machine Translation"
+    ],
+    "paper_id": "paper_0",
+    "context": "0|> proposed to scale up the batch size;<|cite_11|> leverages the relative position representations;<|cite_12|> introduces the weighted multi-head attention; \\change{<|cite_13|> applies adaptive masks..."
+  },
+  {
+    "query_id": "q_13",
+    "true_titles": [
+      "{Adaptive Attention Span in Transformers"
+    ],
+    "retrieved_titles": [
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers",
+      "{Augmenting self-attention with persistent memory",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "Generating Long Sequences with Sparse Transformers",
+      "{Neural Machine Translation in Linear Time",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Channel Pruning for Accelerating Very Deep Neural Networks",
+      "{The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation",
+      "{Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation"
+    ],
+    "paper_id": "paper_0",
+    "context": "relative position representations;<|cite_12|> introduces the weighted multi-head attention; \\change{<|cite_13|> applies adaptive masks for long-range information on character-level language modeling w..."
+  },
+  {
+    "query_id": "q_14",
+    "true_titles": [
+      "{Neural Architecture Search with Reinforcement Learning"
+    ],
+    "retrieved_titles": [
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "{Quantizing Deep Convolutional Networks for Efficient Inference: A Whitepaper",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Convolutional Sequence to Sequence Learning",
+      "{NetAdapt: Platform-Aware Neural Network Adaptation for Mobile Applications"
+    ],
+    "paper_id": "paper_0",
+    "context": "chitecture design space, automating the design with neural architecture search (NAS) becomes popular<|cite_14|>. To make the design efficient, integrating the hardware resource constraints into the op..."
+  },
+  {
+    "query_id": "q_15",
+    "true_titles": [
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile"
+    ],
+    "retrieved_titles": [
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "{Quantizing Deep Convolutional Networks for Efficient Inference: A Whitepaper",
+      "{NetAdapt: Platform-Aware Neural Network Adaptation for Mobile Applications",
+      "{Convolutional Sequence to Sequence Learning",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Augmenting self-attention with persistent memory",
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{Adaptive Attention Span in Transformers"
+    ],
+    "paper_id": "paper_0",
+    "context": "ating the hardware resource constraints into the optimization loop begins to emerge, such as MnasNet<|cite_15|>, ProxylessNAS<|cite_16|> and FBNet<|cite_17|>. In the NLP community, the evolved transfo..."
+  },
+  {
+    "query_id": "q_16",
+    "true_titles": [
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware"
+    ],
+    "retrieved_titles": [
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{Convolutional Sequence to Sequence Learning",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Quantizing Deep Convolutional Networks for Efficient Inference: A Whitepaper",
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{Augmenting self-attention with persistent memory",
+      "{Adaptive Attention Span in Transformers",
+      "{Adaptive Attention Span in Transformers"
+    ],
+    "paper_id": "paper_0",
+    "context": "ce constraints into the optimization loop begins to emerge, such as MnasNet<|cite_15|>, ProxylessNAS<|cite_16|> and FBNet<|cite_17|>. In the NLP community, the evolved transformer<|cite_18|> adopts th..."
+  },
+  {
+    "query_id": "q_17",
+    "true_titles": [
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search"
+    ],
+    "retrieved_titles": [
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{Convolutional Sequence to Sequence Learning",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation",
+      "{Attention is All you Need",
+      "{Attention is All you Need"
+    ],
+    "paper_id": "paper_0",
+    "context": "he optimization loop begins to emerge, such as MnasNet<|cite_15|>, ProxylessNAS<|cite_16|> and FBNet<|cite_17|>. In the NLP community, the evolved transformer<|cite_18|> adopts the neural architecture..."
+  },
+  {
+    "query_id": "q_18",
+    "true_titles": [
+      "{The Evolved Transformer"
+    ],
+    "retrieved_titles": [
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices"
+    ],
+    "paper_id": "paper_0",
+    "context": "te_15|>, ProxylessNAS<|cite_16|> and FBNet<|cite_17|>. In the NLP community, the evolved transformer<|cite_18|> adopts the neural architecture search<|cite_19|> to design basic blocks and finds a bett..."
+  },
+  {
+    "query_id": "q_19",
+    "true_titles": [
+      "{Neural Architecture Search with Reinforcement Learning"
+    ],
+    "retrieved_titles": [
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Depthwise Separable Convolutions for Neural Machine Translation",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{Self-Attention with Relative Position Representations"
+    ],
+    "paper_id": "paper_0",
+    "context": "17|>. In the NLP community, the evolved transformer<|cite_18|> adopts the neural architecture search<|cite_19|> to design basic blocks and finds a better \\#parameter-BLEU trade-off for the transformer..."
+  },
+  {
+    "query_id": "q_20",
+    "true_titles": [
+      "Point-Voxel CNN for efficient 3D deep learning"
+    ],
+    "retrieved_titles": [
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "{FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search",
+      "{Quantizing Deep Convolutional Networks for Efficient Inference: A Whitepaper",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{MetaPruning: Meta Learning for Automatic Neural Network Channel Pruning",
+      "{Energy and Policy Considerations for Deep Learning in NLP",
+      "Point-Voxel CNN for efficient 3D deep learning",
+      "{Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation",
+      "{Effective Approaches to Attention-based Neural Machine Translation"
+    ],
+    "paper_id": "paper_0",
+    "context": "most researchers.\n\n\\myparagraph{Model Acceleration.}\n\nApart from designing efficient models directly<|cite_20|>, another approach to achieve efficient inference is to compress and accelerate the exist..."
+  },
+  {
+    "query_id": "q_21",
+    "true_titles": [
+      "{Learning both Weights and Connections for Efficient Neural Networks"
+    ],
+    "retrieved_titles": [
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Channel Pruning for Accelerating Very Deep Neural Networks",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Pay Less Attention with Lightweight and Dynamic Convolutions",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Learning both Weights and Connections for Efficient Neural Networks",
+      "{Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding",
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{Convolutional Sequence to Sequence Learning",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{NetAdapt: Platform-Aware Neural Network Adaptation for Mobile Applications",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision"
+    ],
+    "paper_id": "paper_0",
+    "context": "accelerate the existing large models. For instance, some have proposed to prune the separate neurons<|cite_21|> or the entire channels<|cite_22|>; others have proposed to quantize the network<|cite_23..."
+  },
+  {
+    "query_id": "q_22",
+    "true_titles": [
+      "{Channel Pruning for Accelerating Very Deep Neural Networks"
+    ],
+    "retrieved_titles": [
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{Channel Pruning for Accelerating Very Deep Neural Networks",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding",
+      "{Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation",
+      "{Learning both Weights and Connections for Efficient Neural Networks",
+      "{The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation",
+      "{BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "{Self-Attention with Relative Position Representations",
+      "{Self-Attention with Relative Position Representations",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{The Evolved Transformer",
+      "{Convolutional Sequence to Sequence Learning"
+    ],
+    "paper_id": "paper_0",
+    "context": "ls. For instance, some have proposed to prune the separate neurons<|cite_21|> or the entire channels<|cite_22|>; others have proposed to quantize the network<|cite_23|> to accelerate the model inferen..."
+  },
+  {
+    "query_id": "q_23",
+    "true_titles": [
+      "{Binarized Neural Networks: Training Deep Neural Networks with Weights and Activations Constrained to +1 or -1"
+    ],
+    "retrieved_titles": [
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Weighted Transformer Network for Machine Translation",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding",
+      "{Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Depthwise Separable Convolutions for Neural Machine Translation",
+      "{Trained Ternary Quantization",
+      "{Channel Pruning for Accelerating Very Deep Neural Networks"
+    ],
+    "paper_id": "paper_0",
+    "context": "e neurons<|cite_21|> or the entire channels<|cite_22|>; others have proposed to quantize the network<|cite_23|> to accelerate the model inference. \nRecently, AutoML has also been used to automate the ..."
+  },
+  {
+    "query_id": "q_24",
+    "true_titles": [
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices"
+    ],
+    "retrieved_titles": [
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding",
+      "GAN Compression: Efficient Architectures for Interactive Conditional GANs",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{Quantizing Deep Convolutional Networks for Efficient Inference: A Whitepaper",
+      "{Trained Ternary Quantization",
+      "{Effective Approaches to Attention-based Neural Machine Translation",
+      "{Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation",
+      "{Depthwise Separable Convolutions for Neural Machine Translation",
+      "{The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation",
+      "{MnasNet: Platform-Aware Neural Architecture Search for Mobile",
+      "{Learning Efficient Convolutional Networks through Network Slimming",
+      "{Learning Transferable Architectures for Scalable Image Recognition",
+      "{Attention is All you Need",
+      "{Attention is All you Need",
+      "{Sequence to Sequence Learning with Neural Networks",
+      "{Efficient Neural Architecture Search via Parameter Sharing",
+      "{Neural Architecture Search with Reinforcement Learning",
+      "{Neural Architecture Search with Reinforcement Learning"
+    ],
+    "paper_id": "paper_0",
+    "context": "l inference. \nRecently, AutoML has also been used to automate the model compression and acceleration<|cite_24|>. All these techniques are compressing existing models and are therefore orthogonal to ou..."
+  },
+  {
+    "query_id": "q_25",
+    "true_titles": [
+      "Modeling polypharmacy side effects with graph convolutional networks"
+    ],
+    "retrieved_titles": [
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Graph neural networks for social recommendation",
+      "Neural message passing for quantum chemistry",
+      "Graph convolutional networks for text classification",
+      "Bidirectional attention flow for machine comprehension",
+      "Bidirectional attention flow for machine comprehension",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Sentence-state lstm for text representation",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Modeling polypharmacy side effects with graph convolutional networks",
+      "Graph attention networks",
+      "Graph attention networks",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Select, answer and explain: Interpretable multi-hop reading comprehension over multiple documents",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs"
+    ],
+    "paper_id": "paper_1",
+    "context": " has attracted much attention recently,\n\nand have been applied to various tasks such as bio-medicine<|cite_0|>, computational chemistry<|cite_1|>, social networks<|cite_2|>, computer vision, and natur..."
+  },
+  {
+    "query_id": "q_26",
+    "true_titles": [
+      "Neural message passing for quantum chemistry"
+    ],
+    "retrieved_titles": [
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Graph neural networks for social recommendation",
+      "Graph convolutional networks for text classification",
+      "Neural message passing for quantum chemistry",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Sentence-state lstm for text representation",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Exploiting semantics in neural machine translation with graph convolutional networks",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs"
+    ],
+    "paper_id": "paper_1",
+    "context": "tly,\n\nand have been applied to various tasks such as bio-medicine<|cite_0|>, computational chemistry<|cite_1|>, social networks<|cite_2|>, computer vision, and natural language understanding<|cite_3|>..."
+  },
+  {
+    "query_id": "q_27",
+    "true_titles": [
+      "Graph neural networks for social recommendation"
+    ],
+    "retrieved_titles": [
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Graph neural networks for social recommendation",
+      "Neural message passing for quantum chemistry",
+      "Graph convolutional networks for text classification",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Sentence-state lstm for text representation",
+      "Exploiting semantics in neural machine translation with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Hierarchical graph network for multi-hop question answering"
+    ],
+    "paper_id": "paper_1",
+    "context": " to various tasks such as bio-medicine<|cite_0|>, computational chemistry<|cite_1|>, social networks<|cite_2|>, computer vision, and natural language understanding<|cite_3|>. GNN assumes structured gr..."
+  },
+  {
+    "query_id": "q_28",
+    "true_titles": [
+      "Dynamically fused graph network for multi-hop reasoning"
+    ],
+    "retrieved_titles": [
+      "Graph attention networks",
+      "Graph attention networks",
+      "Graph neural networks for social recommendation",
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Modeling polypharmacy side effects with graph convolutional networks",
+      "Neural message passing for quantum chemistry",
+      "Graph convolutional networks for text classification",
+      "Semi-supervised classification with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Exploiting semantics in neural machine translation with graph convolutional networks",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Select, answer and explain: Interpretable multi-hop reading comprehension over multiple documents",
+      "Question answering by reasoning across documents with graph convolutional networks"
+    ],
+    "paper_id": "paper_1",
+    "context": " chemistry<|cite_1|>, social networks<|cite_2|>, computer vision, and natural language understanding<|cite_3|>. GNN assumes structured graphical inputs, for example, molecule graphs, protein-protein i..."
+  },
+  {
+    "query_id": "q_29",
+    "true_titles": [
+      "Semi-supervised classification with graph convolutional networks"
+    ],
+    "retrieved_titles": [
+      "Graph convolutional networks for text classification",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Coarse-grain fine-grain coattention network for multi-evidence question answering",
+      "Bidirectional attention flow for machine comprehension"
+    ],
+    "paper_id": "paper_1",
+    "context": "s have been proposed to learn graph representation,\n\nwhich include Graph Convolutional Network (GCN)<|cite_4|>, GraphSage<|cite_5|>, Graph Isomorphism Network (GIN)<|cite_6|> and Graph Attention Netwo..."
+  },
+  {
+    "query_id": "q_30",
+    "true_titles": [
+      "Inductive representation learning on large graphs"
+    ],
+    "retrieved_titles": [
+      "Graph convolutional networks for text classification",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Coarse-grain fine-grain coattention network for multi-evidence question answering",
+      "Bidirectional attention flow for machine comprehension",
+      "Bidirectional attention flow for machine comprehension",
+      "Neural message passing for quantum chemistry"
+    ],
+    "paper_id": "paper_1",
+    "context": "to learn graph representation,\n\nwhich include Graph Convolutional Network (GCN)<|cite_4|>, GraphSage<|cite_5|>, Graph Isomorphism Network (GIN)<|cite_6|> and Graph Attention Network (GAT)<|cite_7|>. E..."
+  },
+  {
+    "query_id": "q_31",
+    "true_titles": [
+      "How powerful are graph neural networks?"
+    ],
+    "retrieved_titles": [
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Graph convolutional networks for text classification",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Coarse-grain fine-grain coattention network for multi-evidence question answering",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Semi-supervised classification with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Modeling polypharmacy side effects with graph convolutional networks",
+      "Graph neural networks for social recommendation"
+    ],
+    "paper_id": "paper_1",
+    "context": "de Graph Convolutional Network (GCN)<|cite_4|>, GraphSage<|cite_5|>, Graph Isomorphism Network (GIN)<|cite_6|> and Graph Attention Network (GAT)<|cite_7|>. Existing GNN variants assume features of eac..."
+  },
+  {
+    "query_id": "q_32",
+    "true_titles": [
+      "Graph attention networks"
+    ],
+    "retrieved_titles": [
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs",
+      "Coarse-grain fine-grain coattention network for multi-evidence question answering",
+      "Bidirectional attention flow for machine comprehension",
+      "Bidirectional attention flow for machine comprehension",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Graph neural networks for social recommendation",
+      "Graph convolutional networks for text classification"
+    ],
+    "paper_id": "paper_1",
+    "context": "|>, GraphSage<|cite_5|>, Graph Isomorphism Network (GIN)<|cite_6|> and Graph Attention Network (GAT)<|cite_7|>. Existing GNN variants assume features of each node to be a vector, which is initialized ..."
+  },
+  {
+    "query_id": "q_33",
+    "true_titles": [
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs"
+    ],
+    "retrieved_titles": [
+      "Bidirectional attention flow for machine comprehension",
+      "Bidirectional attention flow for machine comprehension",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Neural message passing for quantum chemistry",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Graph convolutional networks for text classification",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Graph neural networks for social recommendation",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification"
+    ],
+    "paper_id": "paper_1",
+    "context": "ge passing algorithm is applied to obtain node representations from these summarized feature vectors<|cite_8|>.\n\nHowever, this early summarization strategy (summarization before GNN based representati..."
+  },
+  {
+    "query_id": "q_34",
+    "true_titles": [
+      "Bidirectional attention flow for machine comprehension"
+    ],
+    "retrieved_titles": [
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Select, answer and explain: Interpretable multi-hop reading comprehension over multiple documents",
+      "Bidirectional attention flow for machine comprehension",
+      "Bidirectional attention flow for machine comprehension",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs",
+      "Sentence-state lstm for text representation",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Graph neural networks for social recommendation",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "Hotpotqa: A dataset for diverse, explainable multi-hop question answering",
+      "Graph convolutional networks for text classification",
+      "Improved semantic representations from tree-structured long short-term memory networks"
+    ],
+    "paper_id": "paper_1",
+    "context": "egy (summarization before GNN based representation learning) could bring inevitable information loss<|cite_9|>, and result in\ninformation flow bottleneck thus less powerful reasoning ability among gra..."
+  },
+  {
+    "query_id": "q_35",
+    "true_titles": [
+      "Dynamic coattention networks for question answering"
+    ],
+    "retrieved_titles": [
+      "Bidirectional attention flow for machine comprehension",
+      "Bidirectional attention flow for machine comprehension",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Graph neural networks for social recommendation",
+      "Semi-supervised classification with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Coarse-grain fine-grain coattention network for multi-evidence question answering",
+      "Exploiting semantics in neural machine translation with graph convolutional networks",
+      "Select, answer and explain: Interpretable multi-hop reading comprehension over multiple documents",
+      "Dynamic coattention networks for question answering",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning"
+    ],
+    "paper_id": "paper_1",
+    "context": "as a way to encode query-aware contextual information based on affinity matrix between two sequences<|cite_10|>. In the context of this paper, the advantage of co-attention is that it can encode neigh..."
+  },
+  {
+    "query_id": "q_36",
+    "true_titles": [
+      "Hotpotqa: A dataset for diverse, explainable multi-hop question answering"
+    ],
+    "retrieved_titles": [
+      "Fever: a large-scale dataset for fact extraction and verification",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Graph neural networks for social recommendation",
+      "Select, answer and explain: Interpretable multi-hop reading comprehension over multiple documents",
+      "Hotpotqa: A dataset for diverse, explainable multi-hop question answering",
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Dynamic coattention networks for question answering",
+      "Graph convolutional networks for text classification",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks"
+    ],
+    "paper_id": "paper_1",
+    "context": "am}.\n\nTo validate the effectiveness of the proposed GSN, we experiment on two NLP datasets: HotpotQA<|cite_11|> and fact extraction and verification data set provided by FEVER shared task 1.0<|cite_12..."
+  },
+  {
+    "query_id": "q_37",
+    "true_titles": [
+      "Fever: a large-scale dataset for fact extraction and verification"
+    ],
+    "retrieved_titles": [
+      "Fever: a large-scale dataset for fact extraction and verification",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Select, answer and explain: Interpretable multi-hop reading comprehension over multiple documents",
+      "Hotpotqa: A dataset for diverse, explainable multi-hop question answering",
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs"
+    ],
+    "paper_id": "paper_1",
+    "context": " HotpotQA<|cite_11|> and fact extraction and verification data set provided by FEVER shared task 1.0<|cite_12|>. Both tasks require the model to have reasoning ability, and top performance has been ac..."
+  },
+  {
+    "query_id": "q_38",
+    "true_titles": [
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification"
+    ],
+    "retrieved_titles": [
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Select, answer and explain: Interpretable multi-hop reading comprehension over multiple documents",
+      "Hotpotqa: A dataset for diverse, explainable multi-hop question answering",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Bidirectional attention flow for machine comprehension",
+      "Bidirectional attention flow for machine comprehension",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Sentence-state lstm for text representation",
+      "Exploiting semantics in neural machine translation with graph convolutional networks",
+      "Dynamically fused graph network for multi-hop reasoning"
+    ],
+    "paper_id": "paper_1",
+    "context": "ve reasoning ability, and top performance has been achieved with early summarization followed by GNN<|cite_13|>. With thorough experiments, we show that the proposed GSN achieves better performance th..."
+  },
+  {
+    "query_id": "q_39",
+    "true_titles": [
+      "Semi-supervised classification with graph convolutional networks"
+    ],
+    "retrieved_titles": [
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Neural message passing for quantum chemistry",
+      "Graph neural networks for social recommendation",
+      "Graph convolutional networks for text classification",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Select, answer and explain: Interpretable multi-hop reading comprehension over multiple documents",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Sentence-state lstm for text representation",
+      "Dynamic coattention networks for question answering",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning"
+    ],
+    "paper_id": "paper_1",
+    "context": "\nMultiple GNN variants have been proposed with different message passing algorithms. For example GCN<|cite_14|>, Graph Sage<|cite_15|>, GAT<|cite_16|>, GIN<|cite_17|>, etc. Our proposed GSN can be reg..."
+  },
+  {
+    "query_id": "q_40",
+    "true_titles": [
+      "Inductive representation learning on large graphs"
+    ],
+    "retrieved_titles": [
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Neural message passing for quantum chemistry",
+      "Graph neural networks for social recommendation",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Graph convolutional networks for text classification",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Semi-supervised classification with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Dynamic coattention networks for question answering",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Sentence-state lstm for text representation",
+      "Select, answer and explain: Interpretable multi-hop reading comprehension over multiple documents"
+    ],
+    "paper_id": "paper_1",
+    "context": "have been proposed with different message passing algorithms. For example GCN<|cite_14|>, Graph Sage<|cite_15|>, GAT<|cite_16|>, GIN<|cite_17|>, etc. Our proposed GSN can be regarded as a variant of G..."
+  },
+  {
+    "query_id": "q_41",
+    "true_titles": [
+      "Graph attention networks"
+    ],
+    "retrieved_titles": [
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Neural message passing for quantum chemistry",
+      "Graph neural networks for social recommendation",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Graph convolutional networks for text classification",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Dynamic coattention networks for question answering",
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification"
+    ],
+    "paper_id": "paper_1",
+    "context": "ed with different message passing algorithms. For example GCN<|cite_14|>, Graph Sage<|cite_15|>, GAT<|cite_16|>, GIN<|cite_17|>, etc. Our proposed GSN can be regarded as a variant of GNN. However, GSN..."
+  },
+  {
+    "query_id": "q_42",
+    "true_titles": [
+      "How powerful are graph neural networks?"
+    ],
+    "retrieved_titles": [
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Neural message passing for quantum chemistry",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Graph neural networks for social recommendation",
+      "Graph convolutional networks for text classification",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Dynamic coattention networks for question answering",
+      "Semi-supervised classification with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Graph convolutional encoders for syntax-aware neural machine translation"
+    ],
+    "paper_id": "paper_1",
+    "context": "t message passing algorithms. For example GCN<|cite_14|>, Graph Sage<|cite_15|>, GAT<|cite_16|>, GIN<|cite_17|>, etc. Our proposed GSN can be regarded as a variant of GNN. However, GSN differs from pr..."
+  },
+  {
+    "query_id": "q_43",
+    "true_titles": [
+      "Graph convolutional encoders for syntax-aware neural machine translation"
+    ],
+    "retrieved_titles": [
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "Graph convolutional networks for text classification",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Graph neural networks for social recommendation",
+      "Modeling polypharmacy side effects with graph convolutional networks",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Exploiting semantics in neural machine translation with graph convolutional networks",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Inductive representation learning on large graphs"
+    ],
+    "paper_id": "paper_1",
+    "context": "oup usually builds graphs from parsing trees or develops graph-like Recurrent Neural Networks (RNN).<|cite_18|> and<|cite_19|> explored building graphs from syntactic or semantic parsing trees and ins..."
+  },
+  {
+    "query_id": "q_44",
+    "true_titles": [
+      "Exploiting semantics in neural machine translation with graph convolutional networks"
+    ],
+    "retrieved_titles": [
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "Graph convolutional networks for text classification",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Graph neural networks for social recommendation",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Exploiting semantics in neural machine translation with graph convolutional networks",
+      "Modeling polypharmacy side effects with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Inductive representation learning on large graphs"
+    ],
+    "paper_id": "paper_1",
+    "context": "lds graphs from parsing trees or develops graph-like Recurrent Neural Networks (RNN).<|cite_18|> and<|cite_19|> explored building graphs from syntactic or semantic parsing trees and inserted a GCN bas..."
+  },
+  {
+    "query_id": "q_45",
+    "true_titles": [
+      "Graph convolution over pruned dependency trees improves relation extraction"
+    ],
+    "retrieved_titles": [
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Graph convolutional networks for text classification",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Exploiting semantics in neural machine translation with graph convolutional networks",
+      "Sentence-state lstm for text representation",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Bidirectional attention flow for machine comprehension",
+      "Bidirectional attention flow for machine comprehension",
+      "Fever: a large-scale dataset for fact extraction and verification",
+      "Dynamic coattention networks for question answering",
+      "Graph neural networks for social recommendation",
+      "Graph attention networks",
+      "Graph attention networks",
+      "Coarse-grain fine-grain coattention network for multi-evidence question answering",
+      "Neural message passing for quantum chemistry"
+    ],
+    "paper_id": "paper_1",
+    "context": " inserted a GCN based sub-network to the encoder of sequence-to-sequence machine translation models.<|cite_20|> applied GCN on pruned syntactic dependency trees for relation extraction.<|cite_21|> pro..."
+  },
+  {
+    "query_id": "q_46",
+    "true_titles": [
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks"
+    ],
+    "retrieved_titles": [
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Graph convolutional networks for text classification",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Sentence-state lstm for text representation",
+      "Fever: a large-scale dataset for fact extraction and verification",
+      "Hierarchical graph network for multi-hop question answering",
+      "Hierarchical graph network for multi-hop question answering",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Semi-supervised classification with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Modeling polypharmacy side effects with graph convolutional networks",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs"
+    ],
+    "paper_id": "paper_1",
+    "context": "slation models.<|cite_20|> applied GCN on pruned syntactic dependency trees for relation extraction.<|cite_21|> proposed to use GCN over syntactic dependency trees for aspect-based sentiment classific..."
+  },
+  {
+    "query_id": "q_47",
+    "true_titles": [
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks"
+    ],
+    "retrieved_titles": [
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Graph convolutional networks for text classification",
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Sentence-state lstm for text representation",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Semi-supervised classification with graph convolutional networks",
+      "Semi-supervised classification with graph convolutional networks",
+      "Modeling polypharmacy side effects with graph convolutional networks",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification",
+      "Gear: Graph-based evidence aggregating and reasoning for fact verification"
+    ],
+    "paper_id": "paper_1",
+    "context": "_21|> proposed to use GCN over syntactic dependency trees for aspect-based sentiment classification.<|cite_22|> applied similar idea to derive word embeddings based on GCN. Furthermore, the tree-LSTM ..."
+  },
+  {
+    "query_id": "q_48",
+    "true_titles": [
+      "Improved semantic representations from tree-structured long short-term memory networks"
+    ],
+    "retrieved_titles": [
+      "Sentence-state lstm for text representation",
+      "Graph convolutional networks for text classification",
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Graph neural networks for social recommendation",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning"
+    ],
+    "paper_id": "paper_1",
+    "context": "e_22|> applied similar idea to derive word embeddings based on GCN. Furthermore, the tree-LSTM model<|cite_23|> and sent-LSTM<|cite_24|> model can also be regarded as implementation of GNN because the..."
+  },
+  {
+    "query_id": "q_49",
+    "true_titles": [
+      "Sentence-state lstm for text representation"
+    ],
+    "retrieved_titles": [
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Sentence-state lstm for text representation",
+      "Graph convolutional networks for text classification",
+      "Incorporating syntactic and semantic information in word embeddings using graph convolutional networks",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Graph convolution over pruned dependency trees improves relation extraction",
+      "Graph convolutional encoders for syntax-aware neural machine translation",
+      "Inductive representation learning on large graphs",
+      "Inductive representation learning on large graphs",
+      "Question answering by reasoning across documents with graph convolutional networks",
+      "Neural message passing for quantum chemistry",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Graph neural networks for social recommendation",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning",
+      "Dynamically fused graph network for multi-hop reasoning"
+    ],
+    "paper_id": "paper_1",
+    "context": "ea to derive word embeddings based on GCN. Furthermore, the tree-LSTM model<|cite_23|> and sent-LSTM<|cite_24|> model can also be regarded as implementation of GNN because they both explored recurrent..."
+  }
+]

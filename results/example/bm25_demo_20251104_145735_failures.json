@@ -1,0 +1,77 @@
+[
+  {
+    "query_id": "q_23",
+    "paper_id": "paper_0",
+    "true_title": "{Binarized Neural Networks: Training Deep Neural Networks with Weights and Activations Constrained to +1 or -1",
+    "context": "e neurons<|cite_21|> or the entire channels<|cite_22|>; others have proposed to quantize the network<|cite_23|> to accelerate the model inference. \nRecently, AutoML has also been used to automate the model compr",
+    "retrieved_titles": [
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+      "{Neural Machine Translation by Jointly Learning to Align and Translate",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices",
+      "{AMC: AutoML for Model Compression and Acceleration on Mobile Devices"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 51
+  },
+  {
+    "query_id": "q_28",
+    "paper_id": "paper_1",
+    "true_title": "Dynamically fused graph network for multi-hop reasoning",
+    "context": " chemistry<|cite_1|>, social networks<|cite_2|>, computer vision, and natural language understanding<|cite_3|>. GNN assumes structured graphical inputs, for example, molecule graphs, protein-protein interaction",
+    "retrieved_titles": [
+      "Graph attention networks",
+      "Graph attention networks",
+      "Graph neural networks for social recommendation",
+      "Improved semantic representations from tree-structured long short-term memory networks",
+      "Inductive representation learning on large graphs"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 38
+  },
+  {
+    "query_id": "q_29",
+    "paper_id": "paper_1",
+    "true_title": "Semi-supervised classification with graph convolutional networks",
+    "context": "s have been proposed to learn graph representation,\n\nwhich include Graph Convolutional Network (GCN)<|cite_4|>, GraphSage<|cite_5|>, Graph Isomorphism Network (GIN)<|cite_6|> and Graph Attention Network (GAT)<|",
+    "retrieved_titles": [
+      "Graph convolutional networks for text classification",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?",
+      "Aspect-based sentiment classification with aspect-specific graph convolutional networks",
+      "Graph attention networks"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 38
+  },
+  {
+    "query_id": "q_39",
+    "paper_id": "paper_1",
+    "true_title": "Semi-supervised classification with graph convolutional networks",
+    "context": "\nMultiple GNN variants have been proposed with different message passing algorithms. For example GCN<|cite_14|>, Graph Sage<|cite_15|>, GAT<|cite_16|>, GIN<|cite_17|>, etc. Our proposed GSN can be regarded as a ",
+    "retrieved_titles": [
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "How powerful are graph neural networks?",
+      "How powerful are graph neural networks?"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 38
+  },
+  {
+    "query_id": "q_40",
+    "paper_id": "paper_1",
+    "true_title": "Inductive representation learning on large graphs",
+    "context": "have been proposed with different message passing algorithms. For example GCN<|cite_14|>, Graph Sage<|cite_15|>, GAT<|cite_16|>, GIN<|cite_17|>, etc. Our proposed GSN can be regarded as a variant of GNN. However",
+    "retrieved_titles": [
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Multi-hop reading comprehension across multiple documents by reasoning over heterogeneous graphs",
+      "Neural message passing for quantum chemistry",
+      "Graph neural networks for social recommendation"
+    ],
+    "category": "not_in_top_k",
+    "corpus_size": 38
+  }
+]

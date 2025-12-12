@@ -54,7 +54,7 @@ metadata = {
 console = Console()
 
 ## Load the dataset
-c = pd.read_csv("../../../datasets/CiteME.tsv", sep="\t")
+c = pd.read_csv("../../datasets/CiteME.tsv", sep="\t")
 
 c.set_index("id", inplace=True)
 if metadata["dataset_split"] == "all":
