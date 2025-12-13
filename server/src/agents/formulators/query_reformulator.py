@@ -11,9 +11,11 @@ ACADEMIC_EXPANSIONS = {
     "citation": ["scientific reference", "scholarly work", "academic publication"],
 }
 
+
 def extract_keywords(query: str):
     tokens = re.findall(r"[A-Za-z]+", query.lower())
     return [t for t in tokens if len(t) > 3]
+
 
 def expand_keywords(keywords):
     expansions = []
@@ -22,13 +24,15 @@ def expand_keywords(keywords):
             expansions.extend(ACADEMIC_EXPANSIONS[kw])
     return expansions
 
+
 def academic_style_rewrite(query, keywords, expansions):
     joined = ", ".join(keywords + expansions[:3])
     return f"paper discussing {joined} in the context of citation retrieval"
 
+
 def query_reformulator(state):
     """Reads the LAST human message from MessagesState."""
-    
+
     msgs = state["messages"]
     user_msg = None
     for m in reversed(msgs):
@@ -38,9 +42,7 @@ def query_reformulator(state):
 
     if not user_msg:
         # Nothing to reformulate
-        return {"messages": [
-            AIMessage(name="reformulator", content="[]")
-        ]}
+        return {"messages": [AIMessage(name="reformulator", content="[]")]}
 
     base_query = user_msg.strip()
     keywords = extract_keywords(base_query)
@@ -54,10 +56,9 @@ def query_reformulator(state):
     ]
 
     return {
-        "messages": [
-            AIMessage(
-                name="reformulator",
-                content=str(expanded_queries)
-            )
-        ]
+        # Structured keys (preferred by downstream nodes)
+        "query": base_query,
+        "queries": expanded_queries,
+        # Message for Studio visibility / backwards-compat
+        "messages": [AIMessage(name="reformulator", content=str(expanded_queries))],
     }

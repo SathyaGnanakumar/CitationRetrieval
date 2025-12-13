@@ -3,3 +3,4 @@
 .claude
 additional/
 __pycache__
+dspy_prompt_generator/

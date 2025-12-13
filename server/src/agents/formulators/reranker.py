@@ -1,20 +1,58 @@
-from typing import List, Dict, Any
-from langgraph.graph import MessagesState
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional
+
 from FlagEmbedding import FlagReranker
+from langchain_core.messages import AIMessage, HumanMessage
 
 
-def processed_list(query: str, candidate_papers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    pairs = []
-    for paper in candidate_papers:
-        pairs.append([query, paper.get("title", "")])
-    return pairs
+def _get_query(state: Dict[str, Any]) -> Optional[str]:
+    q = state.get("query")
+    if isinstance(q, str) and q.strip():
+        return q.strip()
+
+    # Fallback: last human message
+    for m in reversed(state.get("messages", [])):
+        if isinstance(m, HumanMessage) and isinstance(m.content, str) and m.content.strip():
+            return m.content.strip()
+    return None
 
 
-# src/agents/ranking_agent.py
-def reranker(state: MessagesState, model_name: str = "BAAI/bge-reranker-v2-m3"):
-    print(f"📊 Ranking results using {model_name}...")
-    reranker_model = FlagReranker(model_name, use_fp16=True)
-    pairs = processed_list(state.query, state.candidate_papers)
-    score = reranker_model.compute_score(pairs, normalize=True)
-    ranked = sorted(zip(state.candidate_papers, score), key=lambda x: x[1], reverse=True)
-    return {"ranked_papers": ranked}
+def _pairs(query: str, candidate_papers: List[Dict[str, Any]]) -> List[List[str]]:
+    return [[query, (paper.get("title") or "")] for paper in candidate_papers]
+
+
+def reranker(state: Dict[str, Any], model_name: str = "BAAI/bge-reranker-v2-m3"):
+    """
+    Cross-encoder reranker.
+
+    Expects:
+    - state["candidate_papers"]: list[dict] with at least `title`
+    - state["query"] (optional; falls back to last HumanMessage)
+    Optionally uses:
+    - state["resources"]["reranker_model"] to reuse a loaded model
+    """
+
+    query = _get_query(state)
+    candidates = state.get("candidate_papers") or []
+    if not query:
+        return {"messages": [AIMessage(name="reranking", content="RERANK_ERROR: missing query")]}
+    if not isinstance(candidates, list) or not candidates:
+        return {"ranked_papers": [], "messages": [AIMessage(name="reranking", content="[]")]}
+
+    resources = state.get("resources", {}) or {}
+    reranker_model = resources.get("reranker_model") or FlagReranker(model_name, use_fp16=True)
+
+    pairs = _pairs(query, candidates)
+    scores = reranker_model.compute_score(pairs, normalize=True)
+
+    ranked_items = []
+    for paper, score in sorted(zip(candidates, scores), key=lambda x: x[1], reverse=True):
+        item = dict(paper)
+        item["rerank_score"] = float(score)
+        ranked_items.append(item)
+
+    return {
+        "ranked_papers": ranked_items,
+        "messages": [AIMessage(name="reranking", content=str(ranked_items))],
+    }

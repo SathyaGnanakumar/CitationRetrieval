@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from langgraph.graph import StateGraph, MessagesState, START, END
+from langgraph.graph import StateGraph, START, END
 
 # Load environment variables
 load_dotenv()
@@ -20,6 +20,7 @@ from src.agents.retrievers.specter_agent import specter_agent
 from src.agents.formulators.query_reformulator import query_reformulator
 from src.additional.analysis_agent import analysis_agent
 from src.agents.formulators.reranker import reranker
+from src.models.state import RetrievalState
 
 # from agents.verifier_agent import verifier_agent
 
@@ -36,7 +37,7 @@ class RetrievalWorkflow:
     def _build_workflow(self):
         """Build and compile the LangGraph workflow."""
         # IMPORTANT: Studio REQUIRES MessagesState or Annotated fields
-        graph = StateGraph(MessagesState)
+        graph = StateGraph(RetrievalState)
 
         ############################################################
         # 2️⃣  ADD AGENTS (nodes)
@@ -56,17 +57,19 @@ class RetrievalWorkflow:
         # 3️⃣  ADD EDGES
         ############################################################
 
-        # Start → Query Reformulator -> Coordinator
+        # Start → Query Reformulator
         graph.add_edge(START, "reformulator")
-        # graph.add_edge("reformulator", "coordinator")
 
-        # Coordinator fans out to all retrieval agents
+        # Retrieval agents (fan-out in parallel, then fan-in)
+        # LangGraph will execute bm25/e5/specter in the same superstep when they share
+        # the same upstream node. Make sure parallel branches don't write to the same
+        # state key unless that key has a reducer.
         graph.add_edge("reformulator", "bm25")
         graph.add_edge("reformulator", "e5")
         graph.add_edge("reformulator", "specter")
         # graph.add_edge("coordinator", "llm")
 
-        # All retrieval agents → analysis agent
+        # Retrieval agents → analysis agent (fan-in barrier)
         graph.add_edge("bm25", "analysis")
         graph.add_edge("e5", "analysis")
         graph.add_edge("specter", "analysis")
@@ -87,7 +90,7 @@ class RetrievalWorkflow:
     # 5️⃣ RUN METHOD - Takes initial state, returns final state
     ############################################################
 
-    def run(self, initial_state: MessagesState) -> MessagesState:
+    def run(self, initial_state: RetrievalState) -> RetrievalState:
         """
         Execute the workflow pipeline with an initial state.
 
@@ -124,7 +127,7 @@ class RetrievalWorkflow:
 
         print("==========================================================\n")
 
-    def visualize_graph(self, filename: str = "workflow_graph.png"):
+    def visualize_graph(self, save_file: bool = False, filename: str = "workflow_graph.png"):
         """
         Visualize the workflow graph as a Mermaid diagram and save to file.
 
@@ -136,21 +139,23 @@ class RetrievalWorkflow:
         """
         from IPython.display import Image
 
-        # Get output directory from environment variable
-        output_dir = os.getenv("GRAPH_OUTPUT_DIR", "./graphs")
-        output_path = Path(output_dir)
-
-        # Create directory if it doesn't exist
-        output_path.mkdir(parents=True, exist_ok=True)
-
         # Generate graph image
         graph_image = self.pipeline.get_graph().draw_mermaid_png()
 
-        # Save to file
-        file_path = output_path / filename
-        with open(file_path, "wb") as f:
-            f.write(graph_image)
+        if save_file:
+            # Get output directory from environment variable
+            output_dir = os.getenv("GRAPH_OUTPUT_DIR", "./graphs")
+            output_path = Path(output_dir)
 
-        print(f"Graph visualization saved to: {file_path}")
+            # Create directory if it doesn't exist
+            output_path.mkdir(parents=True, exist_ok=True)
 
-        return Image(graph_image)
+            # Save to file
+            file_path = output_path / filename
+            with open(file_path, "wb") as f:
+                f.write(graph_image)
+
+            print(f"Graph visualization saved to: {file_path}")
+
+        else:
+            return Image(graph_image)
