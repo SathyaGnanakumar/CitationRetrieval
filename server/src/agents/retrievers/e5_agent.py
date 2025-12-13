@@ -30,8 +30,11 @@ corpus_titles = []
 corpus_abstracts = []
 corpus_texts = []
 
+# Use a dictionary to deduplicate papers by normalized title
+unique_papers = {}
+
 """
-Note: Normally the corpus should be built from the citations in every paper's 
+Note: Normally the corpus should be built from the citations in every paper's
 bib_info, but in this version I built it from just the papers since I'm testing
 this locally. When we move this code to the cluster, the loop needs to be
 changed to the loop inside this comment so that it iterates through every
@@ -41,24 +44,47 @@ for paper in data:
     for bib in paper.get("bib_info", {}).values():
         for citation in bib:
             citation_key = citation.get("citation_key")
-            title = citation.get("title", "")
+            title = citation.get("title", "").strip()
             abstract = citation.get("abstract", "")
 
-            corpus_ids.append(citation_key)
-            corpus_titles.append(title)
-            corpus_abstracts.append(abstract)
-            corpus_texts.append(f"{title}. {abstract}")
+            if title:
+                # Normalize title for deduplication (lowercase, remove extra spaces)
+                normalized_title = " ".join(title.lower().split())
+
+                # Only add if normalized title hasn't been seen before
+                if normalized_title not in unique_papers:
+                    unique_papers[normalized_title] = {
+                        "id": citation_key,
+                        "title": title,
+                        "abstract": abstract,
+                        "text": f"{title}. {abstract}"
+                    }
 """
 
 for paper in data:
     citation_key = paper.get("paper_id")
-    title = paper.get("title", "")
+    title = paper.get("title", "").strip()
     abstract = paper.get("abstract", "")
 
-    corpus_ids.append(citation_key)
-    corpus_titles.append(title)
-    corpus_abstracts.append(abstract)
-    corpus_texts.append(f"{title}. {abstract}")
+    if title:
+        # Normalize title for deduplication (lowercase, remove extra spaces)
+        normalized_title = " ".join(title.lower().split())
+
+        # Only add if normalized title hasn't been seen before
+        if normalized_title not in unique_papers:
+            unique_papers[normalized_title] = {
+                "id": citation_key,
+                "title": title,
+                "abstract": abstract,
+                "text": f"{title}. {abstract}"
+            }
+
+# Convert dictionary to lists
+for paper_data in unique_papers.values():
+    corpus_ids.append(paper_data["id"])
+    corpus_titles.append(paper_data["title"])
+    corpus_abstracts.append(paper_data["abstract"])
+    corpus_texts.append(paper_data["text"])
 
 print(f"Corpus size: {len(corpus_texts)} papers")
 
@@ -66,7 +92,9 @@ print(f"Corpus size: {len(corpus_texts)} papers")
 model_name = "intfloat/e5-large-v2"
 print(f"Loading dense retriever model: {model_name}")
 model = SentenceTransformer(model_name)
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device = (
+    "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+)
 model.to(device)
 print(f"Model loaded on device: {device}")
 

@@ -34,15 +34,33 @@ corpus_titles = []
 corpus_abstracts = []
 corpus_texts = []
 
+# Use a dictionary to deduplicate papers by normalized title
+unique_papers = {}
+
 for paper in data:
     citation_key = paper.get("paper_id")
-    title = paper.get("title", "")
+    title = paper.get("title", "").strip()
     abstract = paper.get("abstract", "")
 
-    corpus_ids.append(citation_key)
-    corpus_titles.append(title)
-    corpus_abstracts.append(abstract)
-    corpus_texts.append(f"{title}. {abstract}")
+    if title:
+        # Normalize title for deduplication (lowercase, remove extra spaces)
+        normalized_title = " ".join(title.lower().split())
+
+        # Only add if normalized title hasn't been seen before
+        if normalized_title not in unique_papers:
+            unique_papers[normalized_title] = {
+                "id": citation_key,
+                "title": title,
+                "abstract": abstract,
+                "text": f"{title}. {abstract}"
+            }
+
+# Convert dictionary to lists
+for paper_data in unique_papers.values():
+    corpus_ids.append(paper_data["id"])
+    corpus_titles.append(paper_data["title"])
+    corpus_abstracts.append(paper_data["abstract"])
+    corpus_texts.append(paper_data["text"])
 
 print(f"Corpus size: {len(corpus_texts)} papers")
 

@@ -11,10 +11,10 @@ def processed_list(query: str, candidate_papers: List[Dict[str, Any]]) -> List[D
 
 
 # src/agents/ranking_agent.py
-def reranker(state: MessagesState):
-    print("📊 Ranking results...")
-    reranker = FlagReranker("BAAI/bge-reranker-v2-m3", use_fp16=True)
+def reranker(state: MessagesState, model_name: str = "BAAI/bge-reranker-v2-m3"):
+    print(f"📊 Ranking results using {model_name}...")
+    reranker_model = FlagReranker(model_name, use_fp16=True)
     pairs = processed_list(state.query, state.candidate_papers)
-    score = reranker.compute_score(pairs, normalize=True)
+    score = reranker_model.compute_score(pairs, normalize=True)
     ranked = sorted(zip(state.candidate_papers, score), key=lambda x: x[1], reverse=True)
     return {"ranked_papers": ranked}

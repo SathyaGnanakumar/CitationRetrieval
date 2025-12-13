@@ -9,7 +9,7 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 load_dotenv()
 
 # Import agent functions
-from src.agents.coordinator import coordinator
+# from src.additional.coordinator import coordinator
 
 # Import Retriever agent functions
 from src.agents.retrievers.bm25_agent import bm25_agent
@@ -18,7 +18,7 @@ from src.agents.retrievers.specter_agent import specter_agent
 
 # from src.agents.llm_agent import llm_agent
 from src.agents.formulators.query_reformulator import query_reformulator
-from src.agents.formulators.analysis_agent import analysis_agent
+from src.additional.analysis_agent import analysis_agent
 from src.agents.formulators.reranker import reranker
 
 # from agents.verifier_agent import verifier_agent

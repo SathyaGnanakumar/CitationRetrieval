@@ -24,16 +24,29 @@ print("🔧 Loading BM25 corpus...")
 with open(DATA_FILE, "r") as f:
     data = json.load(f)
 
+# Use a dictionary to deduplicate papers by normalized title
+unique_papers = {}
+title_mapping = {}  # Maps normalized title to original title
+
 for entry in data:
     bib = entry["bib_info"]
     for tag, entries in bib.items():
         for e in entries:
-            title = e.get("title", "")
+            title = e.get("title", "").strip()
             abstract = e.get("abstract", "")
 
             if title:
-                corpus_titles.append(title)
-                corpus_texts.append(f"{title} {abstract}")
+                # Normalize title for deduplication (lowercase, remove extra spaces)
+                normalized_title = " ".join(title.lower().split())
+
+                # Only add if normalized title hasn't been seen before
+                if normalized_title not in unique_papers:
+                    unique_papers[normalized_title] = f"{title} {abstract}"
+                    title_mapping[normalized_title] = title
+
+# Convert dictionary to lists
+corpus_titles = [title_mapping[norm_title] for norm_title in unique_papers.keys()]
+corpus_texts = list(unique_papers.values())
 
 # --------------------------------------
 # 2. Preprocess using SAME baseline stemmer
