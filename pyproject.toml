@@ -20,6 +20,7 @@ dependencies = [
     "rich>=14.2.0",
     "selenium>=4.38.0",
     "datasets>=4.4.1",
+    "openai>=1.30.0",
     # BM25 baseline dependencies
     "bm25s>=0.1.0",
     "pystemmer>=2.2.0",
