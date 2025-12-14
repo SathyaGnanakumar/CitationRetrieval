@@ -90,22 +90,14 @@ cd server
 
 2. **Install dependencies**
 
-Using `uv` (recommended):
-
 ```bash
 uv sync
-```
-
-Or using `pip`:
-
-```bash
-pip install -e .
 ```
 
 For development dependencies:
 
 ```bash
-pip install -e ".[dev]"
+uv sync --extra dev
 ```
 
 3. **Set up environment variables**
@@ -139,7 +131,7 @@ Place the ScholarCopilot dataset JSON file at the path specified in `DATASET_DIR
 Run the retrieval workflow with a query:
 
 ```bash
-python main.py \
+uv run python main.py \
   --dataset /path/to/dataset.json \
   --query "transformer architecture for sequence modeling" \
   --k 5
@@ -261,22 +253,22 @@ The project includes a comprehensive test suite. See [tests/README.md](tests/REA
 
 ```bash
 # Run all tests
-python tests/test_retrievers_batch.py
+uv run python tests/test_retrievers_batch.py
 
 # Run specific test types
-python tests/test_retrievers_batch.py --test-type single
-python tests/test_retrievers_batch.py --test-type batch
-python tests/test_retrievers_batch.py --test-type cli
+uv run python tests/test_retrievers_batch.py --test-type single
+uv run python tests/test_retrievers_batch.py --test-type batch
+uv run python tests/test_retrievers_batch.py --test-type cli
 
 # Test with custom models
-python tests/test_retrievers_batch.py \
+uv run python tests/test_retrievers_batch.py \
   --test-type cli \
   --e5-model intfloat/e5-large-v2 \
   --specter-model allenai/specter2 \
   --num-queries 20
 
 # Run with pytest
-pytest tests/ -v
+uv run pytest tests/ -v
 ```
 
 ### Test Coverage
@@ -367,8 +359,8 @@ The project uses:
 Format code:
 
 ```bash
-black src/ tests/
-ruff check src/ tests/
+uv run black src/ tests/
+uv run ruff check src/ tests/
 ```
 
 ### Adding New Retrievers
@@ -400,10 +392,10 @@ class NewRetriever:
 
 ```bash
 # Fast mode (BM25 only, no dense embeddings)
-python main.py --dataset /path/to/dataset.json --bm25-only
+uv run python main.py --dataset /path/to/dataset.json --bm25-only
 
 # Full mode with all retrievers
-python main.py --dataset /path/to/dataset.json
+uv run python main.py --dataset /path/to/dataset.json
 ```
 
 ## Troubleshooting
@@ -417,7 +409,7 @@ python main.py --dataset /path/to/dataset.json
 export DATASET_DIR="/path/to/dataset.json"
 
 # Or use --dataset flag
-python main.py --dataset /path/to/dataset.json
+uv run python main.py --dataset /path/to/dataset.json
 ```
 
 **2. CUDA Out of Memory**
@@ -437,7 +429,7 @@ python main.py --dataset /path/to/dataset.json
 ```bash
 # Ensure you're in the server directory
 cd server
-python main.py
+uv run python main.py
 
 # Or set PYTHONPATH
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
@@ -480,8 +472,8 @@ class SPECTERRetriever:
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Run tests (`pytest tests/`)
-5. Format code (`black src/ tests/`)
+4. Run tests (`uv run pytest tests/`)
+5. Format code (`uv run black src/ tests/`)
 6. Commit changes (`git commit -m 'Add amazing feature'`)
 7. Push to branch (`git push origin feature/amazing-feature`)
 8. Open a Pull Request
