@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from FlagEmbedding import FlagReranker
+try:
+    from FlagEmbedding import FlagReranker
+except ImportError:
+    FlagReranker = None
 from langchain_core.messages import AIMessage, HumanMessage
 
 
@@ -41,7 +44,19 @@ def reranker(state: Dict[str, Any], model_name: str = "BAAI/bge-reranker-v2-m3")
         return {"ranked_papers": [], "messages": [AIMessage(name="reranking", content="[]")]}
 
     resources = state.get("resources", {}) or {}
-    reranker_model = resources.get("reranker_model") or FlagReranker(model_name, use_fp16=True)
+    reranker_model = resources.get("reranker_model")
+    if reranker_model is None:
+        if FlagReranker is None:
+            ranked_items = []
+            for paper in sorted(candidates, key=lambda p: float(p.get("score") or 0.0), reverse=True):
+                item = dict(paper)
+                item["rerank_score"] = float(item.get("score") or 0.0)
+                ranked_items.append(item)
+            return {
+                "ranked_papers": ranked_items,
+                "messages": [AIMessage(name="reranking", content=str(ranked_items))],
+            }
+        reranker_model = FlagReranker(model_name, use_fp16=True)
 
     pairs = _pairs(query, candidates)
     scores = reranker_model.compute_score(pairs, normalize=True)

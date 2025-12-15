@@ -18,7 +18,8 @@ from src.agents.retrievers.specter_agent import specter_agent
 
 # from src.agents.llm_agent import llm_agent
 from src.agents.formulators.query_reformulator import query_reformulator
-from src.additional.analysis_agent import analysis_agent
+from src.agents.formulators.analysis_agent import analysis_agent
+from src.agents.formulators.dspy_picker import dspy_picker
 from src.agents.formulators.reranker import reranker
 from src.models.state import RetrievalState
 
@@ -52,6 +53,7 @@ class RetrievalWorkflow:
         graph.add_node("analysis", analysis_agent)  # Placeholder analysis agent
         # graph.add_node("verifier", verifier_agent, tags=["agent"])
         graph.add_node("reranking", reranker)
+        graph.add_node("dspy_picker", dspy_picker)
 
         ############################################################
         # 3️⃣  ADD EDGES
@@ -77,7 +79,8 @@ class RetrievalWorkflow:
 
         # Analysis -> Verifier agent -> END
         graph.add_edge("analysis", "reranking")
-        graph.add_edge("reranking", END)
+        graph.add_edge("reranking", "dspy_picker")
+        graph.add_edge("dspy_picker", END)
         # graph.add_edge("verifier", END)
 
         ############################################################
