@@ -44,7 +44,9 @@ class SPECTERRetriever:
                 if torch.cuda.is_available()
                 else "mps" if torch.backends.mps.is_available() else "cpu"
             )
-        self.device = device
+
+        self.device = torch.device(device)
+        self.model = self.model.to(self.device)
 
     def single_query(
         self,
@@ -80,14 +82,12 @@ class SPECTERRetriever:
             truncation=True,
             max_length=max_length,
             return_tensors="pt",
-        )
-        if self.device == "cuda":
-            inputs = inputs.to("cuda")
+        ).to(self.device)
 
         with torch.no_grad():
             q_emb = self.model(**inputs).last_hidden_state.mean(dim=1)
-            if self.device != "cuda":
-                q_emb = q_emb.cpu()
+
+        corpus_embeddings = corpus_embeddings.to(self.device)
 
         # Compute similarity
         # q_emb: (1, hidden_dim), corpus_embeddings: (corpus_size, hidden_dim)
@@ -143,15 +143,13 @@ class SPECTERRetriever:
             truncation=True,
             max_length=max_length,
             return_tensors="pt",
-        )
-        if self.device == "cuda":
-            inputs = inputs.to("cuda")
+        ).to(self.device)
 
         # Batch forward pass
         with torch.no_grad():
             q_embs = self.model(**inputs).last_hidden_state.mean(dim=1)
-            if self.device != "cuda":
-                q_embs = q_embs.cpu()
+
+        corpus_embeddings = corpus_embeddings.to(self.device)
 
         # Compute similarity for all queries
         # q_embs: (num_queries, hidden_dim)

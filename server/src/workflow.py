@@ -18,7 +18,6 @@ from src.agents.retrievers.specter_agent import specter_agent
 
 # from src.agents.llm_agent import llm_agent
 from src.agents.formulators.query_reformulator import query_reformulator
-from src.additional.analysis_agent import analysis_agent
 from src.agents.formulators.reranker import reranker
 from src.models.state import RetrievalState
 
@@ -49,7 +48,6 @@ class RetrievalWorkflow:
         graph.add_node("e5", e5_agent)
         graph.add_node("specter", specter_agent)
         # graph.add_node("llm", llm_agent, tags=["retriever"])
-        graph.add_node("analysis", analysis_agent)  # Placeholder analysis agent
         # graph.add_node("verifier", verifier_agent, tags=["agent"])
         graph.add_node("reranking", reranker)
 
@@ -69,14 +67,6 @@ class RetrievalWorkflow:
         graph.add_edge("reformulator", "specter")
         # graph.add_edge("coordinator", "llm")
 
-        # Retrieval agents → analysis agent (fan-in barrier)
-        graph.add_edge("bm25", "analysis")
-        graph.add_edge("e5", "analysis")
-        graph.add_edge("specter", "analysis")
-        # graph.add_edge("llm", "analysis")
-
-        # Analysis -> Verifier agent -> END
-        graph.add_edge("analysis", "reranking")
         graph.add_edge("reranking", END)
         # graph.add_edge("verifier", END)
 
@@ -159,3 +149,4 @@ class RetrievalWorkflow:
 
         else:
             return Image(graph_image)
+
