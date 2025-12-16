@@ -1,6 +1,6 @@
 # Citation Retrieval System
 
-A multi-baseline citation retrieval system that combines BM25, dense retrieval (E5 and SPECTER), and LLM-based reranking to find relevant academic papers for citation contexts. Built with LangGraph for orchestration and designed for the ScholarCopilot dataset.
+A multi-baseline citation retrieval system that combines BM25, dense retrieval (E5 and SPECTER), and cross-encoder reranking (with an optional DSPy final picker) to find relevant academic papers for citation contexts. Built with LangGraph for orchestration and designed for the ScholarCopilot dataset.
 
 ## Overview
 
@@ -11,7 +11,8 @@ This system provides a comprehensive solution for academic citation retrieval, c
 - **Multi-Stage Retrieval Pipeline**: Combines sparse (BM25) and dense (E5, SPECTER) retrieval methods
 - **Query Reformulation**: Automatically expands and reformulates queries for better retrieval
 - **Batch Processing**: Efficient GPU-accelerated batch processing for dense retrievers
-- **LLM-Based Reranking**: Uses language models to rerank and improve final results
+- **Cross-Encoder Reranking**: Reranks retrieved candidates (supports injected models; optional FlagEmbedding dependency)
+- **DSPy Final Picker (Optional)**: Uses a DSPy module to pick a single final paper from the top reranked candidates (disabled by default)
 - **ScholarCopilot Integration**: Built-in support for the ScholarCopilot dataset format
 - **Modular Architecture**: Class-based retrievers that work with any corpus source
 - **Comprehensive Testing**: Full test suite with single and batch query processing
@@ -31,11 +32,13 @@ Query Reformulator (expands queries)
     ├──→ E5 Retriever (dense retrieval)
     └──→ SPECTER Retriever (academic paper embeddings)
     ↓
-Analysis Agent (combines results)
+Analysis Agent (combines results into candidate_papers)
     ↓
-Reranker (LLM-based reranking)
+Reranker (cross-encoder reranking)
     ↓
-Final Ranked Results
+DSPy Final Picker (optional)
+    ↓
+Final Ranked Results / Selected Paper
 ```
 
 ### Components
@@ -64,7 +67,9 @@ Final Ranked Results
 #### Formulators
 
 - **Query Reformulator**: Expands queries with keywords and academic-style rewrites
-- **Reranker**: LLM-based reranking of retrieved results
+- **Analysis Agent**: Merges per-retriever outputs into `candidate_papers` and enriches candidates with abstracts when available
+- **Reranker**: Cross-encoder reranking of merged candidates (uses injected `resources["reranker_model"]` when provided; otherwise uses FlagEmbedding if installed)
+- **DSPy Picker**: Optional final selection step that writes `selected_paper`, `dspy_selected_title`, and `dspy_reasoning`
 
 #### Corpus Management
 
@@ -118,6 +123,14 @@ DATASET_DIR=/path/to/scholar_copilot_eval_data_1k.json
 OPENAI_API_KEY=your_key_here
 ANTHROPIC_API_KEY=your_key_here
 TOGETHER_API_KEY=your_key_here
+
+# DSPy final picker configuration
+ENABLE_DSPY_PICKER=false
+DSPY_MODEL=gpt-4o-mini
+DSPY_MODULE=simple
+DSPY_TOP_N=10
+DSPY_TEMPERATURE=0.0
+DSPY_MAX_TOKENS=800
 ```
 
 4. **Download the dataset**
@@ -230,6 +243,31 @@ retriever = SPECTERRetriever(
 | `ANTHROPIC_API_KEY` | Anthropic API key for reranking             | None                                            |
 | `TOGETHER_API_KEY`  | Together AI API key for reranking           | None                                            |
 | `GRAPH_OUTPUT_DIR`  | Directory for workflow graph visualizations | `./graphs`                                      |
+| `ENABLE_DSPY_PICKER` | Enable DSPy final picker step               | `false`                                         |
+| `DSPY_MODEL`        | Model name for DSPy (`dspy.LM`)             | `gpt-4o-mini`                                   |
+| `DSPY_MODULE`       | DSPy module name                            | `simple`                                        |
+| `DSPY_TOP_N`        | Top reranked candidates passed to DSPy      | `10`                                            |
+| `DSPY_TEMPERATURE`  | DSPy LM temperature                         | `0.0`                                           |
+| `DSPY_MAX_TOKENS`   | DSPy LM max tokens                          | `800`                                           |
+
+### DSPy Final Picker
+
+The `dspy_picker` node is **disabled by default**.
+
+Enable it via either:
+
+- `config["enable_dspy_picker"] = True`
+- `ENABLE_DSPY_PICKER=true`
+
+Configuration keys (via `state["config"]` or matching environment variables):
+
+- `dspy_top_n` / `DSPY_TOP_N`
+- `dspy_model` / `DSPY_MODEL`
+- `dspy_module` / `DSPY_MODULE`
+- `dspy_temperature` / `DSPY_TEMPERATURE`
+- `dspy_max_tokens` / `DSPY_MAX_TOKENS`
+
+When enabled, the picker adds `selected_paper`, `dspy_selected_title`, and `dspy_reasoning` to the final state.
 
 ### Model Configuration
 
@@ -273,12 +311,12 @@ uv run pytest tests/ -v
 
 ### Test Coverage
 
-- ✅ Single query processing (E5 & SPECTER)
-- ✅ Batch query processing (10+ queries)
-- ✅ Consistency verification (single vs batch)
-- ✅ Performance benchmarking
-- ✅ Corpus loading and processing
-- ✅ Workflow integration
+- Single query processing (E5 & SPECTER)
+- Batch query processing (10+ queries)
+- Consistency verification (single vs batch)
+- Performance benchmarking
+- Corpus loading and processing
+- Workflow integration
 
 ## Project Structure
 
@@ -290,7 +328,9 @@ server/
 │   │   │   ├── bm25_agent.py
 │   │   │   ├── e5_agent.py      # E5Retriever class with batch support
 │   │   │   └── specter_agent.py # SPECTERRetriever class with batch support
-│   │   └── formulators/          # Query reformulation and reranking
+│   │   └── formulators/          # Query reformulation, merging, and reranking
+│   │       ├── analysis_agent.py
+│   │       ├── dspy_picker.py
 │   │       ├── query_reformulator.py
 │   │       ├── reranker.py
 │   │       └── dspy_prompt_generator/  # DSPy-based prompt generation
