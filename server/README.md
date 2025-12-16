@@ -31,7 +31,7 @@ Query Reformulator (expands queries)
     ├──→ E5 Retriever (dense retrieval)
     └──→ SPECTER Retriever (academic paper embeddings)
     ↓
-Analysis Agent (combines results)
+Aggregator (combines and fuses results)
     ↓
 Reranker (LLM-based reranking)
     ↓
@@ -64,7 +64,32 @@ Final Ranked Results
 #### Formulators
 
 - **Query Reformulator**: Expands queries with keywords and academic-style rewrites
+- **Aggregator**: Combines and fuses results from multiple retrievers using Reciprocal Rank Fusion (RRF) or simple max-score methods
 - **Reranker**: LLM-based reranking of retrieved results
+
+##### Aggregator Details
+
+The Aggregator (`src/agents/formulators/aggregator.py`) merges results from all retrievers and supports two fusion methods:
+
+1. **Reciprocal Rank Fusion (RRF)** (default, recommended):
+
+   - Combines rankings using: `RRF_score = sum(1 / (k + rank_i))` across all retrievers
+   - Papers appearing in multiple retrievers get higher scores
+   - Robust to score scale differences between retrievers
+   - Better than simple score averaging
+
+2. **Simple Max-Score**:
+   - Takes the highest normalized score for each paper
+   - Useful for debugging or when retrievers are calibrated
+
+Configuration:
+
+```python
+config = {
+    "aggregation_method": "rrf",  # or "simple"
+    "rrf_k": 60  # RRF constant (default: 60)
+}
+```
 
 #### Corpus Management
 
@@ -290,8 +315,9 @@ server/
 │   │   │   ├── bm25_agent.py
 │   │   │   ├── e5_agent.py      # E5Retriever class with batch support
 │   │   │   └── specter_agent.py # SPECTERRetriever class with batch support
-│   │   └── formulators/          # Query reformulation and reranking
+│   │   └── formulators/          # Query reformulation, aggregation, and reranking
 │   │       ├── query_reformulator.py
+│   │       ├── aggregator.py    # Result fusion with RRF
 │   │       ├── reranker.py
 │   │       └── dspy_prompt_generator/  # DSPy-based prompt generation
 │   ├── corpus/                   # Corpus loading and processing

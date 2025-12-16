@@ -107,7 +107,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="/Users/ishaankalra/Dev/Retrieval/datasets/scholar_copilot_eval_data_1k.json",
+        default="../datasets/scholar_copilot_eval_data_1k.json",
         help="Path to dataset JSON file",
     )
     parser.add_argument(

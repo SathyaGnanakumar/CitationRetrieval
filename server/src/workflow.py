@@ -18,6 +18,7 @@ from src.agents.retrievers.specter_agent import specter_agent
 
 # from src.agents.llm_agent import llm_agent
 from src.agents.formulators.query_reformulator import query_reformulator
+from src.agents.formulators.aggregator import aggregator
 from src.agents.formulators.reranker import reranker
 from src.models.state import RetrievalState
 
@@ -49,6 +50,7 @@ class RetrievalWorkflow:
         graph.add_node("specter", specter_agent)
         # graph.add_node("llm", llm_agent, tags=["retriever"])
         # graph.add_node("verifier", verifier_agent, tags=["agent"])
+        graph.add_node("aggregator", aggregator)
         graph.add_node("reranking", reranker)
 
         ############################################################
@@ -58,7 +60,7 @@ class RetrievalWorkflow:
         # Start → Query Reformulator
         graph.add_edge(START, "reformulator")
 
-        # Retrieval agents (fan-out in parallel, then fan-in)
+        # Retrieval agents (fan-out in parallel from reformulator)
         # LangGraph will execute bm25/e5/specter in the same superstep when they share
         # the same upstream node. Make sure parallel branches don't write to the same
         # state key unless that key has a reducer.
@@ -67,6 +69,13 @@ class RetrievalWorkflow:
         graph.add_edge("reformulator", "specter")
         # graph.add_edge("coordinator", "llm")
 
+        # Aggregator (fan-in from all retrievers)
+        graph.add_edge("bm25", "aggregator")
+        graph.add_edge("e5", "aggregator")
+        graph.add_edge("specter", "aggregator")
+
+        # Reranking and completion
+        graph.add_edge("aggregator", "reranking")
         graph.add_edge("reranking", END)
         # graph.add_edge("verifier", END)
 
@@ -149,4 +158,3 @@ class RetrievalWorkflow:
 
         else:
             return Image(graph_image)
-
