@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import logging
 from typing import Any, Dict, List, Optional, Tuple
+
+logger = logging.getLogger(__name__)
 
 
 def _split_docs(docs: List[Dict[str, Any]]) -> Tuple[List[str], List[str], List[str]]:
@@ -20,6 +23,7 @@ def build_bm25_resources(docs: List[Dict[str, Any]]) -> Dict[str, Any]:
     import bm25s
     import Stemmer
 
+    logger.info(f"🔨 Building BM25 index for {len(docs)} documents...")
     ids, titles, texts = _split_docs(docs)
 
     stemmer = Stemmer.Stemmer("english")
@@ -27,6 +31,8 @@ def build_bm25_resources(docs: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     bm25 = bm25s.BM25()
     bm25.index(tokenized_corpus)
+
+    logger.info(f"✅ BM25 index built successfully")
 
     return {
         "ids": ids,
@@ -47,8 +53,10 @@ def build_e5_resources(
     import torch
     from sentence_transformers import SentenceTransformer
 
+    logger.info(f"🔨 Building E5 embeddings for {len(docs)} documents...")
     ids, titles, texts = _split_docs(docs)
 
+    logger.info(f"📥 Loading E5 model: {model_name}")
     model = SentenceTransformer(model_name)
     if device is None:
         device = (
@@ -57,7 +65,9 @@ def build_e5_resources(
             else "mps" if torch.backends.mps.is_available() else "cpu"
         )
     model.to(device)
+    logger.info(f"💻 Using device: {device}")
 
+    logger.info(f"🔢 Encoding {len(texts)} texts (batch_size={batch_size})...")
     corpus_embeddings = model.encode(
         texts,
         batch_size=batch_size,
@@ -65,6 +75,8 @@ def build_e5_resources(
         normalize_embeddings=True,
         show_progress_bar=True,
     )
+
+    logger.info(f"✅ E5 embeddings built successfully ({corpus_embeddings.shape})")
 
     return {
         "ids": ids,
@@ -87,7 +99,9 @@ def build_specter_resources(
 ) -> Dict[str, Any]:
     import torch
     from transformers import AutoModel, AutoTokenizer
+    from tqdm import tqdm
 
+    logger.info(f"🔨 Building SPECTER embeddings for {len(docs)} documents...")
     ids, titles, texts = _split_docs(docs)
 
     if device is None:
@@ -96,14 +110,21 @@ def build_specter_resources(
             if torch.cuda.is_available()
             else "mps" if torch.backends.mps.is_available() else "cpu"
         )
+    logger.info(f"💻 Using device: {device}")
 
+    logger.info(f"📥 Loading SPECTER model: {model_name}")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModel.from_pretrained(model_name)
     if device == "cuda":
         model.to("cuda")
 
+    num_batches = (len(texts) + batch_size - 1) // batch_size
+    logger.info(
+        f"🔢 Encoding {len(texts)} texts in {num_batches} batches (batch_size={batch_size})..."
+    )
+
     corpus_embeddings = []
-    for i in range(0, len(texts), batch_size):
+    for i in tqdm(range(0, len(texts), batch_size), desc="Batches", unit="batch"):
         batch = texts[i : i + batch_size]
         inputs = tokenizer(
             batch, padding=True, truncation=True, max_length=max_length, return_tensors="pt"
@@ -116,6 +137,8 @@ def build_specter_resources(
 
     corpus_embeddings = torch.cat(corpus_embeddings, dim=0)
     model.to("cpu")
+
+    logger.info(f"✅ SPECTER embeddings built successfully ({corpus_embeddings.shape})")
 
     return {
         "ids": ids,
@@ -147,10 +170,15 @@ def build_inmemory_resources(
     resources: Dict[str, Any] = {"corpus": docs}
 
     if enable_bm25:
+        logger.info("=" * 60)
         resources["bm25"] = build_bm25_resources(docs)
     if enable_e5:
+        logger.info("=" * 60)
         resources["e5"] = build_e5_resources(docs, model_name=e5_model_name)
     if enable_specter:
+        logger.info("=" * 60)
         resources["specter"] = build_specter_resources(docs, model_name=specter_model_name)
 
+    logger.info("=" * 60)
+    logger.info("✅ All retrieval resources built successfully!")
     return resources

@@ -5,8 +5,11 @@ This agent collects results from BM25, E5, and SPECTER retrievers,
 deduplicates by paper ID, and prepares the candidate set for reranking.
 """
 
+import logging
 from typing import Any, Dict, List
 from langchain_core.messages import AIMessage
+
+logger = logging.getLogger(__name__)
 
 
 def _normalize_scores(results: List[Dict[str, Any]], source: str) -> List[Dict[str, Any]]:
@@ -109,11 +112,16 @@ def aggregator(state: Dict[str, Any]) -> Dict[str, Any]:
         - candidate_papers: Deduplicated and fused list of papers
         - messages: AIMessage for LangGraph visibility
     """
+    logger.info("🔀 Aggregator starting...")
 
     # Collect results from all retrievers
     bm25_results = state.get("bm25_results") or []
     e5_results = state.get("e5_results") or []
     specter_results = state.get("specter_results") or []
+
+    logger.debug(
+        f"Retrieved results - BM25: {len(bm25_results)}, E5: {len(e5_results)}, SPECTER: {len(specter_results)}"
+    )
 
     # Store raw results
     retriever_results = {
@@ -125,6 +133,7 @@ def aggregator(state: Dict[str, Any]) -> Dict[str, Any]:
     # Check if we have any results
     total_results = len(bm25_results) + len(e5_results) + len(specter_results)
     if total_results == 0:
+        logger.warning("⚠️  No results from any retriever!")
         return {
             "retriever_results": retriever_results,
             "candidate_papers": [],
@@ -139,6 +148,7 @@ def aggregator(state: Dict[str, Any]) -> Dict[str, Any]:
     # Get aggregation method from config
     config = state.get("config", {}) or {}
     aggregation_method = config.get("aggregation_method", "rrf")
+    logger.debug(f"Using aggregation method: {aggregation_method}")
 
     if aggregation_method == "rrf":
         # Reciprocal Rank Fusion approach
@@ -160,6 +170,7 @@ def aggregator(state: Dict[str, Any]) -> Dict[str, Any]:
             f"Aggregated {total_results} results into {len(candidate_papers)} unique papers "
             f"using RRF (k={rrf_k})"
         )
+        logger.info(f"✅ {message_content}")
 
     else:
         # Simple aggregation: deduplicate and keep highest score per paper
@@ -188,6 +199,7 @@ def aggregator(state: Dict[str, Any]) -> Dict[str, Any]:
             f"Aggregated {total_results} results into {len(candidate_papers)} unique papers "
             f"using simple max-score deduplication"
         )
+        logger.info(f"✅ {message_content}")
 
     return {
         "retriever_results": retriever_results,

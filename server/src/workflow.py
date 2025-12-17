@@ -1,5 +1,6 @@
 # orchestrator.py
 
+import logging
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -7,6 +8,8 @@ from langgraph.graph import StateGraph, START, END
 
 # Load environment variables
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 # Import agent functions
 # from src.additional.coordinator import coordinator
@@ -20,14 +23,21 @@ from src.agents.retrievers.specter_agent import specter_agent
 from src.agents.formulators.query_reformulator import query_reformulator
 from src.agents.formulators.aggregator import aggregator
 from src.agents.formulators.reranker import reranker
+from src.agents.formulators.llm_agent import llm_reranker
 from src.models.state import RetrievalState
 
 # from agents.verifier_agent import verifier_agent
 
 
 class RetrievalWorkflow:
-    def __init__(self):
-        """Initialize the workflow and build the graph pipeline."""
+    def __init__(self, use_llm_reranker: bool = False):
+        """
+        Initialize the workflow and build the graph pipeline.
+
+        Args:
+            use_llm_reranker: If True, use LLM reranker instead of cross-encoder reranker
+        """
+        self.use_llm_reranker = use_llm_reranker
         self.pipeline = self._build_workflow()
 
     ############################################################
@@ -51,7 +61,14 @@ class RetrievalWorkflow:
         # graph.add_node("llm", llm_agent, tags=["retriever"])
         # graph.add_node("verifier", verifier_agent, tags=["agent"])
         graph.add_node("aggregator", aggregator)
-        graph.add_node("reranking", reranker)
+
+        # Choose reranker type
+        if self.use_llm_reranker:
+            logger.info("Using LLM-based reranker")
+            graph.add_node("reranking", llm_reranker)
+        else:
+            logger.debug("Using cross-encoder reranker")
+            graph.add_node("reranking", reranker)
 
         ############################################################
         # 3️⃣  ADD EDGES
@@ -99,7 +116,12 @@ class RetrievalWorkflow:
         Returns:
             The final state after the pipeline completes execution
         """
+        logger.info("🚀 Starting workflow execution...")
+        logger.debug(f"Initial state keys: {list(initial_state.keys())}")
+
         final_state = self.pipeline.invoke(initial_state)
+
+        logger.info("✅ Workflow execution completed")
         return final_state
 
     def get_pipeline(self):
