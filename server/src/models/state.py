@@ -20,7 +20,12 @@ class RetrievalState(MessagesState):
     resources: Dict[str, Any]  # indexes, embedding matrices, external clients, etc.
     config: Dict[str, Any]  # k, model names, thresholds, etc.
 
-    # Retriever outputs (per retriever)
+    # Individual retriever outputs
+    bm25_results: List[Dict[str, Any]]
+    e5_results: List[Dict[str, Any]]
+    specter_results: List[Dict[str, Any]]
+
+    # Retriever outputs (per retriever) - aggregated dict
     retriever_results: Dict[str, List[Dict[str, Any]]]
 
     # Merged candidates + downstream outputs

@@ -1,7 +1,10 @@
 # src/agents/query_reformulator.py
 
+import logging
 import re
 from langchain_core.messages import HumanMessage, AIMessage
+
+logger = logging.getLogger(__name__)
 
 ACADEMIC_EXPANSIONS = {
     "transformer": ["self-attention", "encoder-decoder", "attention mechanism"],
@@ -32,6 +35,7 @@ def academic_style_rewrite(query, keywords, expansions):
 
 def query_reformulator(state):
     """Reads the LAST human message from MessagesState."""
+    logger.info("🔄 Query reformulator starting...")
 
     msgs = state["messages"]
     user_msg = None
@@ -41,10 +45,12 @@ def query_reformulator(state):
             break
 
     if not user_msg:
-        # Nothing to reformulate
+        logger.error("❌ No HumanMessage found")
         return {"messages": [AIMessage(name="reformulator", content="[]")]}
 
     base_query = user_msg.strip()
+    logger.info(f"Original query: {base_query}")
+
     keywords = extract_keywords(base_query)
     expansions = expand_keywords(keywords)
 
@@ -54,6 +60,10 @@ def query_reformulator(state):
         academic_style_rewrite(base_query, keywords, expansions),
         f"{base_query} scientific paper architecture analysis",
     ]
+
+    logger.info(f"✅ Generated {len(expanded_queries)} query variations")
+    for i, q in enumerate(expanded_queries, 1):
+        logger.debug(f"  {i}. {q[:80]}...")
 
     return {
         # Structured keys (preferred by downstream nodes)

@@ -1,7 +1,10 @@
 import ast
+import logging
 from typing import Any, Dict, List
 
 from langchain_core.messages import AIMessage
+
+logger = logging.getLogger(__name__)
 
 
 def _get_queries(state: Dict[str, Any]) -> List[str]:
@@ -32,20 +35,25 @@ def bm25_agent(state: Dict[str, Any]):
     - `state["queries"]`: list[str]
     - `state["resources"]["bm25"]`: built via src.resources.builders.build_bm25_resources()
     """
+    logger.info("🔍 BM25 retriever starting...")
 
     queries = _get_queries(state)
     if not queries:
+        logger.warning("⚠️  BM25 received no queries")
         return {"messages": [AIMessage(content="BM25 received no queries", name="bm25")]}
 
     resources = state.get("resources", {}) or {}
     bm25_res = resources.get("bm25")
     if not bm25_res:
+        logger.error("❌ BM25 resources not found")
         return {"messages": [AIMessage(content="BM25_ERROR: missing bm25 resources", name="bm25")]}
 
     import bm25s
 
     k = int((state.get("config", {}) or {}).get("k", 5))
     q0 = queries[0]
+    logger.debug(f"Query: {q0[:100]}...")
+    logger.debug(f"Retrieving top-{k} results")
 
     stemmer = bm25_res["stemmer"]
     query_tokens = bm25s.tokenize(q0, stopwords="en", stemmer=stemmer)
@@ -67,6 +75,10 @@ def bm25_agent(state: Dict[str, Any]):
                 "source": "bm25",
             }
         )
+
+    logger.info(
+        f"✅ BM25 retrieved {len(results)} results (scores: {scores[0]:.3f} to {scores[-1]:.3f})"
+    )
 
     return {
         "bm25_results": results,
