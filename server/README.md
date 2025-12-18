@@ -99,21 +99,149 @@ config = {
 
 ### Prerequisites
 
-- Python 3.10 or higher
+- **For Docker Setup**: Docker and Docker Compose (recommended)
+- **For Local Setup**: Python 3.10 or higher with `uv` package manager
 - CUDA-capable GPU (recommended for dense retrieval)
 - 8GB+ RAM (16GB+ recommended)
 - 10GB+ disk space for models and embeddings
 
-### Setup
+### Option 1: Docker Setup (Recommended)
 
-1. **Clone the repository**
+The easiest way to get started is using Docker Compose, which handles all dependencies and setup automatically.
+
+#### 1. Install Prerequisites
+
+```bash
+# Install Docker and Docker Compose
+# Visit https://docs.docker.com/get-docker/ for installation instructions
+
+# For GPU support (optional but recommended), install NVIDIA Container Toolkit
+# Visit https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+```
+
+#### 2. Clone the repository
+
+```bash
+git clone <repository-url>
+cd Retrieval
+```
+
+#### 3. Set up environment variables
+
+```bash
+cd server
+cp .env.example .env
+```
+
+Edit `.env` and configure your API keys and settings:
+
+```env
+# Dataset path (will be auto-mounted in Docker)
+DATASET_DIR=/app/data/scholarcopilot/scholar_copilot_eval_data_1k.json
+
+# Graph output directory
+GRAPH_OUTPUT_DIR=/app/graphs
+
+# Optional: LLM API keys for reranking
+OPENAI_API_KEY=your_key_here
+S2_API_KEY=your_semantic_scholar_key
+hf_key=your_huggingface_token
+
+# Local Ollama model (optional)
+LOCAL_LLM=gemma3:4b
+```
+
+#### 4. Place your dataset
+
+```bash
+# Create datasets directory structure (if not exists)
+mkdir -p ../datasets/scholarcopilot
+
+# Place your dataset file
+cp /path/to/scholar_copilot_eval_data_1k.json ../datasets/scholarcopilot/
+```
+
+#### 5. Build and run with Docker Compose
+
+```bash
+# Build and start containers (from the Retrieval root directory)
+cd ..
+docker-compose up -d
+
+# Access the container shell
+docker-compose exec app bash
+
+# Inside the container, run your retrieval tasks
+uv run python evaluate.py
+```
+
+#### 6. Enable GPU support (optional)
+
+To use GPU acceleration in Docker, uncomment the GPU sections in `docker-compose.yml`:
+
+```yaml
+# In the app service section:
+deploy:
+  resources:
+    reservations:
+      devices:
+        - driver: nvidia
+          count: 1
+          capabilities: [gpu]
+```
+
+Then rebuild and restart:
+
+```bash
+docker-compose down
+docker-compose up -d --build
+```
+
+#### 7. Pull Ollama models (optional)
+
+If using local LLM with Ollama:
+
+```bash
+# Access Ollama container
+docker-compose exec ollama ollama pull gemma3:4b
+
+# Or pull other models
+docker-compose exec ollama ollama pull llama3.1:8b
+docker-compose exec ollama ollama pull qwen3:8b
+```
+
+#### Docker Commands Reference
+
+```bash
+# Start containers
+docker-compose up -d
+
+# Stop containers
+docker-compose down
+
+# View logs
+docker-compose logs -f app
+
+# Access container shell
+docker-compose exec app bash
+
+# Rebuild containers after code changes
+docker-compose up -d --build
+
+# Remove all containers and volumes
+docker-compose down -v
+```
+
+### Option 2: Local Setup
+
+#### 1. Clone the repository
 
 ```bash
 git clone <repository-url>
 cd server
 ```
 
-2. **Install dependencies**
+#### 2. Install dependencies
 
 ```bash
 uv sync
@@ -125,7 +253,7 @@ For development dependencies:
 uv sync --extra dev
 ```
 
-3. **Set up environment variables**
+#### 3. Set up environment variables
 
 Create a `.env` file from `.env.example`:
 
@@ -137,29 +265,48 @@ Configure the following variables:
 
 ```env
 # Dataset path
-DATASET_DIR=/path/to/scholar_copilot_eval_data_1k.json
+DATASET_DIR=/path/to/datasets/scholarcopilot/scholar_copilot_eval_data_1k.json
 
 # Optional: LLM API keys for reranking
 OPENAI_API_KEY=your_key_here
 ANTHROPIC_API_KEY=your_key_here
 TOGETHER_API_KEY=your_key_here
+S2_API_KEY=your_semantic_scholar_key
 ```
 
-4. **Download the dataset**
+#### 4. Download the dataset
 
-Place the ScholarCopilot dataset JSON file at the path specified in `DATASET_DIR` or use the default location: `../datasets/scholar_copilot_eval_data_1k.json`
+Place the ScholarCopilot dataset JSON file at the path specified in `DATASET_DIR` or use the default location: `../datasets/scholarcopilot/scholar_copilot_eval_data_1k.json`
 
 ## Quick Start
+
+### Using Docker
+
+If you're using Docker, first access the container:
+
+```bash
+# Start containers
+docker-compose up -d
+
+# Access the container shell
+docker-compose exec app bash
+```
+
+Then run commands inside the container as shown in the sections below.
 
 ### Basic Usage
 
 Run the retrieval workflow with a query:
 
 ```bash
+# Local setup
 uv run python main.py \
   --dataset /path/to/dataset.json \
   --query "transformer architecture for sequence modeling" \
   --k 5
+
+# Docker setup (inside container)
+uv run python evaluate.py
 ```
 
 ### Using the Workflow Programmatically
@@ -248,13 +395,13 @@ retriever = SPECTERRetriever(
 
 ### Environment Variables
 
-| Variable            | Description                                 | Default                                         |
-| ------------------- | ------------------------------------------- | ----------------------------------------------- |
-| `DATASET_DIR`       | Path to ScholarCopilot dataset              | `../datasets/scholar_copilot_eval_data_1k.json` |
-| `OPENAI_API_KEY`    | OpenAI API key for reranking                | None                                            |
-| `ANTHROPIC_API_KEY` | Anthropic API key for reranking             | None                                            |
-| `TOGETHER_API_KEY`  | Together AI API key for reranking           | None                                            |
-| `GRAPH_OUTPUT_DIR`  | Directory for workflow graph visualizations | `./graphs`                                      |
+| Variable            | Description                                 | Default                                                        |
+| ------------------- | ------------------------------------------- | -------------------------------------------------------------- |
+| `DATASET_DIR`       | Path to ScholarCopilot dataset              | `../datasets/scholarcopilot/scholar_copilot_eval_data_1k.json` |
+| `OPENAI_API_KEY`    | OpenAI API key for reranking                | None                                                           |
+| `ANTHROPIC_API_KEY` | Anthropic API key for reranking             | None                                                           |
+| `TOGETHER_API_KEY`  | Together AI API key for reranking           | None                                                           |
+| `GRAPH_OUTPUT_DIR`  | Directory for workflow graph visualizations | `./graphs`                                                     |
 
 ### Model Configuration
 
@@ -430,6 +577,7 @@ uv run python main.py --dataset /path/to/dataset.json
 
 **1. Dataset Not Found**
 
+For local setup:
 ```bash
 # Set DATASET_DIR environment variable
 export DATASET_DIR="/path/to/dataset.json"
@@ -438,20 +586,32 @@ export DATASET_DIR="/path/to/dataset.json"
 uv run python main.py --dataset /path/to/dataset.json
 ```
 
+For Docker setup:
+```bash
+# Ensure dataset is in the correct location
+ls datasets/scholarcopilot/scholar_copilot_eval_data_1k.json
+
+# Check the mounted volume
+docker-compose exec app ls /app/data/scholarcopilot/
+```
+
 **2. CUDA Out of Memory**
 
 - Use smaller models (`e5-base-v2` instead of `e5-large-v2`)
 - Reduce batch size in resource building
 - Use CPU mode (slower but works)
+- For Docker: Ensure GPU is properly configured in `docker-compose.yml`
 
 **3. Model Download Issues**
 
 - Check internet connection (models download from HuggingFace)
 - Verify model names are correct
 - Check HuggingFace Hub access
+- For Docker: Models are cached in the `huggingface-cache` volume and persist across container restarts
 
 **4. Import Errors**
 
+For local setup:
 ```bash
 # Ensure you're in the server directory
 cd server
@@ -459,6 +619,29 @@ uv run python main.py
 
 # Or set PYTHONPATH
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+```
+
+For Docker setup:
+```bash
+# Rebuild the container
+docker-compose up -d --build
+```
+
+**5. Docker-Specific Issues**
+
+```bash
+# Container won't start
+docker-compose logs app
+
+# GPU not detected in Docker
+# Install NVIDIA Container Toolkit and uncomment GPU sections in docker-compose.yml
+
+# Permission issues with volumes
+sudo chown -R $USER:$USER datasets/ server/results/ server/graphs/
+
+# Reset everything and start fresh
+docker-compose down -v
+docker-compose up -d --build
 ```
 
 ## API Reference

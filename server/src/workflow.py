@@ -24,6 +24,7 @@ from src.agents.formulators.query_reformulator import query_reformulator
 from src.agents.formulators.aggregator import aggregator
 from src.agents.formulators.reranker import reranker
 from src.agents.formulators.llm_agent import llm_reranker
+from src.agents.formulators.dspy_picker import dspy_picker
 from src.models.state import RetrievalState
 
 # from agents.verifier_agent import verifier_agent
@@ -60,6 +61,7 @@ class RetrievalWorkflow:
         graph.add_node("specter", specter_agent)
         # graph.add_node("llm", llm_agent, tags=["retriever"])
         # graph.add_node("verifier", verifier_agent, tags=["agent"])
+        graph.add_node("dspy_picker", dspy_picker)
         graph.add_node("aggregator", aggregator)
 
         # Choose reranker type
@@ -93,7 +95,8 @@ class RetrievalWorkflow:
 
         # Reranking and completion
         graph.add_edge("aggregator", "reranking")
-        graph.add_edge("reranking", END)
+        graph.add_edge("reranking", "dspy_picker")
+        graph.add_edge("dspy_picker", END)
         # graph.add_edge("verifier", END)
 
         ############################################################

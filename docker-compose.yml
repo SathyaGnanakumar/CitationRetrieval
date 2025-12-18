@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # Main citation retrieval application
+  app:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: citation-retrieval
+    volumes:
+      # Mount dataset directory
+      - ./datasets:/app/data
+      # Mount results directory
+      - ./server/results:/app/results
+      # Mount graphs directory for workflow visualizations
+      - ./server/graphs:/app/graphs
+      # Cache HuggingFace models locally to avoid re-downloading
+      - huggingface-cache:/root/.cache/huggingface
+    environment:
+      # Dataset configuration
+      - DATASET_DIR=/app/data/scholarcopilot/scholar_copilot_eval_data_1k.json
+      # Graph output directory
+      - GRAPH_OUTPUT_DIR=/app/graphs
+      # API Keys (from .env file)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - S2_API_KEY=${S2_API_KEY}
+      - hf_key=${hf_key}
+      # Local LLM configuration (for Ollama)
+      - LOCAL_LLM=${LOCAL_LLM:-gemma3:4b}
+      - OLLAMA_HOST=http://ollama:11434
+    env_file:
+      - ./server/.env
+    depends_on:
+      - ollama
+    networks:
+      - retrieval-network
+    # For GPU support, uncomment the following:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+  # Optional: Ollama service for local LLM inference
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ollama-models:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - retrieval-network
+    # For GPU support with Ollama, uncomment the following:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  # Persistent storage for HuggingFace models
+  huggingface-cache:
+  # Persistent storage for Ollama models
+  ollama-models:
+
+networks:
+  retrieval-network:
+    driver: bridge
