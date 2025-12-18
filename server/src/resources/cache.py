@@ -200,16 +200,25 @@ def load_resources(
 
         # Load model
         model = SentenceTransformer(e5_data["model_name"])
-        device = e5_data["device"]
+
+        # Detect current device (don't use cached device - it may not be available)
+        if torch.cuda.is_available():
+            device = "cuda:0"
+        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
+
         if device != "cpu":
             model.to(device)
 
         # Load embeddings
-        corpus_embeddings = torch.load(cache_path / "e5_embeddings.pt")
+        corpus_embeddings = torch.load(cache_path / "e5_embeddings.pt", map_location=device)
 
         resources["e5"] = {
             **e5_data,
             "model": model,
+            "device": device,  # Update to current device
             "corpus_embeddings": corpus_embeddings,
         }
 
@@ -226,13 +235,25 @@ def load_resources(
         tokenizer = AutoTokenizer.from_pretrained(specter_data["model_name"])
         model = AutoModel.from_pretrained(specter_data["model_name"])
 
+        # Detect current device (don't use cached device - it may not be available)
+        if torch.cuda.is_available():
+            device = "cuda:0"
+        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
+
+        if device != "cpu":
+            model.to(device)
+
         # Load embeddings
-        corpus_embeddings = torch.load(cache_path / "specter_embeddings.pt")
+        corpus_embeddings = torch.load(cache_path / "specter_embeddings.pt", map_location=device)
 
         resources["specter"] = {
             **specter_data,
             "model": model,
             "tokenizer": tokenizer,
+            "device": device,  # Update to current device
             "corpus_embeddings": corpus_embeddings,
         }
 
