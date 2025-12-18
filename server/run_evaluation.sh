@@ -39,6 +39,7 @@ K=20
 USE_LLM_RERANKER=""
 USE_DSPY=""
 NO_CACHE=""
+INFERENCE_ENGINE=""
 RUN_BASELINE=true
 RUN_SYSTEM=true
 RUN_GRAPHS=true
@@ -87,6 +88,7 @@ Options:
   -k K        Top-k results to retrieve (default: 20)
   --llm       Use LLM-based reranker instead of cross-encoder
   --dspy      Use DSPy modules (reformulator + picker)
+  --hf        Use Hugging Face inference (default: Ollama)
   --no-cache  Disable resource caching
   --quick     Quick test mode (10 examples)
   --full      Full evaluation (100 examples)
@@ -122,6 +124,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --dspy)
             USE_DSPY="--use-dspy"
+            shift
+            ;;
+        --hf)
+            INFERENCE_ENGINE="huggingface"
             shift
             ;;
         --no-cache)
@@ -170,6 +176,7 @@ log_info "Number of examples: $NUM_EXAMPLES"
 log_info "Top-k results: $K"
 log_info "LLM reranker: $([ -n "$USE_LLM_RERANKER" ] && echo "Enabled" || echo "Disabled (using cross-encoder)")"
 log_info "DSPy modules: $([ -n "$USE_DSPY" ] && echo "Enabled" || echo "Disabled")"
+log_info "Inference engine: $([ "$INFERENCE_ENGINE" = "huggingface" ] && echo "Hugging Face" || echo "Ollama (default)")"
 log_info "Cache: $([ -n "$NO_CACHE" ] && echo "Disabled" || echo "Enabled")"
 log_info ""
 log_info "Running:"
@@ -195,7 +202,13 @@ if [ "$RUN_BASELINE" = true ]; then
     log_info "Running: evaluate_baselines_with_reranking.py"
     log_info "This evaluates BM25, E5, and SPECTER with and without LLM reranking"
 
-    BASELINE_CMD="uv run python evaluate_baselines_with_reranking.py --num-examples $NUM_EXAMPLES --k $K $USE_LLM_RERANKER $NO_CACHE"
+    # Note: evaluate_baselines_with_reranking.py always uses LLM reranking
+    BASELINE_CMD="uv run python evaluate_baselines_with_reranking.py --num-examples $NUM_EXAMPLES --k $K"
+
+    # Add inference engine if specified
+    if [ -n "$INFERENCE_ENGINE" ]; then
+        BASELINE_CMD="$BASELINE_CMD --inference-engine $INFERENCE_ENGINE"
+    fi
 
     log_info "Command: $BASELINE_CMD"
     echo ""

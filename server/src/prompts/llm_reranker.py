@@ -33,17 +33,21 @@ Candidate Papers:
 
             prompt += f"\n{i}. Title: {title}\n   Abstract: {abstract}\n"
 
-        prompt += """
-Think step-by-step about which candidate best matches the context. Summarize your reasoning, then provide the exact title that should fill the citation.
+        prompt += f"""
+CRITICAL: You MUST rank ALL {len(candidate_papers)} papers in your JSON output. Do not skip any papers.
 
-Return your response in this exact JSON format:
-[
-  {"index": 1, "score": 0.95},
-  {"index": 3, "score": 0.87},
-  {"index": 2, "score": 0.65}
-]
+Think step-by-step about relevance, then output a JSON array ranking ALL papers from most to least relevant.
 
-Return ONLY the JSON array, no additional text or explanation."""
+Format: [{{"index": 1, "score": 0.95}}, {{"index": 2, "score": 0.80}}, ...]
+
+Rules:
+- Include EVERY paper (indices 1 to {len(candidate_papers)})
+- Most relevant papers: score 0.8-1.0
+- Somewhat relevant: score 0.4-0.7
+- Not relevant: score 0.0-0.3
+- Output ONLY the JSON array, nothing else
+
+Your JSON array with all {len(candidate_papers)} papers:"""
 
         return prompt
 

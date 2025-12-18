@@ -245,11 +245,92 @@
       "total_relevant": 8
     }
   ],
-  "full_system": [],
+  "full_system": [
+    {
+      "R@5": 0.0,
+      "R@10": 0.0,
+      "R@20": 0.0,
+      "MRR": 0.043478260869565216,
+      "hits": 1,
+      "total_relevant": 1
+    },
+    {
+      "R@5": 0.0,
+      "R@10": 0.0,
+      "R@20": 0.0,
+      "MRR": 0.0,
+      "hits": 0,
+      "total_relevant": 1
+    },
+    {
+      "R@5": 0.0,
+      "R@10": 0.0,
+      "R@20": 0.0,
+      "MRR": 0.045454545454545456,
+      "hits": 1,
+      "total_relevant": 2
+    },
+    {
+      "R@5": 0.0,
+      "R@10": 0.0,
+      "R@20": 0.0,
+      "MRR": 0.0,
+      "hits": 0,
+      "total_relevant": 1
+    },
+    {
+      "R@5": 0.0,
+      "R@10": 0.0,
+      "R@20": 0.0,
+      "MRR": 0.0,
+      "hits": 0,
+      "total_relevant": 1
+    },
+    {
+      "R@5": 0.0,
+      "R@10": 1.0,
+      "R@20": 1.0,
+      "MRR": 0.14285714285714285,
+      "hits": 1,
+      "total_relevant": 1
+    },
+    {
+      "R@5": 0.0,
+      "R@10": 0.0,
+      "R@20": 0.0,
+      "MRR": 0.0,
+      "hits": 0,
+      "total_relevant": 4
+    },
+    {
+      "R@5": 0.0,
+      "R@10": 0.0,
+      "R@20": 0.0,
+      "MRR": 0.0,
+      "hits": 0,
+      "total_relevant": 4
+    },
+    {
+      "R@5": 0.0,
+      "R@10": 0.0,
+      "R@20": 0.0,
+      "MRR": 0.02127659574468085,
+      "hits": 1,
+      "total_relevant": 1
+    },
+    {
+      "R@5": 0.0,
+      "R@10": 0.0,
+      "R@20": 0.0,
+      "MRR": 0.03333333333333333,
+      "hits": 1,
+      "total_relevant": 8
+    }
+  ],
   "metadata": {
     "num_examples": 10,
     "k": 20,
-    "timestamp": "2025-12-18T09:09:56.482558",
+    "timestamp": "2025-12-18T10:03:30.595339",
     "dataset": "/Users/ishaankalra/Dev/Retrieval/corpus_loaders/scholarcopilot/scholar_copilot_eval_data_1k.json",
     "use_llm_reranker": true,
     "reranker_type": "LLM-based",

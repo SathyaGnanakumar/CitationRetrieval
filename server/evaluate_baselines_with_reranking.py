@@ -24,7 +24,7 @@ import pandas as pd
 import seaborn as sns
 from dotenv import load_dotenv
 
-# from langchain_ollama import ChatOllama  # Commented out - using Hugging Face instead
+from langchain_ollama import ChatOllama
 from langchain_huggingface import HuggingFacePipeline
 from tqdm import tqdm
 
@@ -42,6 +42,9 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
+# Suppress verbose HTTP logs from httpx (used by Ollama)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
 # Styling
 plt.style.use("seaborn-v0_8-darkgrid")
 sns.set_palette("husl")
@@ -50,37 +53,44 @@ sns.set_palette("husl")
 class BaselineEvaluator:
     """Evaluates baseline retrievers with optional LLM reranking."""
 
-    def __init__(self, resources: Dict[str, Any], llm_model: str = "google/gemma-2-2b-it"):
+    def __init__(
+        self,
+        resources: Dict[str, Any],
+        llm_model: str = "gemma3:4b",
+        inference_engine: str = "ollama",
+    ):
         self.resources = resources
         self.llm_model = llm_model
+        self.inference_engine = inference_engine.lower()
 
-        # Using Hugging Face model loaded locally via transformers pipeline
-        from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
-        import torch
+        if self.inference_engine == "ollama":
+            # Using Ollama for local inference (faster, less memory)
+            logger.info(f"🔄 Using Ollama with model: {llm_model}")
+            self.llm = ChatOllama(model=llm_model, temperature=0)
+            logger.info(f"✅ Ollama ready!")
+        else:
+            # Using Hugging Face model loaded locally via transformers pipeline
+            from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+            import torch
 
-        logger.info(f"🔄 Loading {llm_model}...")
-        tokenizer = AutoTokenizer.from_pretrained(llm_model)
-        hf_model = AutoModelForCausalLM.from_pretrained(
-            llm_model,
-            device_map="auto",
-            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-        )
+            logger.info(f"🔄 Loading Hugging Face model: {llm_model}...")
+            tok = AutoTokenizer.from_pretrained(llm_model)
+            model = AutoModelForCausalLM.from_pretrained(
+                llm_model,
+                device_map="auto",
+                torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+            )
 
-        pipe = pipeline(
-            "text-generation",
-            model=hf_model,
-            tokenizer=tokenizer,
-            max_new_tokens=512,
-            temperature=0.1,
-            do_sample=False,
-        )
+            gen = pipeline(
+                "text-generation",
+                model=model,
+                tokenizer=tok,
+                max_new_tokens=1024,  # Increased for reasoning + JSON output
+                do_sample=False,
+            )
 
-        self.llm = HuggingFacePipeline(pipeline=pipe)
-        logger.info(f"✅ Model loaded!")
-
-        # # OLLAMA VERSION (commented out):
-        # from langchain_ollama import ChatOllama
-        # self.llm = ChatOllama(model=llm_model, temperature=0)
+            self.llm = HuggingFacePipeline(pipeline=gen)
+            logger.info(f"✅ Hugging Face model loaded!")
 
     def _llm_rerank(
         self, query: str, papers: List[Dict[str, Any]], top_k: int = 20
@@ -100,12 +110,21 @@ class BaselineEvaluator:
             response = self.llm.invoke(prompt)
             response_text = response.content
 
+            logger.info(f"📝 LLM response length: {len(response_text)} chars")
+            logger.info(f"📝 First 200 chars: {response_text[:200]}...")
+            logger.info(f"📝 Last 200 chars: ...{response_text[-200:]}")
+
             # Extract JSON from response
             json_match = re.search(r"\[[\s\S]*\]", response_text)
             if json_match:
-                rankings = json.loads(json_match.group())
+                json_str = json_match.group()
+                logger.info(f"✓ Found JSON array ({len(json_str)} chars)")
+                rankings = json.loads(json_str)
             else:
+                logger.warning(f"⚠️  No JSON array pattern found, trying to parse entire response")
                 rankings = json.loads(response_text)
+
+            logger.info(f"✓ Successfully parsed {len(rankings)} rankings")
 
             # Build ranked results
             ranked_papers = []
@@ -123,16 +142,25 @@ class BaselineEvaluator:
                     seen_indices.add(idx)
 
             # Add any papers that weren't ranked
+            unranked_count = 0
             for i, paper in enumerate(papers_to_rerank):
                 if i not in seen_indices:
                     paper = paper.copy()
                     paper["reranked_score"] = 0.0
                     ranked_papers.append(paper)
+                    unranked_count += 1
+
+            if unranked_count > 0:
+                logger.warning(
+                    f"⚠️  {unranked_count}/{len(papers_to_rerank)} papers not ranked by LLM (assigned score 0.0)"
+                )
 
             return ranked_papers
 
         except Exception as e:
-            logger.warning(f"⚠️  LLM reranking failed: {e}, returning original order")
+            logger.error(f"❌ LLM reranking failed: {e}")
+            logger.error(f"❌ Response was: {response_text[:500] if 'response_text' in locals() else 'N/A'}...")
+            logger.warning(f"⚠️  Returning original order")
             return papers
 
     def evaluate_bm25(
@@ -333,7 +361,8 @@ def run_evaluation(
     num_examples: int = 50,
     k: int = 20,
     output_dir: str = "baseline_reranking_results",
-    llm_model: str = "gemma2:9b",
+    llm_model: str = "gemma3:4b",
+    inference_engine: str = "ollama",
 ) -> Dict[str, Any]:
     """Run comprehensive evaluation."""
     logger.info("=" * 80)
@@ -365,8 +394,8 @@ def run_evaluation(
         logger.info(f"   ✓ Loaded from cache")
 
     # Initialize evaluator
-    logger.info(f"\n🤖 Using LLM: {llm_model}")
-    evaluator = BaselineEvaluator(resources, llm_model=llm_model)
+    logger.info(f"\n🤖 Using LLM: {llm_model} (engine: {inference_engine})")
+    evaluator = BaselineEvaluator(resources, llm_model=llm_model, inference_engine=inference_engine)
 
     # Extract queries
     logger.info(f"\n🔍 Extracting citation contexts from {num_examples} papers...")
@@ -746,8 +775,15 @@ def main():
     parser.add_argument(
         "--llm-model",
         type=str,
-        default="google/gemma-3-4b-it",
-        help="Hugging Face model ID for reranking (e.g., google/gemma-3-4b-it)",
+        default=os.getenv("LOCAL_LLM", "gemma3:4b"),
+        help="Model name for reranking (Ollama: 'gemma3:4b', HF: 'google/gemma-3-4b-it')",
+    )
+    parser.add_argument(
+        "--inference-engine",
+        type=str,
+        default=os.getenv("INFERENCE_ENGINE", "ollama"),
+        choices=["ollama", "huggingface"],
+        help="Inference engine to use (default: ollama)",
     )
 
     args = parser.parse_args()
@@ -759,6 +795,7 @@ def main():
         k=args.k,
         output_dir=args.output_dir,
         llm_model=args.llm_model,
+        inference_engine=args.inference_engine,
     )
 
     # Create visualizations

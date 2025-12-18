@@ -46,6 +46,9 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
+# Suppress verbose HTTP logs from httpx (used by Ollama)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
 # Styling
 plt.style.use("seaborn-v0_8-darkgrid")
 sns.set_palette("husl")
