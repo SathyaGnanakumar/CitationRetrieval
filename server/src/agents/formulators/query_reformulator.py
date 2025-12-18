@@ -1,6 +1,14 @@
 # src/agents/query_reformulator.py
+"""
+Query reformulator with support for both rule-based and optimized DSPy versions.
+
+The workflow routes to either:
+- query_reformulator_default: Rule-based keyword expansion
+- query_reformulator_optimized: DSPy-based with evolution support
+"""
 
 import logging
+import os
 import re
 from langchain_core.messages import HumanMessage, AIMessage
 
@@ -33,17 +41,23 @@ def academic_style_rewrite(query, keywords, expansions):
     return f"paper discussing {joined} in the context of citation retrieval"
 
 
-def query_reformulator(state):
-    """Reads the LAST human message from MessagesState."""
-    logger.info("🔄 Query reformulator starting...")
-
-    msgs = state["messages"]
-    user_msg = None
+def _get_user_query(state):
+    """Extract user query from messages."""
+    msgs = state.get("messages", [])
     for m in reversed(msgs):
         if isinstance(m, HumanMessage):
-            user_msg = m.content
-            break
+            return m.content
+    return None
 
+
+def query_reformulator(state):
+    """
+    Default rule-based reformulator.
+    Reads the LAST human message from MessagesState.
+    """
+    logger.info("🔄 Query reformulator (default) starting...")
+
+    user_msg = _get_user_query(state)
     if not user_msg:
         logger.error("❌ No HumanMessage found")
         return {"messages": [AIMessage(name="reformulator", content="[]")]}
@@ -66,9 +80,68 @@ def query_reformulator(state):
         logger.debug(f"  {i}. {q[:80]}...")
 
     return {
-        # Structured keys (preferred by downstream nodes)
         "query": base_query,
         "queries": expanded_queries,
-        # Message for Studio visibility / backwards-compat
         "messages": [AIMessage(name="reformulator", content=str(expanded_queries))],
     }
+
+
+def query_reformulator_optimized(state):
+    """
+    Optimized DSPy-based reformulator.
+    Uses evolution-trained module if available, otherwise falls back to default.
+    """
+    logger.info("🔄 Query reformulator (optimized) starting...")
+
+    user_msg = _get_user_query(state)
+    if not user_msg:
+        logger.error("❌ No HumanMessage found")
+        return {"messages": [AIMessage(name="reformulator", content="[]")]}
+
+    base_query = user_msg.strip()
+
+    # Try to load optimized module from version tracker
+    try:
+        from src.agents.self_evolve.version_tracker import VersionTracker
+
+        tracker = VersionTracker("reformulator")
+        module = tracker.get_best()
+
+        if module is not None:
+            logger.info(f"✓ Using optimized reformulator v{tracker.get_best_version_number()}")
+
+            # Configure DSPy
+            import dspy
+
+            resources = state.get("resources", {}) or {}
+            lm = resources.get("dspy_lm")
+            if lm is None:
+                model = os.getenv("DSPY_MODEL", "gpt-4o-mini")
+                lm = dspy.LM(model=model, temperature=0.0, max_tokens=500)
+            dspy.configure(lm=lm)
+
+            # Run optimized module
+            result = module(query=base_query)
+            expanded_queries = getattr(result, "query_list", None) or [base_query]
+
+            # Ensure original query is included
+            if base_query not in expanded_queries:
+                expanded_queries.insert(0, base_query)
+
+            logger.info(f"✅ Optimized reformulator generated {len(expanded_queries)} queries")
+
+            return {
+                "query": base_query,
+                "queries": expanded_queries,
+                "reformulator_version": tracker.get_best_version_number(),
+                "messages": [
+                    AIMessage(name="reformulator_optimized", content=str(expanded_queries))
+                ],
+            }
+
+    except Exception as e:
+        logger.warning(f"Could not use optimized reformulator: {e}, falling back to default")
+
+    # Fall back to default rule-based reformulator
+    logger.info("Falling back to default reformulator")
+    return query_reformulator(state)

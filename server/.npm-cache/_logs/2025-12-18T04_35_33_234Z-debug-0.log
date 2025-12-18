@@ -1,0 +1,21 @@
+0 verbose cli /usr/local/bin/node /usr/local/lib/node_modules/npm/bin/npm-cli.js
+1 info using npm@11.5.2
+2 info using node@v22.14.0
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/ishaankalra/Dev/Retrieval/server/.npmrc
+5 silly config load:file:/Users/ishaankalra/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm exec @mermaid-js/mermaid-cli -i flow.mmd -o flow.png
+8 verbose argv "exec" "--yes" "--" "@mermaid-js/mermaid-cli" "-i" "flow.mmd" "-o" "flow.png"
+9 verbose logfile logs-max:10 dir:/Users/ishaankalra/Dev/Retrieval/server/.npm-cache/_logs/2025-12-18T04_35_33_234Z-
+10 verbose logfile /Users/ishaankalra/Dev/Retrieval/server/.npm-cache/_logs/2025-12-18T04_35_33_234Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+13 http fetch GET 200 https://registry.npmjs.org/@mermaid-js%2fmermaid-cli 113ms (cache revalidated)
+14 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+15 verbose cwd /Users/ishaankalra/Dev/Retrieval/server
+16 verbose os Darwin 25.2.0
+17 verbose node v22.14.0
+18 verbose npm  v11.5.2
+19 verbose exit 1
+20 verbose code 1

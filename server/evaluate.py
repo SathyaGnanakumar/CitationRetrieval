@@ -29,7 +29,7 @@ from langchain_core.messages import HumanMessage
 # Add parent directory to path for datasets import
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from datasets.scholarcopilot import build_citation_corpus, load_dataset
+from corpus_loaders.scholarcopilot import build_citation_corpus, load_dataset
 from src.agents.retrievers.e5_agent import E5Retriever
 from src.agents.retrievers.specter_agent import SPECTERRetriever
 from src.evaluation.metrics import evaluate_retrieval
@@ -53,7 +53,19 @@ logger = logging.getLogger(__name__)
 
 def extract_query_from_paper(paper_text: str, max_words: int = 50) -> str:
     """Extract a query from the paper text (first few sentences)."""
-    words = paper_text.split()[:max_words]
+    import re
+
+    # Remove citation markers like <|cite_0|>, <|cite_1|>, etc.
+    clean_text = re.sub(r"<\|cite_\d+\|>", "", paper_text)
+
+    # Also remove any other common markers
+    clean_text = re.sub(r"\[CITATION\]", "", clean_text)
+    clean_text = re.sub(r"\[CIT\]", "", clean_text)
+
+    # Clean up extra whitespace
+    clean_text = " ".join(clean_text.split())
+
+    words = clean_text.split()[:max_words]
     return " ".join(words)
 
 
@@ -317,9 +329,11 @@ def run_baselines_evaluation(
     # Load dataset
     with open(dataset_path) as f:
         content = f.read().strip()
-        raw_data = json.loads(content) if content.startswith("[") else [
-            json.loads(line) for line in content.splitlines() if line.strip()
-        ]
+        raw_data = (
+            json.loads(content)
+            if content.startswith("[")
+            else [json.loads(line) for line in content.splitlines() if line.strip()]
+        )
 
     logger.info(f"Loaded {len(raw_data)} source papers")
 
@@ -340,11 +354,13 @@ def run_baselines_evaluation(
         cid = paper_to_corpus_id.get(entry["paper_id"])
         if cid is None:
             continue
-        docs.append({
-            "id": cid,
-            "title": entry.get("title", ""),
-            "text": entry["paper"],
-        })
+        docs.append(
+            {
+                "id": cid,
+                "title": entry.get("title", ""),
+                "text": entry["paper"],
+            }
+        )
 
     logger.info(f"Built corpus with {len(docs)} documents")
 
@@ -362,20 +378,20 @@ def run_baselines_evaluation(
                 continue
 
             gold_ids = [
-                rec["citation_corpus_id"]
-                for rec in bib[cite_token]
-                if "citation_corpus_id" in rec
+                rec["citation_corpus_id"] for rec in bib[cite_token] if "citation_corpus_id" in rec
             ]
             if not gold_ids:
                 continue
 
             s, e = match.span()
-            ctx = (text[max(0, s - window):s] + text[e:e + window]).strip()
+            ctx = (text[max(0, s - window) : s] + text[e : e + window]).strip()
             if ctx:
-                examples.append({
-                    "query": ctx,
-                    "gold_ids": gold_ids,
-                })
+                examples.append(
+                    {
+                        "query": ctx,
+                        "gold_ids": gold_ids,
+                    }
+                )
 
         return examples
 
@@ -407,9 +423,7 @@ def run_baselines_evaluation(
         t0 = time.time()
         bm25_hits = {k: 0 for k in k_values}
         for ex in eval_examples:
-            q_tokens = bm25s.tokenize(
-                ex["query"], stopwords="en", stemmer=bm25_res["stemmer"]
-            )
+            q_tokens = bm25s.tokenize(ex["query"], stopwords="en", stemmer=bm25_res["stemmer"])
             doc_ids, _ = bm25_res["index"].retrieve(q_tokens, k=max(k_values))
             retrieved = [bm25_res["ids"][i] for i in doc_ids[0]]
             for k in k_values:
@@ -456,21 +470,15 @@ def run_baselines_evaluation(
         q_embs = []
         with torch.no_grad():
             for i in range(0, N, 32):
-                batch = queries[i:i + 32]
+                batch = queries[i : i + 32]
                 inputs = specter_res["tokenizer"](
-                    batch,
-                    padding=True,
-                    truncation=True,
-                    max_length=256,
-                    return_tensors="pt"
+                    batch, padding=True, truncation=True, max_length=256, return_tensors="pt"
                 ).to(device)
                 emb = specter_res["model"](**inputs).last_hidden_state.mean(dim=1)
                 q_embs.append(emb.cpu())
 
         q_embs = torch.nn.functional.normalize(torch.cat(q_embs), dim=1)
-        corpus_embs = torch.nn.functional.normalize(
-            specter_res["corpus_embeddings"], dim=1
-        )
+        corpus_embs = torch.nn.functional.normalize(specter_res["corpus_embeddings"], dim=1)
         scores = q_embs @ corpus_embs.T
 
         specter_hits = {k: 0 for k in k_values}
@@ -483,10 +491,7 @@ def run_baselines_evaluation(
         results["SPECTER"] = specter_hits
 
     # Aggregate metrics
-    recall = {
-        name: {f"Recall@{k}": results[name][k] / N for k in k_values}
-        for name in results
-    }
+    recall = {name: {f"Recall@{k}": results[name][k] / N for k in k_values} for name in results}
 
     logger.info("\n=== FINAL RESULTS ===")
     for name, scores in recall.items():

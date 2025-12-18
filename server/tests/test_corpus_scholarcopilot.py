@@ -3,10 +3,10 @@ from pathlib import Path
 
 # Ensure `import src...` works when running pytest from repo root
 sys.path.insert(0, str(Path(__file__).parent.parent))
-# Add parent directory for datasets import
+# Add parent directory for corpus_loaders import
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from datasets.scholarcopilot import build_citation_corpus
+from corpus_loaders.scholarcopilot import build_citation_corpus
 
 
 def test_build_citation_corpus_uses_bib_info_and_dedupes_by_title():

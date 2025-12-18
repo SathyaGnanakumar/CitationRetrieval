@@ -1,5 +1,4 @@
 from typing import List, Dict, Any
-from langgraph.graph import MessagesState
 from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
@@ -12,7 +11,7 @@ from src.prompts.llm_reranker import LLMRerankerPrompt
 load_dotenv()
 
 
-def llm_reranker(state: MessagesState, closed_source: bool = False):
+def llm_reranker(state: Dict[str, Any], closed_source: bool = False):
     """
     LLM-based reranking agent.
     Takes candidate papers from state and reranks them using an LLM.
@@ -24,10 +23,19 @@ def llm_reranker(state: MessagesState, closed_source: bool = False):
     Returns:
         Dictionary with ranked_papers containing (paper, relevance_score) tuples
     """
-    query = getattr(state, "query", "")
-    candidate_papers = getattr(state, "candidate_papers", [])
+    # State is a dict at runtime (despite the type annotation)
+    print(f"🤖 LLM Reranker starting")
+    print(f"   State type: {type(state)}")
+    print(f"   State keys: {list(state.keys())[:15]}")  # Show first 15 keys
+
+    query = state.get("query", "")
+    candidate_papers = state.get("candidate_papers", [])
+
+    print(f"   Query: {query[:80]}..." if query else "   Query: (empty)")
+    print(f"   Candidates in state: {len(candidate_papers)}")
 
     if not candidate_papers:
+        print(f"⚠️  No candidate papers to rerank")
         return {"ranked_papers": []}
 
     # Use specified model or default from env

@@ -58,6 +58,8 @@ def reranker(state: Dict[str, Any], model_name: str = "BAAI/bge-reranker-v2-m3")
         )
 
     reranker_model = resources.get("reranker_model") or FlagReranker(model_name, use_fp16=True)
+    # Cache the model back into resources so subsequent queries reuse it
+    resources["reranker_model"] = reranker_model
 
     logger.debug("Computing reranking scores...")
     pairs = _pairs(query, candidates)

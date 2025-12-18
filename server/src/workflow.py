@@ -1,8 +1,15 @@
 # orchestrator.py
+"""
+LangGraph workflow with conditional routing for self-evolution.
+
+When evolution is enabled, the workflow uses conditional edges to route
+to optimized versions of the reformulator and picker nodes.
+"""
 
 import logging
 import os
 from pathlib import Path
+from typing import Literal
 from dotenv import load_dotenv
 from langgraph.graph import StateGraph, START, END
 
@@ -11,60 +18,162 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-# Import agent functions
-# from src.additional.coordinator import coordinator
-
 # Import Retriever agent functions
 from src.agents.retrievers.bm25_agent import bm25_agent
 from src.agents.retrievers.e5_agent import e5_agent
 from src.agents.retrievers.specter_agent import specter_agent
 
-# from src.agents.llm_agent import llm_agent
-from src.agents.formulators.query_reformulator import query_reformulator
+# Import Formulator agent functions (default and optimized versions)
+from src.agents.formulators.query_reformulator import (
+    query_reformulator,
+    query_reformulator_optimized,
+)
 from src.agents.formulators.aggregator import aggregator
 from src.agents.formulators.reranker import reranker
 from src.agents.formulators.llm_agent import llm_reranker
-from src.agents.formulators.dspy_picker import dspy_picker
+from src.agents.formulators.dspy_picker import dspy_picker, dspy_picker_optimized
 from src.models.state import RetrievalState
-
-# from agents.verifier_agent import verifier_agent
 
 
 class RetrievalWorkflow:
-    def __init__(self, use_llm_reranker: bool = False):
+    def __init__(self, use_llm_reranker: bool = False, enable_evolution: bool = False):
         """
         Initialize the workflow and build the graph pipeline.
 
         Args:
             use_llm_reranker: If True, use LLM reranker instead of cross-encoder reranker
+            enable_evolution: If True, enable DSPy self-evolution features with conditional routing
         """
         self.use_llm_reranker = use_llm_reranker
+
+        # Check evolution flag from environment if not specified
+        if not enable_evolution:
+            enable_evolution = os.getenv("ENABLE_DSPY_EVOLUTION", "false").lower() in {
+                "true",
+                "1",
+                "yes",
+                "on",
+            }
+
+        self.enable_evolution = enable_evolution
+        self._optimized_modules = {}  # Store optimized modules
+
+        if self.enable_evolution:
+            logger.info("🔄 DSPy Evolution ENABLED - using conditional routing")
+
         self.pipeline = self._build_workflow()
 
     ############################################################
-    # 1️⃣  BUILD THE STATE GRAPH (use MessagesState!)
+    # 1️⃣  ROUTING FUNCTIONS FOR CONDITIONAL EDGES
+    ############################################################
+
+    def _route_reformulator(
+        self, state
+    ) -> Literal["reformulator_default", "reformulator_optimized"]:
+        """
+        Route to optimized reformulator based on config flag or evolution setting.
+        """
+        config = state.get("config", {}) or {}
+
+        # Check explicit config flag first (for manual control)
+        use_dspy = config.get("use_dspy_reformulator", False) or config.get(
+            "use_optimized_reformulator", False
+        )
+
+        if use_dspy:
+            # User explicitly wants DSPy, try to use it
+            try:
+                from src.agents.self_evolve.version_tracker import VersionTracker
+
+                tracker = VersionTracker("reformulator")
+                if tracker.get_best() is not None:
+                    return "reformulator_optimized"
+            except Exception:
+                pass
+            # If no optimized version, still use optimized node (will fall back internally)
+            return "reformulator_optimized"
+
+        # Fall back to evolution-based routing
+        if not self.enable_evolution:
+            return "reformulator_default"
+
+        if config.get("use_optimized_reformulator", True):
+            try:
+                from src.agents.self_evolve.version_tracker import VersionTracker
+
+                tracker = VersionTracker("reformulator")
+                if tracker.get_best() is not None:
+                    return "reformulator_optimized"
+            except Exception:
+                pass
+
+        return "reformulator_default"
+
+    def _route_picker(self, state) -> Literal["picker_default", "picker_optimized"]:
+        """
+        Route to optimized picker based on config flag or evolution setting.
+        """
+        config = state.get("config", {}) or {}
+
+        # Check explicit config flag first (for manual control)
+        enable_dspy_picker = config.get("enable_dspy_picker", False) or config.get(
+            "use_optimized_picker", False
+        )
+
+        if enable_dspy_picker:
+            # User explicitly wants DSPy picker, try to use it
+            try:
+                from src.agents.self_evolve.version_tracker import VersionTracker
+
+                tracker = VersionTracker("picker")
+                if tracker.get_best() is not None:
+                    return "picker_optimized"
+            except Exception:
+                pass
+            # If no optimized version, still use optimized node (will fall back internally)
+            return "picker_optimized"
+
+        # Fall back to evolution-based routing
+        if not self.enable_evolution:
+            return "picker_default"
+
+        if config.get("use_optimized_picker", True):
+            try:
+                from src.agents.self_evolve.version_tracker import VersionTracker
+
+                tracker = VersionTracker("picker")
+                if tracker.get_best() is not None:
+                    return "picker_optimized"
+            except Exception:
+                pass
+
+        return "picker_default"
+
+    ############################################################
+    # 2️⃣  BUILD THE STATE GRAPH
     ############################################################
 
     def _build_workflow(self):
-        """Build and compile the LangGraph workflow."""
-        # IMPORTANT: Studio REQUIRES MessagesState or Annotated fields
+        """Build and compile the LangGraph workflow with conditional routing."""
         graph = StateGraph(RetrievalState)
 
         ############################################################
-        # 2️⃣  ADD AGENTS (nodes)
+        # 3️⃣  ADD NODES
         ############################################################
 
-        graph.add_node("reformulator", query_reformulator)
-        # graph.add_node("coordinator", coordinator)
+        # Reformulator nodes (default and optimized)
+        graph.add_node("reformulator_default", query_reformulator)
+        graph.add_node("reformulator_optimized", query_reformulator_optimized)
+
+        # Retriever nodes
         graph.add_node("bm25", bm25_agent)
         graph.add_node("e5", e5_agent)
         graph.add_node("specter", specter_agent)
-        # graph.add_node("llm", llm_agent, tags=["retriever"])
-        # graph.add_node("verifier", verifier_agent, tags=["agent"])
-        graph.add_node("dspy_picker", dspy_picker)
+
+        # Aggregator
         graph.add_node("aggregator", aggregator)
 
-        # Choose reranker type
+        # Reranker (choose type based on init flag)
         if self.use_llm_reranker:
             logger.info("Using LLM-based reranker")
             graph.add_node("reranking", llm_reranker)
@@ -72,35 +181,54 @@ class RetrievalWorkflow:
             logger.debug("Using cross-encoder reranker")
             graph.add_node("reranking", reranker)
 
+        # Picker nodes (default and optimized)
+        graph.add_node("picker_default", dspy_picker)
+        graph.add_node("picker_optimized", dspy_picker_optimized)
+
         ############################################################
-        # 3️⃣  ADD EDGES
+        # 4️⃣  ADD EDGES WITH CONDITIONAL ROUTING
         ############################################################
 
-        # Start → Query Reformulator
-        graph.add_edge(START, "reformulator")
+        # START → Reformulator (conditional: default or optimized)
+        graph.add_conditional_edges(
+            START,
+            self._route_reformulator,
+            {
+                "reformulator_default": "reformulator_default",
+                "reformulator_optimized": "reformulator_optimized",
+            },
+        )
 
-        # Retrieval agents (fan-out in parallel from reformulator)
-        # LangGraph will execute bm25/e5/specter in the same superstep when they share
-        # the same upstream node. Make sure parallel branches don't write to the same
-        # state key unless that key has a reducer.
-        graph.add_edge("reformulator", "bm25")
-        graph.add_edge("reformulator", "e5")
-        graph.add_edge("reformulator", "specter")
-        # graph.add_edge("coordinator", "llm")
+        # Both reformulator variants fan-out to retrievers in parallel
+        for reformulator_node in ["reformulator_default", "reformulator_optimized"]:
+            graph.add_edge(reformulator_node, "bm25")
+            graph.add_edge(reformulator_node, "e5")
+            graph.add_edge(reformulator_node, "specter")
 
         # Aggregator (fan-in from all retrievers)
         graph.add_edge("bm25", "aggregator")
         graph.add_edge("e5", "aggregator")
         graph.add_edge("specter", "aggregator")
 
-        # Reranking and completion
+        # Aggregator → Reranking
         graph.add_edge("aggregator", "reranking")
-        graph.add_edge("reranking", "dspy_picker")
-        graph.add_edge("dspy_picker", END)
-        # graph.add_edge("verifier", END)
+
+        # Reranking → Picker (conditional: default or optimized)
+        graph.add_conditional_edges(
+            "reranking",
+            self._route_picker,
+            {
+                "picker_default": "picker_default",
+                "picker_optimized": "picker_optimized",
+            },
+        )
+
+        # Both picker variants → END
+        graph.add_edge("picker_default", END)
+        graph.add_edge("picker_optimized", END)
 
         ############################################################
-        # 4️⃣ COMPILE AND RETURN PIPELINE
+        # 5️⃣ COMPILE AND RETURN PIPELINE
         ############################################################
 
         return graph.compile()
@@ -183,3 +311,73 @@ class RetrievalWorkflow:
 
         else:
             return Image(graph_image)
+
+    ############################################################
+    # 7️⃣  SELF-EVOLUTION METHODS
+    ############################################################
+
+    def is_evolution_enabled(self) -> bool:
+        """Check if DSPy evolution is enabled."""
+        return self.enable_evolution
+
+    def update_dspy_module(self, module_name: str, new_module) -> None:
+        """
+        Hot-swap a DSPy module.
+
+        Args:
+            module_name: Name of module ('picker', 'reformulator')
+            new_module: New DSPy module instance
+        """
+        if not self.enable_evolution:
+            logger.warning("Evolution not enabled, cannot update module")
+            return
+
+        self._optimized_modules[module_name] = new_module
+        logger.info(f"✓ Updated module: {module_name}")
+
+    def update_reformulator(self, new_reformulator) -> None:
+        """
+        Update query reformulator module.
+
+        Args:
+            new_reformulator: New reformulator module
+        """
+        self.update_dspy_module("reformulator", new_reformulator)
+
+    def get_module_versions(self) -> dict:
+        """
+        Return current versions of all modules.
+
+        Returns:
+            Dict mapping module names to version info
+        """
+        if not self.enable_evolution:
+            return {}
+
+        versions = {}
+        try:
+            from src.agents.self_evolve.version_tracker import VersionTracker
+
+            # Get picker version
+            picker_tracker = VersionTracker("picker")
+            picker_stats = picker_tracker.get_statistics()
+            if picker_stats.get("count", 0) > 0:
+                versions["picker"] = {
+                    "current_version": picker_stats.get("latest_version"),
+                    "best_version": picker_stats.get("best_version"),
+                    "best_score": picker_stats.get("best_score"),
+                }
+
+            # Get reformulator version
+            reformulator_tracker = VersionTracker("reformulator")
+            reformulator_stats = reformulator_tracker.get_statistics()
+            if reformulator_stats.get("count", 0) > 0:
+                versions["reformulator"] = {
+                    "current_version": reformulator_stats.get("latest_version"),
+                    "best_version": reformulator_stats.get("best_version"),
+                    "best_score": reformulator_stats.get("best_score"),
+                }
+        except Exception as e:
+            logger.error(f"Could not get module versions: {e}")
+
+        return versions
