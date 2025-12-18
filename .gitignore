@@ -1,0 +1,13 @@
+.env
+
+**/__pycache__/
+**/*.pyc
+
+# Local / generated outputs
+.evaluation/
+
+# Large datasets (keep local; do not push)
+datasets/*.jsonl
+
+# Prompt generator datasets (can be large)
+dspy_prompt_generator/data/*.json

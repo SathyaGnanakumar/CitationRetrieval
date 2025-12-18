@@ -1,9 +1,12 @@
 import ast
+import logging
 from typing import Any, Dict, List, Optional
 
 import torch
 from langchain_core.messages import AIMessage
 from sentence_transformers import util
+
+logger = logging.getLogger(__name__)
 
 
 def _get_queries(state: Dict[str, Any]) -> List[str]:
@@ -160,22 +163,29 @@ def e5_agent(state: Dict[str, Any]):
     - `state["queries"]`: list[str]
     - `state["resources"]["e5"]`: built via src.resources.builders.build_e5_resources()
     """
+    logger.info("🔍 E5 retriever starting...")
+
     queries = _get_queries(state)
     if not queries:
+        logger.warning("⚠️  E5 received no queries")
         return {"messages": [AIMessage(content="E5 received no queries", name="e5")]}
 
     resources = state.get("resources", {}) or {}
     e5_res = resources.get("e5")
     if not e5_res:
+        logger.error("❌ E5 resources not found")
         return {"messages": [AIMessage(content="E5_ERROR: missing e5 resources", name="e5")]}
 
     k = int((state.get("config", {}) or {}).get("k", 5))
+    logger.debug(f"Query: {queries[0][:100]}...")
+    logger.debug(f"Retrieving top-{k} results")
 
     # Initialize retriever
     retriever = E5Retriever(e5_res["model"], e5_res.get("device"))
 
     # Use batch_query if multiple queries, single_query otherwise
     if len(queries) > 1:
+        logger.debug(f"Processing {len(queries)} queries in batch")
         results_per_query = retriever.batch_query(
             queries,
             e5_res["corpus_embeddings"],
@@ -194,6 +204,14 @@ def e5_agent(state: Dict[str, Any]):
             e5_res["titles"],
             k=k,
         )
+
+    if results:
+        scores = [r["score"] for r in results]
+        logger.info(
+            f"✅ E5 retrieved {len(results)} results (scores: {scores[0]:.3f} to {scores[-1]:.3f})"
+        )
+    else:
+        logger.warning("⚠️  E5 returned no results")
 
     return {
         "e5_results": results,

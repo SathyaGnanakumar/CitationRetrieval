@@ -1,8 +1,11 @@
 import ast
+import logging
 from typing import Any, Dict, List, Optional
 
 import torch
 from langchain_core.messages import AIMessage
+
+logger = logging.getLogger(__name__)
 
 
 def _get_queries(state: Dict[str, Any]) -> List[str]:
@@ -44,7 +47,9 @@ class SPECTERRetriever:
                 if torch.cuda.is_available()
                 else "mps" if torch.backends.mps.is_available() else "cpu"
             )
-        self.device = device
+
+        self.device = torch.device(device)
+        self.model = self.model.to(self.device)
 
     def single_query(
         self,
@@ -80,14 +85,12 @@ class SPECTERRetriever:
             truncation=True,
             max_length=max_length,
             return_tensors="pt",
-        )
-        if self.device == "cuda":
-            inputs = inputs.to("cuda")
+        ).to(self.device)
 
         with torch.no_grad():
             q_emb = self.model(**inputs).last_hidden_state.mean(dim=1)
-            if self.device != "cuda":
-                q_emb = q_emb.cpu()
+
+        corpus_embeddings = corpus_embeddings.to(self.device)
 
         # Compute similarity
         # q_emb: (1, hidden_dim), corpus_embeddings: (corpus_size, hidden_dim)
@@ -143,15 +146,13 @@ class SPECTERRetriever:
             truncation=True,
             max_length=max_length,
             return_tensors="pt",
-        )
-        if self.device == "cuda":
-            inputs = inputs.to("cuda")
+        ).to(self.device)
 
         # Batch forward pass
         with torch.no_grad():
             q_embs = self.model(**inputs).last_hidden_state.mean(dim=1)
-            if self.device != "cuda":
-                q_embs = q_embs.cpu()
+
+        corpus_embeddings = corpus_embeddings.to(self.device)
 
         # Compute similarity for all queries
         # q_embs: (num_queries, hidden_dim)
@@ -192,13 +193,17 @@ def specter_agent(state: Dict[str, Any]):
     - `state["queries"]`: list[str]
     - `state["resources"]["specter"]`: built via src.resources.builders.build_specter_resources()
     """
+    logger.info("🔍 SPECTER retriever starting...")
+
     queries = _get_queries(state)
     if not queries:
+        logger.warning("⚠️  SPECTER received no queries")
         return {"messages": [AIMessage(content="SPECTER received no queries", name="specter")]}
 
     resources = state.get("resources", {}) or {}
     sp_res = resources.get("specter")
     if not sp_res:
+        logger.error("❌ SPECTER resources not found")
         return {
             "messages": [
                 AIMessage(content="SPECTER_ERROR: missing specter resources", name="specter")
@@ -206,12 +211,15 @@ def specter_agent(state: Dict[str, Any]):
         }
 
     k = int((state.get("config", {}) or {}).get("k", 5))
+    logger.debug(f"Query: {queries[0][:100]}...")
+    logger.debug(f"Retrieving top-{k} results")
 
     # Initialize retriever
     retriever = SPECTERRetriever(sp_res["model"], sp_res["tokenizer"], sp_res.get("device", "cpu"))
 
     # Use batch_query if multiple queries, single_query otherwise
     if len(queries) > 1:
+        logger.debug(f"Processing {len(queries)} queries in batch")
         results_per_query = retriever.batch_query(
             queries,
             sp_res["corpus_embeddings"],
@@ -230,6 +238,14 @@ def specter_agent(state: Dict[str, Any]):
             sp_res["titles"],
             k=k,
         )
+
+    if results:
+        scores = [r["score"] for r in results]
+        logger.info(
+            f"✅ SPECTER retrieved {len(results)} results (scores: {scores[0]:.3f} to {scores[-1]:.3f})"
+        )
+    else:
+        logger.warning("⚠️  SPECTER returned no results")
 
     return {
         "specter_results": results,
