@@ -178,12 +178,26 @@ def build_llm_reranker_resources(
     logger.info(f"   Inference Engine: {inference_engine}")
     logger.info(f"   Model: {model_name}")
 
-    if inference_engine == "ollama":
+    if inference_engine == "openai":
+        # OpenAI - cloud-based, no local loading needed
+        from langchain_openai import ChatOpenAI
+
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY not found in environment variables")
+
+        logger.info(f"🔄 Initializing OpenAI with model: {model_name}")
+        llm = ChatOpenAI(model=model_name, temperature=0, api_key=api_key)
+        logger.info(f"✅ OpenAI ready!")
+
+    elif inference_engine == "ollama":
+        # Ollama - local inference server
         from langchain_ollama import ChatOllama
 
         logger.info(f"🔄 Initializing Ollama with model: {model_name}")
         llm = ChatOllama(model=model_name, temperature=0)
         logger.info(f"✅ Ollama ready!")
+
     else:
         # Hugging Face - load once and cache
         from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline

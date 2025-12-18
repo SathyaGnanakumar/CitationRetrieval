@@ -61,14 +61,24 @@ def llm_reranker(state: Dict[str, Any], closed_source: bool = False):
         model_id = os.getenv("LOCAL_LLM", "gemma3:4b")
         inference_engine = os.getenv("INFERENCE_ENGINE", "ollama").lower()
 
-        if closed_source:
-            llm = ChatOpenAI("gpt-4.1", api_key=os.getenv("OPENAI_API_KEY"))
-            print(f"🤖 Using OpenAI GPT-4")
+        if closed_source or inference_engine == "openai":
+            # OpenAI - cloud-based
+            api_key = os.getenv("OPENAI_API_KEY")
+            if not api_key:
+                raise ValueError("OPENAI_API_KEY not found in environment variables")
+
+            # Use provided model or default to gpt-4o-mini
+            openai_model = model_id if inference_engine == "openai" else "gpt-4o-mini"
+            print(f"🤖 Using OpenAI with model: {openai_model}")
+            llm = ChatOpenAI(model=openai_model, temperature=0, api_key=api_key)
+            print(f"✅ OpenAI ready!")
+
         elif inference_engine == "ollama":
             # Using Ollama for local inference (faster, less memory)
             print(f"🔄 Using Ollama with model: {model_id}")
             llm = ChatOllama(model=model_id, temperature=0)
             print(f"✅ Ollama ready!")
+
         else:
             # Using Hugging Face model loaded locally via transformers pipeline
             from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
@@ -99,7 +109,24 @@ def llm_reranker(state: Dict[str, Any], closed_source: bool = False):
 
     # Call LLM
     response = llm.invoke(prompt)
-    response_text = response.content
+
+    # Handle different response formats
+    # - ChatOllama/ChatOpenAI return object with .content attribute
+    # - HuggingFacePipeline may return string directly or dict with 'text' key
+    if isinstance(response, str):
+        response_text = response
+    elif hasattr(response, 'content'):
+        response_text = response.content
+    elif isinstance(response, dict) and 'text' in response:
+        response_text = response['text']
+    elif isinstance(response, list) and len(response) > 0:
+        # Some pipelines return a list of dicts
+        if isinstance(response[0], dict) and 'generated_text' in response[0]:
+            response_text = response[0]['generated_text']
+        else:
+            response_text = str(response)
+    else:
+        response_text = str(response)
 
     print(f"📝 LLM response length: {len(response_text)} chars")
     print(f"📝 First 200 chars: {response_text[:200]}...")
