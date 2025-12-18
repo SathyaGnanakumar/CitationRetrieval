@@ -1,0 +1,8 @@
+{
+  "dataset_path": "/Users/ishaankalra/Dev/Retrieval/corpus_loaders/scholarcopilot/scholar_copilot_eval_data_1k.json",
+  "dataset_hash": "7f5de630",
+  "corpus_size": 9740,
+  "has_bm25": true,
+  "has_e5": true,
+  "has_specter": true
+}
