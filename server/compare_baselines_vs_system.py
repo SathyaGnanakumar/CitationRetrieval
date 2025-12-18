@@ -276,7 +276,11 @@ def run_comparison(
         logger.info(f"   ✓ Corpus: {len(corpus)} documents")
 
         resources = build_inmemory_resources(
-            corpus, enable_bm25=True, enable_e5=True, enable_specter=True
+            corpus,
+            enable_bm25=True,
+            enable_e5=True,
+            enable_specter=True,
+            enable_llm_reranker=use_llm_reranker,  # Load LLM model once if using LLM reranker
         )
         logger.info(f"   ✓ Resources built")
 
@@ -284,6 +288,12 @@ def run_comparison(
             save_resources(resources, dataset_path)
     else:
         logger.info(f"   ✓ Loaded from cache")
+
+        # If using LLM reranker and model not in cache, load it now
+        if use_llm_reranker and "llm_reranker" not in resources:
+            logger.info(f"\n🔧 LLM reranker enabled but not in cache - loading now...")
+            from src.resources.builders import build_llm_reranker_resources
+            resources["llm_reranker"] = build_llm_reranker_resources()
 
     # Initialize evaluators
     baseline_evaluator = BaselineEvaluator(resources)

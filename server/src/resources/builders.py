@@ -152,12 +152,79 @@ def build_specter_resources(
     }
 
 
+def build_llm_reranker_resources(
+    inference_engine: Optional[str] = None,
+    model_name: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Build LLM reranker resources (load model once, reuse across examples).
+
+    Args:
+        inference_engine: "ollama" or "huggingface" (defaults to INFERENCE_ENGINE env var)
+        model_name: Model identifier (e.g., "gemma3:4b" for Ollama, "google/gemma-2-9b-it" for HF)
+
+    Returns:
+        Dict with llm_model, inference_engine, model_name
+    """
+    import os
+
+    if inference_engine is None:
+        inference_engine = os.getenv("INFERENCE_ENGINE", "ollama").lower()
+
+    if model_name is None:
+        model_name = os.getenv("LOCAL_LLM", "gemma3:4b")
+
+    logger.info(f"🔨 Building LLM Reranker resources...")
+    logger.info(f"   Inference Engine: {inference_engine}")
+    logger.info(f"   Model: {model_name}")
+
+    if inference_engine == "ollama":
+        from langchain_ollama import ChatOllama
+
+        logger.info(f"🔄 Initializing Ollama with model: {model_name}")
+        llm = ChatOllama(model=model_name, temperature=0)
+        logger.info(f"✅ Ollama ready!")
+    else:
+        # Hugging Face - load once and cache
+        from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+        from langchain_huggingface import HuggingFacePipeline
+        import torch
+
+        logger.info(f"🔄 Loading Hugging Face model: {model_name}")
+        logger.info(f"   This will take a few minutes on first run...")
+
+        tok = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            device_map="auto",
+            torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+        )
+
+        gen = pipeline(
+            "text-generation",
+            model=model,
+            tokenizer=tok,
+            max_new_tokens=1024,
+            do_sample=False,
+        )
+
+        llm = HuggingFacePipeline(pipeline=gen)
+        logger.info(f"✅ Hugging Face model loaded and cached!")
+
+    return {
+        "llm_model": llm,
+        "inference_engine": inference_engine,
+        "model_name": model_name,
+    }
+
+
 def build_inmemory_resources(
     docs: List[Dict[str, Any]],
     *,
     enable_bm25: bool = True,
     enable_e5: bool = True,
     enable_specter: bool = True,
+    enable_llm_reranker: bool = False,
     e5_model_name: str = "intfloat/e5-large-v2",
     specter_model_name: str = "allenai/specter2_base",
 ) -> Dict[str, Any]:
@@ -178,6 +245,9 @@ def build_inmemory_resources(
     if enable_specter:
         logger.info("=" * 60)
         resources["specter"] = build_specter_resources(docs, model_name=specter_model_name)
+    if enable_llm_reranker:
+        logger.info("=" * 60)
+        resources["llm_reranker"] = build_llm_reranker_resources()
 
     logger.info("=" * 60)
     logger.info("✅ All retrieval resources built successfully!")

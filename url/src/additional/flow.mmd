@@ -1,0 +1,94 @@
+flowchart LR
+    %% Citation Retrieval Pipeline with Conditional Routing for Self-Evolution
+    %% Sections: data prep → serving (with conditional edges) → evaluation → evolution → scripts
+
+    subgraph DataPrep["Data Prep"]
+        A["ScholarCopilot JSON<br/>from DATASET_DIR"]
+        B["load_dataset"]
+        C["build_citation_corpus"]
+        D["build_inmemory_resources<br/>BM25 + E5 + Specter indexes"]
+        A --> B --> C --> D
+    end
+
+    subgraph Serving["Retrieval Serving (LangGraph pipeline)"]
+        Q["Incoming query"]
+        
+        %% Conditional routing for reformulator
+        RouteReform{{"route_reformulator"}}
+        ReformDefault["reformulator_default<br/>(rule-based keywords)"]
+        ReformOpt["reformulator_optimized<br/>(DSPy + VersionTracker)"]
+        
+        %% Parallel retrievers
+        BM25["BM25 retriever"]
+        E5["E5 dense retriever"]
+        Specter["Specter semantic retriever"]
+        
+        %% Aggregation and reranking
+        Agg["Aggregator<br/>dedup + RRF fusion"]
+        Rerank["Reranker<br/>(cross-encoder or LLM)"]
+        
+        %% Conditional routing for picker
+        RoutePicker{{"route_picker"}}
+        PickerDefault["picker_default<br/>(base DSPy module)"]
+        PickerOpt["picker_optimized<br/>(evolution-trained)"]
+        
+        O["Results"]
+
+        %% START → conditional reformulator
+        Q --> RouteReform
+        RouteReform -->|"evolution disabled<br/>OR no optimized module"| ReformDefault
+        RouteReform -->|"evolution enabled<br/>AND optimized exists"| ReformOpt
+        
+        %% Both reformulators fan-out to parallel retrievers
+        ReformDefault --> BM25
+        ReformDefault --> E5
+        ReformDefault --> Specter
+        ReformOpt --> BM25
+        ReformOpt --> E5
+        ReformOpt --> Specter
+        
+        %% Retrievers → Aggregator → Reranker
+        BM25 --> Agg
+        E5 --> Agg
+        Specter --> Agg
+        Agg --> Rerank
+        
+        %% Reranker → conditional picker
+        Rerank --> RoutePicker
+        RoutePicker -->|"evolution disabled<br/>OR no optimized module"| PickerDefault
+        RoutePicker -->|"evolution enabled<br/>AND optimized exists"| PickerOpt
+        
+        %% Both pickers → END
+        PickerDefault --> O
+        PickerOpt --> O
+    end
+
+    D -.-> BM25
+    D -.-> E5
+    D -.-> Specter
+
+    subgraph Evaluation["Evaluation Loop"]
+        O --> E["evaluate_batch<br/>R@K, MRR, Score"]
+        E --> S["EvaluationStore<br/>query + metrics + ground_truth"]
+    end
+
+    subgraph Evolution["Self-Evolution (when ENABLE_DSPY_EVOLUTION=true)"]
+        S -->|"trigger: EVOLUTION_OPTIMIZE_INTERVAL"| G["GEPA optimizer<br/>Teacher: GPT-5 Mini"]
+        G --> P["Generate improved prompts<br/>(reformulator / picker)"]
+        P --> V["Validate on held-out set"]
+        V -->|"if improvement ≥ threshold"| VT["VersionTracker.add_version()"]
+        VT -.->|"saved module loaded by"| ReformOpt
+        VT -.->|"saved module loaded by"| PickerOpt
+    end
+
+    subgraph Scripts["Entry Points"]
+        Run1["optimize_once.py<br/>--max-queries N"]
+        Run2["run_evolution.py<br/>continuous loop"]
+        Run3["analyze_evolution.py<br/>reports/plots"]
+    end
+
+    D -.-> Run1
+    D -.-> Run2
+    Run1 --> E
+    Run2 --> E
+    Run3 --> S

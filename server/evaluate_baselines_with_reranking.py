@@ -159,7 +159,9 @@ class BaselineEvaluator:
 
         except Exception as e:
             logger.error(f"❌ LLM reranking failed: {e}")
-            logger.error(f"❌ Response was: {response_text[:500] if 'response_text' in locals() else 'N/A'}...")
+            logger.error(
+                f"❌ Response was: {response_text[:500] if 'response_text' in locals() else 'N/A'}..."
+            )
             logger.warning(f"⚠️  Returning original order")
             return papers
 
@@ -759,7 +761,9 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="/Users/ishaankalra/Dev/Retrieval/corpus_loaders/scholarcopilot/scholar_copilot_eval_data_1k.json",
+        default=os.getenv(
+            "DATASET_DIR", "corpus_loaders/scholarcopilot/scholar_copilot_eval_data_1k.json"
+        ),
         help="Path to dataset",
     )
     parser.add_argument(

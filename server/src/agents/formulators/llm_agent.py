@@ -36,6 +36,7 @@ def llm_reranker(state: Dict[str, Any], closed_source: bool = False):
 
     query = state.get("query", "")
     candidate_papers = state.get("candidate_papers", [])
+    resources = state.get("resources", {})
 
     print(f"   Query: {query[:80]}..." if query else "   Query: (empty)")
     print(f"   Candidates in state: {len(candidate_papers)}")
@@ -44,41 +45,53 @@ def llm_reranker(state: Dict[str, Any], closed_source: bool = False):
         print(f"⚠️  No candidate papers to rerank")
         return {"ranked_papers": []}
 
-    # Use specified model or default from env
-    model_id = os.getenv("LOCAL_LLM", "gemma3:4b")
-    inference_engine = os.getenv("INFERENCE_ENGINE", "ollama").lower()
+    # Check if LLM model is cached in resources (PERFORMANCE OPTIMIZATION)
+    llm_reranker_res = resources.get("llm_reranker")
 
-    if closed_source:
-        llm = ChatOpenAI("gpt-4.1", api_key=os.getenv("OPENAI_API_KEY"))
-        print(f"🤖 Using OpenAI GPT-4")
-    elif inference_engine == "ollama":
-        # Using Ollama for local inference (faster, less memory)
-        print(f"🔄 Using Ollama with model: {model_id}")
-        llm = ChatOllama(model=model_id, temperature=0)
-        print(f"✅ Ollama ready!")
+    if llm_reranker_res and "llm_model" in llm_reranker_res:
+        # Use cached model (FAST PATH - no loading overhead)
+        llm = llm_reranker_res["llm_model"]
+        model_id = llm_reranker_res.get("model_name", "cached")
+        print(f"🚀 Using cached LLM model: {model_id}")
     else:
-        # Using Hugging Face model loaded locally via transformers pipeline
-        from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
-        import torch
+        # Fallback: load model on-the-fly (SLOW PATH - only for backwards compatibility)
+        print(f"⚠️  LLM model not found in resources - loading on-the-fly (SLOW!)")
+        print(f"   💡 Tip: Enable llm_reranker in build_inmemory_resources for better performance")
 
-        print(f"🔄 Loading Hugging Face model: {model_id}...")
-        tok = AutoTokenizer.from_pretrained(model_id)
-        model = AutoModelForCausalLM.from_pretrained(
-            model_id,
-            device_map="auto",
-            torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
-        )
+        model_id = os.getenv("LOCAL_LLM", "gemma3:4b")
+        inference_engine = os.getenv("INFERENCE_ENGINE", "ollama").lower()
 
-        gen = pipeline(
-            "text-generation",
-            model=model,
-            tokenizer=tok,
-            max_new_tokens=1024,  # Increased for reasoning + JSON output
-            do_sample=False,
-        )
+        if closed_source:
+            llm = ChatOpenAI("gpt-4.1", api_key=os.getenv("OPENAI_API_KEY"))
+            print(f"🤖 Using OpenAI GPT-4")
+        elif inference_engine == "ollama":
+            # Using Ollama for local inference (faster, less memory)
+            print(f"🔄 Using Ollama with model: {model_id}")
+            llm = ChatOllama(model=model_id, temperature=0)
+            print(f"✅ Ollama ready!")
+        else:
+            # Using Hugging Face model loaded locally via transformers pipeline
+            from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+            import torch
 
-        llm = HuggingFacePipeline(pipeline=gen)
-        print(f"✅ Hugging Face model loaded!")
+            print(f"🔄 Loading Hugging Face model: {model_id}...")
+            tok = AutoTokenizer.from_pretrained(model_id)
+            model = AutoModelForCausalLM.from_pretrained(
+                model_id,
+                device_map="auto",
+                torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+            )
+
+            gen = pipeline(
+                "text-generation",
+                model=model,
+                tokenizer=tok,
+                max_new_tokens=1024,  # Increased for reasoning + JSON output
+                do_sample=False,
+            )
+
+            llm = HuggingFacePipeline(pipeline=gen)
+            print(f"✅ Hugging Face model loaded!")
 
     prompt = LLMRerankerPrompt(query=query, candidate_papers=candidate_papers).get_prompt()
 

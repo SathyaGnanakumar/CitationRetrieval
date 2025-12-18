@@ -1,0 +1,20 @@
+# ============================================================================
+# SELF-EVOLUTION CONFIGURATION EXAMPLE
+# ============================================================================
+# Copy these settings to your .env file to enable self-evolution
+# ============================================================================
+
+# FEATURE FLAG - Enable DSPy self-evolution (default: false)
+ENABLE_DSPY_EVOLUTION=false
+
+# EVOLUTION SETTINGS
+EVOLUTION_EVAL_INTERVAL=100
+EVOLUTION_OPTIMIZE_INTERVAL=1000
+EVOLUTION_MIN_IMPROVEMENT=0.05
+
+# MODELS
+TEACHER_MODEL=openai/gpt-5-mini
+STUDENT_MODEL=ollama_chat/gemma:2b
+
+# Required: OpenAI API key for teacher model
+OPENAI_API_KEY=your_key_here
