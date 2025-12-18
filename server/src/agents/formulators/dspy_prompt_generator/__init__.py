@@ -9,10 +9,10 @@ This module provides tools for:
 Usage:
     # Prepare data
     from dspy_prompt_generator import CitationDataPrep
-    prep = CitationDataPrep("datasets/scholar_copilot_eval_data_1k.json")
+    prep = CitationDataPrep("datasets/scholarcopilot/scholar_copilot_eval_data_1k.json")
     prep.extract_examples()
     prep.save_examples("dspy_prompt_generator/data")
-    
+
     # Train/optimize
     from dspy_prompt_generator import CitationTrainer, TrainingConfig
     config = TrainingConfig(model="gpt-4o-mini")
@@ -20,7 +20,7 @@ Usage:
     trainer.setup_lm()
     trainer.load_data()
     trainer.optimize(module_name="simple")
-    
+
     # Use optimized module
     result = trainer.optimized_module(
         citation_context="...[CITATION]...",

@@ -37,7 +37,7 @@ def llm_reranker(state: MessagesState, closed_source: bool = False):
     else:
         llm = ChatOllama(model=model, temperature=0)
 
-    prompt = LLMRerankerPrompt(query=query, candidate_papers=candidate_papers).build_prompt()
+    prompt = LLMRerankerPrompt(query=query, candidate_papers=candidate_papers).get_prompt()
 
     print(f"🤖 LLM Reranking with model: {model}...")
 
