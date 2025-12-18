@@ -1,5 +1,7 @@
 from typing import List, Dict, Any
-from langchain_ollama import ChatOllama
+
+# from langchain_ollama import ChatOllama  # Commented out - using Hugging Face instead
+from langchain_huggingface import HuggingFacePipeline
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 import os
@@ -39,15 +41,41 @@ def llm_reranker(state: Dict[str, Any], closed_source: bool = False):
         return {"ranked_papers": []}
 
     # Use specified model or default from env
-    model = os.getenv("LOCAL_LLM", "gemma3:4b")
+    model_id = os.getenv("LOCAL_LLM", "google/gemma-3-4b-it")  # Using gemma-3-4b-it by default
+
     if closed_source:
         llm = ChatOpenAI("gpt-4.1", api_key=os.getenv("OPENAI_API_KEY"))
     else:
-        llm = ChatOllama(model=model, temperature=0)
+        # Using Hugging Face model loaded locally via transformers pipeline
+        from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+        import torch
+
+        print(f"🔄 Loading {model_id}...")
+        tok = AutoTokenizer.from_pretrained(model_id)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_id,
+            device_map="auto",
+            torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+        )
+
+        gen = pipeline(
+            "text-generation",
+            model=model,
+            tokenizer=tok,
+            max_new_tokens=256,
+            do_sample=False,
+        )
+
+        llm = HuggingFacePipeline(pipeline=gen)
+        print(f"✅ Model loaded!")
+
+        # # OLLAMA VERSION (commented out):
+        # from langchain_ollama import ChatOllama
+        # llm = ChatOllama(model=model, temperature=0)
 
     prompt = LLMRerankerPrompt(query=query, candidate_papers=candidate_papers).get_prompt()
 
-    print(f"🤖 LLM Reranking with model: {model}...")
+    print(f"🤖 LLM Reranking with model: {model_id}...")
 
     # Call LLM
     response = llm.invoke(prompt)

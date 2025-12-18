@@ -214,8 +214,13 @@ def specter_agent(state: Dict[str, Any]):
     logger.debug(f"Query: {queries[0][:100]}...")
     logger.debug(f"Retrieving top-{k} results")
 
-    # Initialize retriever
-    retriever = SPECTERRetriever(sp_res["model"], sp_res["tokenizer"], sp_res.get("device", "cpu"))
+    # Initialize retriever - detect device from embeddings if not in resources
+    device = sp_res.get("device")
+    if device is None:
+        # Detect device from corpus embeddings
+        device = str(sp_res["corpus_embeddings"].device)
+
+    retriever = SPECTERRetriever(sp_res["model"], sp_res["tokenizer"], device)
 
     # Use batch_query if multiple queries, single_query otherwise
     if len(queries) > 1:

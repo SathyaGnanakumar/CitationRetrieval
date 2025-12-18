@@ -660,6 +660,7 @@ dependencies = [
     { name = "ipykernel" },
     { name = "langchain" },
     { name = "langchain-anthropic" },
+    { name = "langchain-huggingface" },
     { name = "langchain-ollama" },
     { name = "langchain-openai" },
     { name = "langchain-together" },
@@ -700,6 +701,7 @@ requires-dist = [
     { name = "jupyter", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "langchain", specifier = "==0.2" },
     { name = "langchain-anthropic", specifier = ">=0.1.23" },
+    { name = "langchain-huggingface", specifier = ">=0.0.3" },
     { name = "langchain-ollama", specifier = ">=0.1.3" },
     { name = "langchain-openai", specifier = ">=0.1.25" },
     { name = "langchain-together", specifier = ">=0.1.5" },
@@ -2417,6 +2419,22 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/cc/25/a14a1287e5d7e00eaf8cb3ee3c31d029127f14b945de6fc8e2f0e28e2b12/langchain_core-0.2.43.tar.gz", hash = "sha256:42c2ef6adedb911f4254068b6adc9eb4c4075f6c8cb3d83590d3539a815695f5", size = 316915, upload-time = "2024-10-31T20:30:36.78Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/70/9b/b26405992d807a592ab3e7792f0eb2c2f71fe69111c972caf7786ba99199/langchain_core-0.2.43-py3-none-any.whl", hash = "sha256:619601235113298ebf8252a349754b7c28d3cf7166c7c922da24944b78a9363a", size = 397066, upload-time = "2024-10-31T20:30:35.112Z" },
+]
+
+[[package]]
+name = "langchain-huggingface"
+version = "0.0.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "huggingface-hub" },
+    { name = "langchain-core" },
+    { name = "sentence-transformers" },
+    { name = "tokenizers" },
+    { name = "transformers" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e5/fd/52af613b26fdb565d0b49fd20aad554660b0b019a42e6db55061308084b0/langchain_huggingface-0.0.3.tar.gz", hash = "sha256:0637acf484c47323cf3dcc46745a93467f6955989af9b7c01e2382fe1b630aaf", size = 13140, upload-time = "2024-06-05T12:29:29.402Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/39/ce/ad7f50a6289cf562747df9a966b4d60a848571db2e57ad8d00dca2478096/langchain_huggingface-0.0.3-py3-none-any.whl", hash = "sha256:d6827adf3c7c8fcc0bca8c43c7e900c3bf68af9a1532a83d4b8ace137e02887e", size = 17802, upload-time = "2024-06-05T12:29:28.363Z" },
 ]
 
 [[package]]

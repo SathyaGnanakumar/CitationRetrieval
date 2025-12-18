@@ -127,21 +127,32 @@ class BaselineEvaluator:
         if not specter_res:
             return None
 
-        device = specter_res.get("device", "cpu")
-        model = specter_res["model"].to(device)
+        # Get device from resources or detect from embeddings
+        device = specter_res.get("device")
+        if device is None:
+            device = str(specter_res["corpus_embeddings"].device)
+
+        # Ensure model is on correct device
+        model = specter_res["model"]
+        if str(next(model.parameters()).device) != device:
+            model = model.to(device)
+
         tokenizer = specter_res["tokenizer"]
 
         # Encode query
         with torch.no_grad():
             inputs = tokenizer(
                 [query], padding=True, truncation=True, max_length=256, return_tensors="pt"
-            ).to(device)
+            )
+            # Move inputs to device
+            inputs = {k: v.to(device) for k, v in inputs.items()}
 
             q_emb = model(**inputs).last_hidden_state.mean(dim=1)
-            q_emb = torch.nn.functional.normalize(q_emb, dim=1).cpu()
+            q_emb = torch.nn.functional.normalize(q_emb, dim=1)
 
-        # Retrieve
-        corpus_embs = torch.nn.functional.normalize(specter_res["corpus_embeddings"], dim=1)
+        # Retrieve - ensure embeddings are on same device
+        corpus_embs = specter_res["corpus_embeddings"].to(device)
+        corpus_embs = torch.nn.functional.normalize(corpus_embs, dim=1)
         scores = (q_emb @ corpus_embs.T)[0]
         top_k = torch.topk(scores, k=min(k, len(scores)))
 
@@ -576,11 +587,18 @@ def create_visualizations(aggregated: Dict[str, Dict[str, float]], output_dir: s
     logger.info(f"📈 Saved heatmap to {output_path / 'heatmap_comparison.png'}")
 
     # 4. Improvement over Best Baseline
+    # Only use methods that actually have results
+    available_baselines = [m for m in ["bm25", "e5", "specter"] if m in aggregated]
+
+    if not available_baselines:
+        logger.warning("⚠️  No baseline results available for improvement chart")
+        return
+
     baseline_scores = {
-        "R@5": max(aggregated[m]["R@5"] for m in ["bm25", "e5", "specter"]),
-        "R@10": max(aggregated[m]["R@10"] for m in ["bm25", "e5", "specter"]),
-        "R@20": max(aggregated[m]["R@20"] for m in ["bm25", "e5", "specter"]),
-        "MRR": max(aggregated[m]["MRR"] for m in ["bm25", "e5", "specter"]),
+        "R@5": max(aggregated[m]["R@5"] for m in available_baselines),
+        "R@10": max(aggregated[m]["R@10"] for m in available_baselines),
+        "R@20": max(aggregated[m]["R@20"] for m in available_baselines),
+        "MRR": max(aggregated[m]["MRR"] for m in available_baselines),
     }
 
     system_scores = aggregated.get("full_system", {})
