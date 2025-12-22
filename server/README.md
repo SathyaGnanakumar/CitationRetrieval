@@ -171,7 +171,7 @@ cd ..
 docker-compose up -d
 
 # Access the container shell
-docker-compose exec app bash
+docker-compose exec api bash
 
 # Inside the container, run your retrieval tasks
 uv run python evaluate.py
@@ -222,10 +222,10 @@ docker-compose up -d
 docker-compose down
 
 # View logs
-docker-compose logs -f app
+docker-compose logs -f api
 
 # Access container shell
-docker-compose exec app bash
+docker-compose exec api bash
 
 # Rebuild containers after code changes
 docker-compose up -d --build
@@ -300,7 +300,7 @@ If you're using Docker, first access the container:
 docker-compose up -d
 
 # Access the container shell
-docker-compose exec app bash
+docker-compose exec api bash
 ```
 
 Then run commands inside the container as shown in the sections below.
