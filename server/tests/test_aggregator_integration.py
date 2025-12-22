@@ -5,7 +5,7 @@ This test file loads the real dataset, builds actual resources (BM25, E5, SPECTE
 runs real retrievers, and tests the aggregator with actual results.
 
 Note: These tests require:
-- The ScholarCopilot dataset (default: ../datasets/scholarcopilot/scholar_copilot_eval_data_1k.json)
+- The ScholarCopilot dataset (default: ../corpus/scholarcopilot/scholar_copilot_eval_data_1k.json)
 - Set DATASET_DIR environment variable to override location
 - Model downloads (E5, SPECTER) - first run will be slow
 - Sufficient memory/GPU for embeddings
@@ -25,13 +25,13 @@ import pytest
 
 # Ensure imports work
 sys.path.insert(0, str(Path(__file__).parent.parent))
-# Add parent directory for datasets import
+# Add parent directory for corpus import
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from langchain_core.messages import HumanMessage
 
-from datasets.scholarcopilot import build_citation_corpus, load_dataset
-from src.resources.builders import build_bm25_resources, build_e5_resources, build_specter_resources
+from corpus.scholarcopilot import build_citation_corpus, load_dataset
+from corpus.builders import build_bm25_resources, build_e5_resources, build_specter_resources
 from src.agents.retrievers.bm25_agent import bm25_agent
 from src.agents.retrievers.e5_agent import e5_agent
 from src.agents.retrievers.specter_agent import specter_agent
@@ -40,7 +40,7 @@ from src.workflow import RetrievalWorkflow
 
 # Dataset path - use environment variable or default relative path
 DATASET_PATH = Path(
-    os.getenv("DATASET_DIR", "../datasets/scholarcopilot/scholar_copilot_eval_data_1k.json")
+    os.getenv("DATASET_DIR", "../corpus/scholarcopilot/scholar_copilot_eval_data_1k.json")
 )
 
 # Mark all tests in this file as integration tests

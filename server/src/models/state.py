@@ -1,16 +1,20 @@
-from typing import Any, Dict, List
-from langgraph.graph import MessagesState
+from typing import Annotated, Any, Dict, List
+from typing_extensions import TypedDict
+from langgraph.graph.message import add_messages
 
 
-class RetrievalState(MessagesState):
+class RetrievalState(TypedDict):
     """
     Dataset-agnostic state schema for the retrieval workflow.
 
     Notes:
     - LangGraph state is still a dict at runtime; this is a schema/type contract.
-    - Keep `messages` from MessagesState for LangGraph Studio visibility, but prefer
-      structured keys below for logic.
+    - messages uses add_messages reducer for LangGraph Studio visibility
+    - All other fields use default TypedDict behavior (replace on update)
     """
+
+    # LangGraph messages (for Studio visibility)
+    messages: Annotated[list, add_messages]
 
     # Query inputs
     query: str

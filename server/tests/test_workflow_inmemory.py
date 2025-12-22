@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from langchain_core.messages import HumanMessage
 
-from src.resources.builders import build_bm25_resources
+from corpus.builders import build_bm25_resources
 from src.workflow import RetrievalWorkflow
 
 

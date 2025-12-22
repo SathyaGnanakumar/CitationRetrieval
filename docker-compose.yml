@@ -1,37 +1,43 @@
 version: '3.8'
 
 services:
-  # Main citation retrieval application
-  app:
+  # FastAPI backend service
+  api:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: citation-retrieval
+    container_name: citation-retrieval-api
     volumes:
       # Mount dataset directory
       - ./datasets:/app/data
+      # Mount corpus directory
+      - ./server/corpus:/app/corpus
       # Mount results directory
       - ./server/results:/app/results
-      # Mount graphs directory for workflow visualizations
-      - ./server/graphs:/app/graphs
       # Cache HuggingFace models locally to avoid re-downloading
       - huggingface-cache:/root/.cache/huggingface
     environment:
       # Dataset configuration
       - DATASET_DIR=/app/data/scholarcopilot/scholar_copilot_eval_data_1k.json
-      # Graph output directory
-      - GRAPH_OUTPUT_DIR=/app/graphs
       # API Keys (from .env file)
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - TOGETHER_API_KEY=${TOGETHER_API_KEY}
       - S2_API_KEY=${S2_API_KEY}
       - hf_key=${hf_key}
       # Local LLM configuration (for Ollama)
       - LOCAL_LLM=${LOCAL_LLM:-gemma3:4b}
       - OLLAMA_HOST=http://ollama:11434
+      # API configuration
+      - HOST=0.0.0.0
+      - PORT=8000
+      - USE_LLM_RERANKER=true
     env_file:
       - ./server/.env
     depends_on:
       - ollama
+    ports:
+      - "8000:8000"
     networks:
       - retrieval-network
     # For GPU support, uncomment the following:
@@ -42,9 +48,29 @@ services:
     #         - driver: nvidia
     #           count: 1
     #           capabilities: [gpu]
-    stdin_open: true
-    tty: true
-    command: /bin/bash
+    command: uvicorn src.api:app --host 0.0.0.0 --port 8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Next.js frontend client
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://api:8000
+    container_name: citation-retrieval-client
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:8000
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    networks:
+      - retrieval-network
 
   # Optional: Ollama service for local LLM inference
   ollama:

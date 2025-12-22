@@ -26,20 +26,20 @@ import torch
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 
-# Add parent directory to path for datasets import
+# Add parent directory to path for corpus import
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from datasets.scholarcopilot import build_citation_corpus, load_dataset
+from corpus.scholarcopilot import build_citation_corpus, load_dataset
 from src.agents.retrievers.e5_agent import E5Retriever
 from src.agents.retrievers.specter_agent import SPECTERRetriever
 from src.evaluation.metrics import evaluate_retrieval
-from src.resources.builders import (
+from corpus.builders import (
     build_bm25_resources,
     build_e5_resources,
     build_inmemory_resources,
     build_specter_resources,
 )
-from src.resources.cache import load_resources, save_resources
+from corpus.cache import load_resources, save_resources
 from src.utils.timing import setup_logging, timer
 from src.workflow import RetrievalWorkflow
 
@@ -154,6 +154,76 @@ def evaluate_single_query(
     }
 
 
+def evaluate_individual_retriever(
+    retriever_name: str,
+    workflow: RetrievalWorkflow,
+    resources: Dict[str, Any],
+    paper: Dict[str, Any],
+    k: int = 20,
+) -> Dict[str, Any]:
+    """
+    Evaluate a single retriever on a query.
+
+    Args:
+        retriever_name: Name of retriever (bm25, e5, specter)
+        workflow: The retrieval workflow
+        resources: Built resources
+        paper: Query paper
+        k: Number of results
+
+    Returns:
+        Dictionary with metrics
+    """
+    from src.agents.retrievers.bm25_agent import bm25_agent
+    from src.agents.retrievers.e5_agent import e5_agent
+    from src.agents.retrievers.specter_agent import specter_agent
+    from langchain_core.messages import HumanMessage
+
+    # Extract query
+    paper_text = paper.get("paper", "")
+    if not paper_text:
+        paper_text = f"{paper.get('title', '')} {paper.get('abstract', '')}"
+    query = extract_query_from_paper(paper_text)
+
+    # Get ground truth
+    relevant_ids = get_ground_truth_ids(paper)
+    if not relevant_ids:
+        return None
+
+    # Create minimal state for retriever
+    state = {
+        "messages": [HumanMessage(content=query)],
+        "queries": [query],  # Retrievers need this!
+        "resources": resources,
+        "config": {"k": k},
+    }
+
+    # Run single retriever
+    try:
+        if retriever_name == "bm25":
+            result = bm25_agent(state)
+            results = result.get("bm25_results", [])
+        elif retriever_name == "e5":
+            result = e5_agent(state)
+            results = result.get("e5_results", [])
+        elif retriever_name == "specter":
+            result = specter_agent(state)
+            results = result.get("specter_results", [])
+        else:
+            return None
+
+        if not results:
+            return None
+
+        # Evaluate
+        metrics = evaluate_retrieval(results, relevant_ids, k_values=[5, 10, 20])
+        return metrics
+
+    except Exception as e:
+        logger.error(f"Error evaluating {retriever_name}: {e}")
+        return None
+
+
 def run_pipeline_evaluation(
     dataset_path: str,
     num_queries: int = None,
@@ -162,7 +232,8 @@ def run_pipeline_evaluation(
     no_e5: bool = False,
     no_specter: bool = False,
     use_cache: bool = True,
-    use_llm_reranker: bool = False,
+    use_llm_reranker: bool = True,
+    compare_methods: bool = False,
 ) -> Dict[str, Any]:
     """
     Run full pipeline evaluation on the dataset.
@@ -175,7 +246,8 @@ def run_pipeline_evaluation(
         no_e5: Skip E5 embeddings
         no_specter: Skip SPECTER embeddings
         use_cache: Whether to use resource caching
-        use_llm_reranker: Use LLM-based reranker
+        use_llm_reranker: Use LLM-based reranker (default: True)
+        compare_methods: Compare individual retrievers vs full pipeline (default: False)
 
     Returns:
         Aggregated evaluation results
@@ -234,6 +306,11 @@ def run_pipeline_evaluation(
     all_metrics = []
     successful_queries = 0
 
+    # For comparison mode, track individual retriever metrics
+    bm25_metrics = [] if compare_methods else None
+    e5_metrics = [] if compare_methods else None
+    specter_metrics = [] if compare_methods else None
+
     for i, paper in enumerate(papers_to_evaluate, 1):
         logger.info(f"\n[{i}/{len(papers_to_evaluate)}] {paper.get('title', '')[:60]}...")
 
@@ -249,6 +326,20 @@ def run_pipeline_evaluation(
                 f"  R@5={metrics['R@5']:.3f}, R@10={metrics['R@10']:.3f}, MRR={metrics['MRR']:.3f}"
             )
             logger.info(f"  Found {metrics['hits']}/{metrics['total_relevant']} relevant papers")
+
+            # Evaluate individual retrievers for comparison
+            if compare_methods:
+                bm25_result = evaluate_individual_retriever("bm25", workflow, resources, paper, k)
+                if bm25_result:
+                    bm25_metrics.append(bm25_result)
+
+                e5_result = evaluate_individual_retriever("e5", workflow, resources, paper, k)
+                if e5_result:
+                    e5_metrics.append(e5_result)
+
+                specter_result = evaluate_individual_retriever("specter", workflow, resources, paper, k)
+                if specter_result:
+                    specter_metrics.append(specter_result)
 
     # Aggregate metrics
     if not all_metrics:
@@ -276,6 +367,67 @@ def run_pipeline_evaluation(
     logger.info(f"  • Recall@20: {avg_metrics['R@20']:.4f}")
     logger.info(f"  • MRR:       {avg_metrics['MRR']:.4f}")
     logger.info("=" * 70)
+
+    # Print comparison table if requested
+    if compare_methods and bm25_metrics and e5_metrics and specter_metrics:
+        logger.info("\n" + "=" * 70)
+        logger.info("RETRIEVAL METHOD COMPARISON")
+        logger.info("=" * 70)
+
+        # Calculate averages for each method
+        def avg(metrics_list, key):
+            return sum(m[key] for m in metrics_list) / len(metrics_list) if metrics_list else 0.0
+
+        methods_data = [
+            ("BM25 (Keyword)", bm25_metrics),
+            ("E5 (Dense)", e5_metrics),
+            ("SPECTER (Dense)", specter_metrics),
+            ("Multi-Agent Pipeline", all_metrics),
+        ]
+
+        # Check if DSPy is enabled
+        dspy_enabled = os.getenv("ENABLE_DSPY_PICKER", "false").lower() in ["true", "1", "yes"]
+        pipeline_name = "Multi-Agent + DSPy" if dspy_enabled else "Multi-Agent (RRF + Reranking)"
+        methods_data[-1] = (pipeline_name, all_metrics)
+
+        # Print header
+        logger.info(f"{'Method':<30} {'R@5':>8} {'R@10':>8} {'R@20':>8} {'MRR':>8}")
+        logger.info("-" * 70)
+
+        # Print each method's metrics
+        for method_name, metrics_list in methods_data:
+            r5 = avg(metrics_list, "R@5")
+            r10 = avg(metrics_list, "R@10")
+            r20 = avg(metrics_list, "R@20")
+            mrr = avg(metrics_list, "MRR")
+            logger.info(f"{method_name:<30} {r5:>8.4f} {r10:>8.4f} {r20:>8.4f} {mrr:>8.4f}")
+
+        # Calculate improvements
+        pipeline_metrics = all_metrics
+        logger.info("\n" + "-" * 70)
+        logger.info("IMPROVEMENTS vs BEST INDIVIDUAL RETRIEVER:")
+        logger.info("-" * 70)
+
+        best_r5 = max(avg(bm25_metrics, "R@5"), avg(e5_metrics, "R@5"), avg(specter_metrics, "R@5"))
+        best_r10 = max(avg(bm25_metrics, "R@10"), avg(e5_metrics, "R@10"), avg(specter_metrics, "R@10"))
+        best_r20 = max(avg(bm25_metrics, "R@20"), avg(e5_metrics, "R@20"), avg(specter_metrics, "R@20"))
+        best_mrr = max(avg(bm25_metrics, "MRR"), avg(e5_metrics, "MRR"), avg(specter_metrics, "MRR"))
+
+        pipeline_r5 = avg(pipeline_metrics, "R@5")
+        pipeline_r10 = avg(pipeline_metrics, "R@10")
+        pipeline_r20 = avg(pipeline_metrics, "R@20")
+        pipeline_mrr = avg(pipeline_metrics, "MRR")
+
+        r5_improvement = ((pipeline_r5 - best_r5) / best_r5 * 100) if best_r5 > 0 else 0
+        r10_improvement = ((pipeline_r10 - best_r10) / best_r10 * 100) if best_r10 > 0 else 0
+        r20_improvement = ((pipeline_r20 - best_r20) / best_r20 * 100) if best_r20 > 0 else 0
+        mrr_improvement = ((pipeline_mrr - best_mrr) / best_mrr * 100) if best_mrr > 0 else 0
+
+        logger.info(f"  • Recall@5:  {r5_improvement:+.2f}%")
+        logger.info(f"  • Recall@10: {r10_improvement:+.2f}%")
+        logger.info(f"  • Recall@20: {r20_improvement:+.2f}%")
+        logger.info(f"  • MRR:       {mrr_improvement:+.2f}%")
+        logger.info("=" * 70)
 
     return avg_metrics
 
@@ -740,8 +892,18 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Full pipeline evaluation
+  # Full pipeline evaluation (uses LLM reranker by default)
   python evaluate.py --mode pipeline --dataset PATH --num-queries 100
+
+  # GPU cluster: Use HuggingFace instead of Ollama
+  python evaluate.py --mode pipeline --dataset PATH --num-queries 100 \\
+    --inference-engine huggingface --local-model meta-llama/Llama-3.2-3B-Instruct
+
+  # Full pipeline with comparison of individual retrievers vs multi-agent
+  python evaluate.py --mode pipeline --dataset PATH --num-queries 100 --compare
+
+  # Full pipeline with cross-encoder reranker instead
+  python evaluate.py --mode pipeline --dataset PATH --num-queries 100 --cross-encoder
 
   # Individual retriever baselines
   python evaluate.py --mode baselines --dataset PATH --retrievers bm25,e5,specter
@@ -806,9 +968,27 @@ Examples:
         help="[pipeline] Disable SPECTER dense embeddings",
     )
     parser.add_argument(
-        "--llm-reranker",
+        "--cross-encoder",
         action="store_true",
-        help="[pipeline] Use LLM-based reranker instead of cross-encoder",
+        help="[pipeline] Use cross-encoder reranker instead of LLM-based reranker (default: False)",
+    )
+    parser.add_argument(
+        "--compare",
+        action="store_true",
+        help="[pipeline] Compare individual retrievers (BM25, E5, SPECTER) vs full pipeline (default: False)",
+    )
+    parser.add_argument(
+        "--inference-engine",
+        type=str,
+        choices=["ollama", "huggingface", "openai"],
+        default=None,
+        help="[pipeline] Inference engine for local LLM reranking: ollama (default), huggingface (for GPU clusters), or openai (cloud)",
+    )
+    parser.add_argument(
+        "--local-model",
+        type=str,
+        default=None,
+        help="[pipeline] Local model name/path for inference (e.g., 'gemma3:4b' for Ollama, 'meta-llama/Llama-3.2-3B-Instruct' for HuggingFace)",
     )
 
     # Baselines-specific arguments
@@ -871,6 +1051,15 @@ Examples:
 
     # Run appropriate mode
     if args.mode == "pipeline":
+        # Set environment variables for inference engine if provided
+        if args.inference_engine:
+            os.environ["INFERENCE_ENGINE"] = args.inference_engine
+            logger.info(f"Setting INFERENCE_ENGINE={args.inference_engine}")
+
+        if args.local_model:
+            os.environ["LOCAL_LLM"] = args.local_model
+            logger.info(f"Setting LOCAL_LLM={args.local_model}")
+
         run_pipeline_evaluation(
             dataset_path=args.dataset,
             num_queries=args.num_queries,
@@ -879,7 +1068,8 @@ Examples:
             no_e5=args.no_e5,
             no_specter=args.no_specter,
             use_cache=not args.no_cache,
-            use_llm_reranker=args.llm_reranker,
+            use_llm_reranker=not args.cross_encoder,
+            compare_methods=args.compare,
         )
     elif args.mode == "baselines":
         retrievers = [r.strip() for r in args.retrievers.split(",")]

@@ -152,7 +152,6 @@ def classify_example(
     client: OpenAI,
     model: str,
     example: PromptExample,
-    temperature: float,
     retry: int,
     sleep: float,
 ) -> Dict[str, Any]:
@@ -165,9 +164,9 @@ def classify_example(
 
     for attempt in range(1, retry + 1):
         try:
+            # Note: GPT-5 models don't support custom temperature, using default
             response = client.chat.completions.create(
                 model=model,
-                temperature=temperature,
                 response_format={"type": "json_object"},
                 messages=[
                     {
@@ -221,9 +220,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate citation prompts with GPT-4o-mini")
     parser.add_argument("--correct-path", type=Path, default=DEFAULT_CORRECT)
     parser.add_argument("--wrong-path", type=Path, default=DEFAULT_WRONG)
-    parser.add_argument("--model", type=str, default="gpt-4o-mini")
+    parser.add_argument("--model", type=str, default="gpt-5-mini-2025-08-07")
     parser.add_argument("--max-examples", type=int, default=20)
-    parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--retry", type=int, default=3)
     parser.add_argument("--sleep", type=float, default=2.0)
@@ -248,7 +246,6 @@ def main() -> None:
                 client=client,
                 model=args.model,
                 example=example,
-                temperature=args.temperature,
                 retry=args.retry,
                 sleep=args.sleep,
             )
