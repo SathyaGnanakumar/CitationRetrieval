@@ -35,6 +35,8 @@ Aggregator (combines and fuses results)
     ↓
 Reranker (LLM-based reranking)
     ↓
+DSPy Picker (optional, citation selection)
+    ↓
 Final Ranked Results
 ```
 
@@ -154,11 +156,11 @@ LOCAL_LLM=gemma3:4b
 #### 4. Place your dataset
 
 ```bash
-# Create datasets directory structure (if not exists)
-mkdir -p ../datasets/scholarcopilot
+# Create corpus directory structure (if not exists)
+mkdir -p corpus/scholarcopilot
 
 # Place your dataset file
-cp /path/to/scholar_copilot_eval_data_1k.json ../datasets/scholarcopilot/
+cp /path/to/scholar_copilot_eval_data_1k.json corpus/scholarcopilot/
 ```
 
 #### 5. Build and run with Docker Compose
@@ -247,12 +249,6 @@ cd server
 uv sync
 ```
 
-For development dependencies:
-
-```bash
-uv sync --extra dev
-```
-
 #### 3. Set up environment variables
 
 Create a `.env` file from `.env.example`:
@@ -264,19 +260,34 @@ cp .env.example .env
 Configure the following variables:
 
 ```env
-# Dataset path
-DATASET_DIR=/path/to/datasets/scholarcopilot/scholar_copilot_eval_data_1k.json
+# Dataset path (relative to server/ directory)
+DATASET_DIR=corpus/scholarcopilot/scholar_copilot_eval_data_1k.json
 
 # Optional: LLM API keys for reranking
 OPENAI_API_KEY=your_key_here
 ANTHROPIC_API_KEY=your_key_here
-TOGETHER_API_KEY=your_key_here
-S2_API_KEY=your_semantic_scholar_key
 ```
 
-#### 4. Download the dataset
+#### 4. Dataset Location
 
-Place the ScholarCopilot dataset JSON file at the path specified in `DATASET_DIR` or use the default location: `../datasets/scholarcopilot/scholar_copilot_eval_data_1k.json`
+The ScholarCopilot dataset should be placed at `corpus/scholarcopilot/scholar_copilot_eval_data_1k.json` (relative to the server/ directory).
+
+**Download the dataset**: [scholar_copilot_eval_data_1k.json](https://drive.google.com/file/d/1_8aSJPcSS0U9-uWMo7SPfYkKSTg8ZgAT/view?usp=sharing)
+
+Once downloaded, place it in the correct location:
+
+```bash
+# From the server/ directory
+mkdir -p corpus/scholarcopilot
+cp ~/Downloads/scholar_copilot_eval_data_1k.json corpus/scholarcopilot/
+```
+
+You can verify the dataset is in the correct location:
+
+```bash
+# From the server/ directory
+ls corpus/scholarcopilot/scholar_copilot_eval_data_1k.json
+```
 
 ## Quick Start
 
@@ -395,13 +406,13 @@ retriever = SPECTERRetriever(
 
 ### Environment Variables
 
-| Variable            | Description                                 | Default                                                        |
-| ------------------- | ------------------------------------------- | -------------------------------------------------------------- |
-| `DATASET_DIR`       | Path to ScholarCopilot dataset              | `../datasets/scholarcopilot/scholar_copilot_eval_data_1k.json` |
-| `OPENAI_API_KEY`    | OpenAI API key for reranking                | None                                                           |
-| `ANTHROPIC_API_KEY` | Anthropic API key for reranking             | None                                                           |
-| `TOGETHER_API_KEY`  | Together AI API key for reranking           | None                                                           |
-| `GRAPH_OUTPUT_DIR`  | Directory for workflow graph visualizations | `./graphs`                                                     |
+| Variable            | Description                                 | Default                                                   |
+| ------------------- | ------------------------------------------- | --------------------------------------------------------- |
+| `DATASET_DIR`       | Path to ScholarCopilot dataset              | `corpus/scholarcopilot/scholar_copilot_eval_data_1k.json` |
+| `OPENAI_API_KEY`    | OpenAI API key for reranking                | None                                                      |
+| `ANTHROPIC_API_KEY` | Anthropic API key for reranking             | None                                                      |
+| `TOGETHER_API_KEY`  | Together AI API key for reranking           | None                                                      |
+| `GRAPH_OUTPUT_DIR`  | Directory for workflow graph visualizations | `./graphs`                                                |
 
 ### Model Configuration
 
@@ -417,40 +428,570 @@ build_specter_resources(corpus, model_name="allenai/specter2_base")  # Base mode
 build_specter_resources(corpus, model_name="allenai/specter2")  # Larger model
 ```
 
+## Evaluation CLI
+
+The system includes a comprehensive evaluation CLI (`evaluate.py`) that supports three evaluation modes:
+
+### 1. Pipeline Evaluation Mode
+
+Evaluate the full multi-agent pipeline with reranking:
+
+```bash
+# Basic evaluation
+uv run evaluate.py --mode pipeline --num-queries 100
+
+# With individual retriever comparison
+uv run evaluate.py --mode pipeline --num-queries 100 --compare
+
+# With custom dataset path
+uv run evaluate.py --mode pipeline --dataset /path/to/dataset.json --num-queries 50 --k 20
+```
+
+#### Pipeline Mode Options
+
+| Flag              | Description                               | Default |
+| ----------------- | ----------------------------------------- | ------- |
+| `--num-queries N` | Number of queries to evaluate             | All     |
+| `--k N`           | Top-k results to retrieve                 | 20      |
+| `--compare`       | Compare individual retrievers vs pipeline | False   |
+| `--cross-encoder` | Use cross-encoder instead of LLM reranker | False   |
+| `--bm25-only`     | Only use BM25 (disable dense retrievers)  | False   |
+| `--no-e5`         | Disable E5 retriever                      | False   |
+| `--no-specter`    | Disable SPECTER retriever                 | False   |
+| `--no-cache`      | Rebuild indexes from scratch              | False   |
+| `--debug`         | Enable debug logging                      | False   |
+
+#### Example: Full Comparison
+
+```bash
+# Compare all retrieval methods and show improvements
+uv run evaluate.py \
+    --mode pipeline \
+    --dataset corpus/scholarcopilot/scholar_copilot_eval_data_1k.json \
+    --num-queries 100 \
+    --k 20 \
+    --compare
+```
+
+**Output with `--compare` flag:**
+
+```
+======================================================================
+RETRIEVAL METHOD COMPARISON
+======================================================================
+Method                           R@5     R@10     R@20      MRR
+----------------------------------------------------------------------
+BM25 (Keyword)                0.0234   0.0345   0.0456   0.8123
+E5 (Dense)                    0.0312   0.0423   0.0534   0.8567
+SPECTER (Dense)               0.0289   0.0398   0.0512   0.8345
+Multi-Agent (RRF + Reranking) 0.0456   0.0589   0.0712   0.9234
+
+----------------------------------------------------------------------
+IMPROVEMENTS vs BEST INDIVIDUAL RETRIEVER:
+----------------------------------------------------------------------
+  • Recall@5:  +46.15%
+  • Recall@10: +39.24%
+  • Recall@20: +33.33%
+  • MRR:       +7.79%
+======================================================================
+```
+
+### 2. Baselines Evaluation Mode
+
+Evaluate individual retrievers separately:
+
+```bash
+# Evaluate all retrievers
+uv run evaluate.py --mode baselines --dataset PATH --retrievers bm25,e5,specter
+
+# Evaluate specific retrievers only
+uv run evaluate.py --mode baselines --dataset PATH --retrievers bm25,e5
+
+# Custom k values
+uv run evaluate.py --mode baselines --dataset PATH --k 10
+```
+
+**Output:**
+
+- Recall@k for each retriever
+- Latency comparison
+- Performance plots (saved to `results/`)
+
+### 3. Retrievers Testing Mode
+
+Test and benchmark retriever implementations:
+
+```bash
+# Run all tests
+uv run evaluate.py --mode retrievers --test-type all
+
+# Test batch processing
+uv run evaluate.py --mode retrievers --test-type batch --num-queries 20
+
+# Test with custom models
+uv run evaluate.py \
+    --mode retrievers \
+    --test-type cli \
+    --e5-model intfloat/e5-large-v2 \
+    --specter-model allenai/specter2 \
+    --num-queries 10
+```
+
+### LLM Reranker Configuration
+
+The system uses LLM-based reranking by default. You can choose between three inference engines:
+
+#### Inference Engine Options
+
+**1. Ollama (Default - Local, Easy Setup)**
+
+Best for local development. Requires Ollama to be installed and running.
+
+```bash
+# .env file
+INFERENCE_ENGINE=ollama
+LOCAL_LLM=gemma3:4b
+USE_OPENAI_RERANKER=false
+```
+
+Available Ollama models:
+- `gemma3:4b` (default, lightweight, fast)
+- `llama3.1:8b` (more capable)
+- `qwen3:8b` (good performance)
+- `mistral:7b` (balanced)
+
+**2. HuggingFace (GPU Clusters Without Ollama)**
+
+Best for GPU clusters where Ollama is difficult to run. Uses HuggingFace Transformers directly.
+
+```bash
+# .env file
+INFERENCE_ENGINE=huggingface
+LOCAL_LLM=meta-llama/Llama-3.2-3B-Instruct
+USE_OPENAI_RERANKER=false
+```
+
+Available HuggingFace models:
+- `meta-llama/Llama-3.2-3B-Instruct` (recommended, good performance)
+- `google/gemma-2-2b-it` (lightweight, fast)
+- `mistralai/Mistral-7B-Instruct-v0.3` (more capable)
+- Any HuggingFace causal LM model
+
+**CLI Override:**
+
+```bash
+# Use HuggingFace for this run only
+uv run evaluate.py --mode pipeline --num-queries 10 \
+  --inference-engine huggingface \
+  --local-model meta-llama/Llama-3.2-3B-Instruct
+
+# Use Ollama with different model
+uv run evaluate.py --mode pipeline --num-queries 10 \
+  --inference-engine ollama \
+  --local-model qwen3:8b
+```
+
+**3. OpenAI (Cloud-based)**
+
+Best for production use or when you need the highest quality results.
+
+```bash
+# .env file
+INFERENCE_ENGINE=openai  # or USE_OPENAI_RERANKER=true
+OPENAI_RERANKER_MODEL=gpt-5-mini-2025-08-07
+OPENAI_API_KEY=sk-your-key-here
+```
+
+Available OpenAI models:
+- `gpt-5-mini-2025-08-07` (default, recommended, cost-effective)
+- `gpt-5-2025-08-07` (most capable, higher cost)
+- `gpt-4o-mini` (older generation model)
+- `gpt-4o` (older generation model)
+
+**CLI Override:**
+
+```bash
+# Use cross-encoder instead of LLM
+uv run evaluate.py --mode pipeline --num-queries 10 --cross-encoder
+
+# Force OpenAI for this run
+uv run evaluate.py --mode pipeline --num-queries 10 \
+  --inference-engine openai
+```
+
+#### Quick Reference: When to Use Each Engine
+
+| Engine | Best For | Pros | Cons |
+|--------|----------|------|------|
+| **Ollama** | Local development, testing | Fast setup, easy to use | Requires Ollama installed |
+| **HuggingFace** | GPU clusters, research | Direct GPU access, flexible | Slower first load, more memory |
+| **OpenAI** | Production, quality | Highest quality, no setup | Costs money, requires internet |
+
+### DSPy Prompt Optimization (Optional)
+
+Enable prompt-optimized citation picker:
+
+```bash
+# .env file
+ENABLE_DSPY_PICKER=true
+DSPY_MODEL=gpt-5-mini-2025-08-07
+DSPY_TOP_N=10
+```
+
+When enabled, the comparison output will show:
+
+```
+Multi-Agent + DSPy          0.0523   0.0645   0.0789   0.9456
+```
+
+### Configuration Priority
+
+Settings are applied in order (later overrides earlier):
+
+1. Hardcoded defaults
+2. `.env` file values
+3. CLI flags (highest priority)
+
+### Performance Notes
+
+- **Individual retriever**: ~1-2 seconds per query
+- **Full pipeline**: ~3-5 seconds per query with LLM reranking
+- **With `--compare`**: ~10-15 seconds per query (evaluates each retriever separately)
+
+For quick iterations:
+
+```bash
+# Quick test (5 queries)
+uv run evaluate.py --mode pipeline --num-queries 5 --compare
+
+# Full evaluation (100+ queries)
+uv run evaluate.py --mode pipeline --num-queries 100 --compare
+```
+
+## Model Comparison
+
+The system includes a dedicated model comparison tool (`compare_models.py`) that allows you to evaluate and compare different LLM models for reranking performance.
+
+### Quick Start
+
+Compare the default models (gpt-5-mini-2025-08-07 and gpt-4o-mini):
+
+```bash
+# Compare default models on 20 queries
+uv run python compare_models.py --num-queries 20
+
+# Compare specific models
+uv run python compare_models.py \
+  --models gpt-5-mini-2025-08-07 gpt-5-2025-08-07 gpt-4o-mini \
+  --num-queries 50
+
+# Compare with custom dataset
+uv run python compare_models.py \
+  --dataset corpus/scholarcopilot/scholar_copilot_eval_data_1k.json \
+  --num-queries 100 \
+  --output results/model_comparison.json
+```
+
+### Available Models
+
+The comparison tool supports any OpenAI-compatible model. Common options include:
+
+- **gpt-5-mini-2025-08-07** (default) - Most cost-effective, good performance
+- **gpt-5-2025-08-07** - Most capable GPT-5 model (higher cost)
+- **gpt-4o-mini** - Previous generation mini model
+- **gpt-4o** - Previous generation capable model (higher cost)
+- **gpt-4-turbo** - Previous generation fast model (higher cost)
+
+### Comparison Output
+
+The tool generates a detailed comparison table:
+
+```
+=====================================================================================================
+MODEL PERFORMANCE COMPARISON
+=====================================================================================================
+Model                                R@5     R@10     R@20      MRR  Latency (s)   Est. Cost ($)
+-----------------------------------------------------------------------------------------------------
+gpt-5-mini-2025-08-07              0.0456   0.0589   0.0712   0.9234        3.42          0.0153
+gpt-5-2025-08-07                   0.0478   0.0612   0.0745   0.9312        4.21          0.8500
+gpt-4o-mini                        0.0445   0.0578   0.0698   0.9187        3.38          0.0153
+=====================================================================================================
+
+🏆 Best Model: gpt-5-2025-08-07
+   Recall@20: 0.0745
+   MRR: 0.9312
+   Avg Latency: 4.21s
+   Est. Cost: $0.8500
+```
+
+### Metrics Explained
+
+- **R@5, R@10, R@20**: Recall at top 5, 10, and 20 results - measures how often the correct citation appears in the top-k results
+- **MRR**: Mean Reciprocal Rank - measures how high the correct citation is ranked (1.0 = first position)
+- **Latency**: Average time per query in seconds
+- **Est. Cost**: Estimated API cost for the evaluation (based on current pricing)
+
+### Command-Line Options
+
+```bash
+--dataset PATH          # Path to dataset (default: from DATASET_DIR env var)
+--models MODEL [MODEL]  # Models to compare (default: gpt-5-mini-2025-08-07 gpt-4o-mini)
+--num-queries N         # Number of queries to evaluate (default: 20)
+--k N                   # Number of results to retrieve (default: 20)
+--output PATH           # Save results to JSON file
+--seed N                # Random seed for reproducibility (default: 42)
+```
+
+### Best Practices
+
+1. **Start Small**: Use `--num-queries 20` for quick comparisons
+2. **Scale Up**: Use `--num-queries 100+` for statistically significant results
+3. **Save Results**: Use `--output` to save results for later analysis
+4. **Cost Awareness**: Check estimated costs before running large evaluations
+5. **Reproducibility**: Use `--seed` for consistent query sampling
+
+### Example Workflows
+
+**Quick test to choose a model:**
+```bash
+uv run python compare_models.py --num-queries 20
+```
+
+**Comprehensive evaluation:**
+```bash
+uv run python compare_models.py \
+  --models gpt-5-mini-2025-08-07 gpt-5-2025-08-07 gpt-4o-mini \
+  --num-queries 100 \
+  --output results/full_comparison.json
+```
+
+**Compare cost vs. performance tradeoff:**
+```bash
+# Test on small sample first
+uv run python compare_models.py --models gpt-5-mini-2025-08-07 gpt-5-2025-08-07 --num-queries 10
+
+# If gpt-5-2025-08-07 shows significant improvement, run larger test
+uv run python compare_models.py --models gpt-5-2025-08-07 --num-queries 100
+```
+
+## API Server
+
+The system can be run as a REST API server for integration with web applications.
+
+### Starting the API Server
+
+```bash
+# Development mode with auto-reload
+uv run uvicorn src.api:app --host 0.0.0.0 --port 8000 --reload
+
+# Production mode with multiple workers
+uv run uvicorn src.api:app --host 0.0.0.0 --port 8000 --workers 4
+```
+
+The API will be available at:
+
+- **Base URL**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/docs (Swagger UI)
+- **Alternative Docs**: http://localhost:8000/redoc (ReDoc)
+- **Health Check**: http://localhost:8000/health
+
+### API Endpoints
+
+#### `GET /` - Root
+
+Returns API information and status.
+
+**Response:**
+
+```json
+{
+  "message": "Citation Retrieval API",
+  "version": "0.1.0",
+  "docs": "/docs"
+}
+```
+
+#### `GET /health` - Health Check
+
+Returns health status and corpus information.
+
+**Response:**
+
+```json
+{
+  "status": "healthy",
+  "corpus_size": 9740,
+  "retrievers": ["bm25", "e5", "specter"]
+}
+```
+
+#### `POST /api/find-citation` - Find Citation
+
+Find the most relevant citations for a given context.
+
+**Request Body:**
+
+```json
+{
+  "context": "Transformers [CITATION] revolutionized NLP by introducing attention mechanisms.",
+  "k": 5,
+  "use_llm_reranker": true
+}
+```
+
+**Parameters:**
+
+- `context` (string, required): The citation context with `[CITATION]` placeholder
+- `k` (integer, optional): Number of results to return (default: 5)
+- `use_llm_reranker` (boolean, optional): Use LLM-based reranking (default: true)
+
+**Response:**
+
+```json
+{
+  "results": [
+    {
+      "citation": {
+        "title": "Attention Is All You Need",
+        "authors": ["Vaswani, A.", "Shazeer, N.", "..."],
+        "year": 2017,
+        "source": "NeurIPS",
+        "doi": "10.48550/arXiv.1706.03762",
+        "abstract": "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks..."
+      },
+      "confidence": 99.5,
+      "reasoning": "This paper introduced the Transformer architecture, which revolutionized NLP through self-attention mechanisms.",
+      "score": 0.98,
+      "formatted": {
+        "apa": "Vaswani, A., et al. (2017). Attention Is All You Need. NeurIPS.",
+        "mla": "Vaswani, A., et al. \"Attention Is All You Need.\" NeurIPS, 2017.",
+        "bibtex": "@inproceedings{vaswani2017attention,\n  title={Attention Is All You Need},\n  author={Vaswani, A. and ...},\n  booktitle={NeurIPS},\n  year={2017}\n}"
+      }
+    }
+  ],
+  "query": "Transformers revolutionized NLP by introducing attention mechanisms.",
+  "expanded_queries": [
+    "Transformers revolutionized NLP by introducing attention mechanisms.",
+    "transformers revolutionized nlp introducing attention mechanisms",
+    "paper discussing transformers, revolutionized, nlp, introducing, attention, mechanisms"
+  ],
+  "num_results": 5
+}
+```
+
+### API Usage Examples
+
+#### Using curl
+
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# Find citation
+curl -X POST http://localhost:8000/api/find-citation \
+  -H "Content-Type: application/json" \
+  -d '{
+    "context": "The architecture [CITATION] introduced attention mechanisms.",
+    "k": 5,
+    "use_llm_reranker": true
+  }'
+```
+
+#### Using Python requests
+
+```python
+import requests
+
+# Health check
+response = requests.get("http://localhost:8000/health")
+print(response.json())
+
+# Find citation
+response = requests.post(
+    "http://localhost:8000/api/find-citation",
+    json={
+        "context": "The transformer [CITATION] revolutionized NLP.",
+        "k": 5,
+        "use_llm_reranker": True
+    }
+)
+
+results = response.json()
+for i, result in enumerate(results["results"], 1):
+    citation = result["citation"]
+    print(f"{i}. {citation['title']} ({citation['year']})")
+    print(f"   Confidence: {result['confidence']}%")
+    print(f"   Score: {result['score']:.4f}")
+    print()
+```
+
+#### Using JavaScript/TypeScript
+
+```typescript
+// Health check
+const health = await fetch("http://localhost:8000/health");
+const healthData = await health.json();
+console.log(healthData);
+
+// Find citation
+const response = await fetch("http://localhost:8000/api/find-citation", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    context: "The transformer [CITATION] revolutionized NLP.",
+    k: 5,
+    use_llm_reranker: true,
+  }),
+});
+
+const data = await response.json();
+data.results.forEach((result, i) => {
+  console.log(`${i + 1}. ${result.citation.title} (${result.citation.year})`);
+  console.log(`   Confidence: ${result.confidence}%`);
+  console.log(`   Formatted (APA): ${result.formatted.apa}`);
+});
+```
+
+### API Configuration
+
+Configure the API server via environment variables in `.env`:
+
+```bash
+# API Server
+HOST=0.0.0.0
+PORT=8000
+USE_LLM_RERANKER=true
+
+# CORS Settings (for frontend integration)
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+
+# Ollama Settings (for local LLM)
+OLLAMA_HOST=http://localhost:11434
+LOCAL_LLM=gemma3:4b
+```
+
+### API Performance
+
+Expected response times:
+
+- **With LLM reranking**: 3-5 seconds
+- **Without LLM reranking**: 1-2 seconds
+- **BM25 only**: <500ms
+
+For production deployment:
+
+- Use `--workers 4` or more for better throughput
+- Consider using a reverse proxy (nginx, caddy)
+- Enable CORS for frontend integration
+- Set up proper logging and monitoring
+
 ## Testing
 
 The project includes a comprehensive test suite. See [tests/README.md](tests/README.md) for detailed documentation.
 
-### Quick Test Commands
-
-```bash
-# Run all tests
-uv run python tests/test_retrievers_batch.py
-
-# Run specific test types
-uv run python tests/test_retrievers_batch.py --test-type single
-uv run python tests/test_retrievers_batch.py --test-type batch
-uv run python tests/test_retrievers_batch.py --test-type cli
-
-# Test with custom models
-uv run python tests/test_retrievers_batch.py \
-  --test-type cli \
-  --e5-model intfloat/e5-large-v2 \
-  --specter-model allenai/specter2 \
-  --num-queries 20
-
-# Run with pytest
-uv run pytest tests/ -v
-```
-
-### Test Coverage
-
-- ✅ Single query processing (E5 & SPECTER)
-- ✅ Batch query processing (10+ queries)
-- ✅ Consistency verification (single vs batch)
-- ✅ Performance benchmarking
-- ✅ Corpus loading and processing
-- ✅ Workflow integration
+For evaluation and testing, use the `evaluate.py` script as described in the [Evaluation CLI](#evaluation-cli) section above.
 
 ## Project Structure
 
@@ -486,164 +1027,6 @@ server/
 └── README.md                    # This file
 ```
 
-## Performance
-
-### Batch Processing
-
-The system is optimized for batch processing on GPU:
-
-- **E5 Batch**: 5-10x faster than sequential single queries on GPU
-- **SPECTER Batch**: 3-5x faster than sequential single queries on GPU
-- **Memory Efficient**: Resources are cached and reused across queries
-
-### Expected Performance
-
-On GPU (CUDA):
-
-- **E5 (base)**: ~0.2-0.3s per query in batch
-- **SPECTER (base)**: ~0.3-0.4s per query in batch
-- **BM25**: ~0.01s per query (CPU)
-
-On CPU:
-
-- **E5 (base)**: ~1-2s per query in batch
-- **SPECTER (base)**: ~2-3s per query in batch
-
-### Resource Building Time
-
-First-time resource building (one-time cost):
-
-- Corpus building: 1-2 minutes
-- E5 embeddings: 2-5 minutes (depends on corpus size)
-- SPECTER embeddings: 2-8 minutes (depends on corpus size)
-
-Subsequent runs use cached resources.
-
-## Development
-
-### Code Style
-
-The project uses:
-
-- **Black** for code formatting (line length: 100)
-- **Ruff** for linting
-- **Type hints** throughout
-
-Format code:
-
-```bash
-uv run black src/ tests/
-uv run ruff check src/ tests/
-```
-
-### Adding New Retrievers
-
-1. Create a new retriever class in `src/agents/retrievers/`
-2. Implement `single_query()` and `batch_query()` methods
-3. Add resource builder in `src/resources/builders.py`
-4. Integrate into workflow in `src/workflow.py`
-5. Add tests in `tests/`
-
-Example structure:
-
-```python
-class NewRetriever:
-    def __init__(self, model, device=None):
-        self.model = model
-        self.device = device
-
-    def single_query(self, query, corpus_embeddings, ids, titles, k=5):
-        # Implementation
-        pass
-
-    def batch_query(self, queries, corpus_embeddings, ids, titles, k=5):
-        # Implementation
-        pass
-```
-
-### Running Development Server
-
-```bash
-# Fast mode (BM25 only, no dense embeddings)
-uv run python main.py --dataset /path/to/dataset.json --bm25-only
-
-# Full mode with all retrievers
-uv run python main.py --dataset /path/to/dataset.json
-```
-
-## Troubleshooting
-
-### Common Issues
-
-**1. Dataset Not Found**
-
-For local setup:
-```bash
-# Set DATASET_DIR environment variable
-export DATASET_DIR="/path/to/dataset.json"
-
-# Or use --dataset flag
-uv run python main.py --dataset /path/to/dataset.json
-```
-
-For Docker setup:
-```bash
-# Ensure dataset is in the correct location
-ls datasets/scholarcopilot/scholar_copilot_eval_data_1k.json
-
-# Check the mounted volume
-docker-compose exec app ls /app/data/scholarcopilot/
-```
-
-**2. CUDA Out of Memory**
-
-- Use smaller models (`e5-base-v2` instead of `e5-large-v2`)
-- Reduce batch size in resource building
-- Use CPU mode (slower but works)
-- For Docker: Ensure GPU is properly configured in `docker-compose.yml`
-
-**3. Model Download Issues**
-
-- Check internet connection (models download from HuggingFace)
-- Verify model names are correct
-- Check HuggingFace Hub access
-- For Docker: Models are cached in the `huggingface-cache` volume and persist across container restarts
-
-**4. Import Errors**
-
-For local setup:
-```bash
-# Ensure you're in the server directory
-cd server
-uv run python main.py
-
-# Or set PYTHONPATH
-export PYTHONPATH="${PYTHONPATH}:$(pwd)"
-```
-
-For Docker setup:
-```bash
-# Rebuild the container
-docker-compose up -d --build
-```
-
-**5. Docker-Specific Issues**
-
-```bash
-# Container won't start
-docker-compose logs app
-
-# GPU not detected in Docker
-# Install NVIDIA Container Toolkit and uncomment GPU sections in docker-compose.yml
-
-# Permission issues with volumes
-sudo chown -R $USER:$USER datasets/ server/results/ server/graphs/
-
-# Reset everything and start fresh
-docker-compose down -v
-docker-compose up -d --build
-```
-
 ## API Reference
 
 ### RetrievalState
@@ -675,50 +1058,6 @@ class SPECTERRetriever:
     def single_query(query, corpus_embeddings, ids, titles, k=5) -> List[Dict]
     def batch_query(queries, corpus_embeddings, ids, titles, k=5) -> List[List[Dict]]
 ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests (`uv run pytest tests/`)
-5. Format code (`uv run black src/ tests/`)
-6. Commit changes (`git commit -m 'Add amazing feature'`)
-7. Push to branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
-
-## License
-
-[Add your license information here]
-
-## Citation
-
-If you use this system in your research, please cite:
-
-```bibtex
-@software{citation-retrieval,
-  title = {Citation Retrieval System},
-  author = {[Your Name/Organization]},
-  year = {2024},
-  url = {[Repository URL]}
-}
-```
-
-## Acknowledgments
-
-- **E5 Models**: [intfloat/e5](https://huggingface.co/intfloat/e5-base-v2)
-- **SPECTER Models**: [allenai/specter2](https://huggingface.co/allenai/specter2_base)
-- **LangGraph**: For workflow orchestration
-- **ScholarCopilot**: For the evaluation dataset
-
-## Support
-
-For issues, questions, or contributions:
-
-1. Check the [troubleshooting section](#troubleshooting)
-2. Review [tests/README.md](tests/README.md) for testing documentation
-3. Open an issue on GitHub
-4. Check existing issues and discussions
 
 ---
 

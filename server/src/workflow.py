@@ -31,7 +31,7 @@ from src.models.state import RetrievalState
 
 
 class RetrievalWorkflow:
-    def __init__(self, use_llm_reranker: bool = False):
+    def __init__(self, use_llm_reranker: bool = True):
         """
         Initialize the workflow and build the graph pipeline.
 

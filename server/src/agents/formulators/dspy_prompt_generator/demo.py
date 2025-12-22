@@ -68,7 +68,7 @@ def quick_demo():
     print("=" * 60)
 
 
-def evaluate_demo(num_examples: int = 5, model: str = "gpt-4o-mini"):
+def evaluate_demo(num_examples: int = 5, model: str = "gpt-5-mini-2025-08-07"):
     """Run evaluation on a few examples."""
     import dspy
     from dspy_prompt_generator import (
@@ -83,7 +83,8 @@ def evaluate_demo(num_examples: int = 5, model: str = "gpt-4o-mini"):
     
     # Setup LLM
     print(f"\n Setting up LLM: {model}")
-    lm = dspy.LM(model=model, temperature=0.0)
+    # Note: GPT-5 models don't support custom temperature, using default
+    lm = dspy.LM(model=model)
     dspy.configure(lm=lm)
     
     # Load examples
@@ -131,7 +132,7 @@ def evaluate_demo(num_examples: int = 5, model: str = "gpt-4o-mini"):
     print("=" * 60)
 
 
-def optimize_demo(num_examples: int = 20, model: str = "gpt-4o-mini"):
+def optimize_demo(num_examples: int = 20, model: str = "gpt-5-mini-2025-08-07"):
     """Run optimization on training examples."""
     import dspy
     from dspy_prompt_generator import (
@@ -209,7 +210,7 @@ Examples:
     parser.add_argument(
         "--model",
         type=str,
-        default="gpt-4o-mini",
+        default="gpt-5-mini-2025-08-07",
         help="LLM model to use"
     )
     

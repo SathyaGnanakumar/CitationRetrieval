@@ -171,6 +171,7 @@ def aggregator(state: Dict[str, Any]) -> Dict[str, Any]:
             f"using RRF (k={rrf_k})"
         )
         logger.info(f"✅ {message_content}")
+        logger.debug(f"Candidate papers sample: {candidate_papers[0] if candidate_papers else 'NONE'}")
 
     else:
         # Simple aggregation: deduplicate and keep highest score per paper
@@ -201,8 +202,12 @@ def aggregator(state: Dict[str, Any]) -> Dict[str, Any]:
         )
         logger.info(f"✅ {message_content}")
 
-    return {
+    return_dict = {
         "retriever_results": retriever_results,
         "candidate_papers": candidate_papers,
         "messages": [AIMessage(name="aggregator", content=message_content)],
     }
+    logger.debug(f"Returning {len(candidate_papers)} candidate_papers to state")
+    logger.debug(f"Return dict keys: {list(return_dict.keys())}")
+    logger.debug(f"candidate_papers type: {type(candidate_papers)}, len: {len(candidate_papers)}")
+    return return_dict

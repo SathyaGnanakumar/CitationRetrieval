@@ -15,7 +15,7 @@ Usage:
 
     # Train/optimize
     from dspy_prompt_generator import CitationTrainer, TrainingConfig
-    config = TrainingConfig(model="gpt-4o-mini")
+    config = TrainingConfig(model="gpt-5-mini-2025-08-07")
     trainer = CitationTrainer(config)
     trainer.setup_lm()
     trainer.load_data()

@@ -44,9 +44,9 @@ class TrainingConfig:
     num_threads: int = 4
     
     # LLM
-    model: str = "gpt-4o-mini"  # or "gpt-4o", "claude-3-5-sonnet-20241022"
-    temperature: float = 0.0
-    
+    model: str = "gpt-5-mini-2025-08-07"  # or "gpt-5-2025-08-07", "claude-3-5-sonnet-20241022"
+    # Note: GPT-5 models don't support custom temperature, using default
+
     # Output
     output_dir: str = "dspy_prompt_generator/optimized"
 
@@ -224,14 +224,14 @@ class CitationTrainer:
     def setup_lm(self):
         """Configure the language model."""
         print(f"🔧 Setting up LM: {self.config.model}")
-        
+
+        # Note: GPT-5 models don't support custom temperature, using default
         lm = dspy.LM(
             model=self.config.model,
-            temperature=self.config.temperature,
             max_tokens=1000
         )
         dspy.configure(lm=lm)
-        
+
         print("✅ LM configured")
     
     def load_data(self):
@@ -437,7 +437,7 @@ def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="gpt-4o-mini",
+        default="gpt-5-mini-2025-08-07",
         help="LLM model to use"
     )
     parser.add_argument(

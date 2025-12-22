@@ -9,9 +9,9 @@ load_dotenv()
 # Configure DSPy with OpenAI (assuming API key is in .env)
 # If not, we'll use a dummy for structure testing, but it won't produce real reasoning.
 try:
-    lm = dspy.OpenAI(model='gpt-4o', max_tokens=1000)
+    lm = dspy.OpenAI(model='gpt-5-2025-08-07', max_tokens=1000)
     dspy.settings.configure(lm=lm)
-    print("Configured DSPy with OpenAI GPT-4o")
+    print("Configured DSPy with OpenAI GPT-5")
 except Exception as e:
     print(f"Warning: Could not configure OpenAI: {e}")
     class MockLM(dspy.LM):

@@ -33,7 +33,8 @@ def dspy_picker(state: Dict[str, Any]):
     cfg = state.get("config", {}) or {}
     enabled = _truthy(cfg.get("enable_dspy_picker")) or _truthy(os.getenv("ENABLE_DSPY_PICKER"))
     if not enabled:
-        return {}
+        # Pass through ranked_papers without modification when DSPy is disabled
+        return {"ranked_papers": state.get("ranked_papers", [])}
 
     ranked = state.get("ranked_papers") or []
     if not isinstance(ranked, list) or not ranked:
@@ -72,14 +73,14 @@ def dspy_picker(state: Dict[str, Any]):
         import dspy
         from src.agents.formulators.dspy_prompt_generator.modules import get_module
 
-        model = str(cfg.get("dspy_model") or os.getenv("DSPY_MODEL") or "gpt-4o-mini")
-        temperature = float(cfg.get("dspy_temperature") or os.getenv("DSPY_TEMPERATURE") or 0.0)
+        model = str(cfg.get("dspy_model") or os.getenv("DSPY_MODEL") or "gpt-5-mini-2025-08-07")
         max_tokens = int(cfg.get("dspy_max_tokens") or os.getenv("DSPY_MAX_TOKENS") or 800)
 
         resources = state.get("resources", {}) or {}
         lm = resources.get("dspy_lm")
         if lm is None:
-            lm = dspy.LM(model=model, temperature=temperature, max_tokens=max_tokens)
+            # Note: GPT-5 models don't support custom temperature, using default
+            lm = dspy.LM(model=model, max_tokens=max_tokens)
 
         dspy.configure(lm=lm)
 
