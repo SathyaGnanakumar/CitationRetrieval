@@ -539,7 +539,30 @@ uv run evaluate.py \
 
 ### LLM Reranker Configuration
 
-The system uses LLM-based reranking by default. You can choose between three inference engines:
+The system uses LLM-based reranking by default. Supports both single-query and batch processing modes with automatic context limit management.
+
+#### Batch Processing
+
+The LLM reranker includes intelligent batch processing that:
+- Processes multiple queries in parallel using ThreadPoolExecutor
+- Automatically respects model context limits
+- Auto-adjusts concurrency based on model capacity
+- Provides progress tracking and ETA estimates
+
+**Context Limits (with 20% safety buffer):**
+- `gemma3:4b`: 102K tokens effective (~51 concurrent queries)
+- `qwen3:8b`: 102K tokens effective (~51 concurrent queries)
+- `llama3.1:8b`: 102K tokens effective (~51 concurrent queries)
+- `gpt-5-mini-2025-08-07`: 217K tokens effective (~108 concurrent queries)
+- `gpt-5-2025-08-07`: 217K tokens effective (~108 concurrent queries)
+
+**Configuration:**
+```bash
+# .env file
+LLM_BATCH_MAX_WORKERS=5  # Max parallel workers (auto-adjusted for context limits)
+```
+
+The batch processor automatically estimates token usage per query (~2000 tokens for 20 papers) and ensures you never exceed the model's context window.
 
 #### Inference Engine Options
 

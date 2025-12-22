@@ -7,6 +7,7 @@ import os
 import json
 import re
 import logging
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.prompts.llm_reranker import LLMRerankerPrompt
@@ -213,3 +214,235 @@ def llm_reranker(state: Dict[str, Any], closed_source: bool = False):
             paper_dict["rerank_score"] = 0.1
             fallback_papers.append(paper_dict)
         return {"ranked_papers": fallback_papers}
+
+
+def estimate_rerank_tokens(query: str, candidate_papers: List[Dict[str, Any]]) -> int:
+    """
+    Estimate the number of tokens required for a reranking prompt.
+
+    Conservative estimation:
+    - Base prompt: ~200 tokens
+    - Query: ~length/4 (rough approximation)
+    - Each paper: ~75 tokens (title + score)
+    - Response buffer: ~500 tokens
+
+    Args:
+        query: Query string
+        candidate_papers: List of candidate papers
+
+    Returns:
+        Estimated token count
+    """
+    base_tokens = 200
+    query_tokens = len(query) // 4  # Rough approximation: 1 token ≈ 4 chars
+    paper_tokens = len(candidate_papers) * 75  # ~75 tokens per paper entry
+    response_buffer = 500  # Buffer for response
+
+    total = base_tokens + query_tokens + paper_tokens + response_buffer
+    return total
+
+
+def get_model_context_limit(model_name: str, inference_engine: str) -> int:
+    """
+    Get the context limit for a given model.
+
+    Returns a conservative estimate to avoid hitting limits.
+
+    Args:
+        model_name: Model identifier
+        inference_engine: Engine being used (ollama, huggingface, openai)
+
+    Returns:
+        Context limit in tokens
+    """
+    # Conservative limits (leaving 20% buffer for safety)
+    LIMITS = {
+        # Gemma 3 models - 128K context
+        "gemma3:4b": 102_000,  # 80% of 128K
+        "gemma3:12b": 102_000,
+        "google/gemma-3-4b-it": 102_000,
+        "google/gemma-2-2b-it": 64_000,  # Gemma 2 has 8K base
+        # Llama 3 models - 128K context
+        "llama3.1:8b": 102_000,
+        "meta-llama/Llama-3.2-3B-Instruct": 102_000,
+        # Qwen models - 128K context
+        "qwen3:8b": 102_000,
+        # Mistral models - vary by version
+        "mistral:7b": 64_000,  # 32K base, conservative
+        "mistralai/Mistral-7B-Instruct-v0.3": 64_000,
+        # OpenAI GPT-5 models - 272K input tokens
+        "gpt-5-mini-2025-08-07": 217_000,  # 80% of 272K
+        "gpt-5-2025-08-07": 217_000,
+        # OpenAI GPT-4 models (legacy)
+        "gpt-4o-mini": 102_000,  # 128K context
+        "gpt-4o": 102_000,
+    }
+
+    limit = LIMITS.get(model_name)
+
+    if limit is None:
+        # Default based on inference engine
+        if inference_engine == "openai":
+            logger.warning(f"Unknown OpenAI model '{model_name}', assuming 102K limit")
+            return 102_000
+        else:
+            logger.warning(f"Unknown model '{model_name}', assuming 64K limit")
+            return 64_000
+
+    return limit
+
+
+def batch_llm_reranker(
+    queries: List[str],
+    candidate_papers_list: List[List[Dict[str, Any]]],
+    resources: Dict[str, Any],
+    max_workers: int = None,
+    closed_source: bool = False
+) -> List[List[Dict[str, Any]]]:
+    """
+    Context-aware batch LLM-based reranking for multiple queries.
+
+    Processes multiple queries in parallel using ThreadPoolExecutor for improved throughput.
+    Each query is reranked independently. Automatically respects model context limits.
+
+    Context Limits (reference):
+    - gemma3:4b: 128K tokens (~64 concurrent queries with 20 papers each)
+    - qwen3:8b: 128K tokens (~64 concurrent queries)
+    - llama3.1:8b: 128K tokens (~64 concurrent queries)
+    - gpt-5-mini: 272K input tokens (~136 concurrent queries)
+
+    Args:
+        queries: List of query strings
+        candidate_papers_list: List of candidate paper lists (one per query)
+        resources: Resources dictionary containing llm_reranker model
+        max_workers: Maximum number of parallel workers (None = auto-detect based on model)
+        closed_source: Whether to force OpenAI usage
+
+    Returns:
+        List of ranked paper lists (one per query)
+
+    Example:
+        >>> queries = ["transformers", "attention mechanisms"]
+        >>> candidates = [[...papers for query 1...], [...papers for query 2...]]
+        >>> results = batch_llm_reranker(queries, candidates, resources)
+        >>> # results[0] = ranked papers for query 1
+        >>> # results[1] = ranked papers for query 2
+    """
+    if len(queries) != len(candidate_papers_list):
+        raise ValueError(
+            f"Mismatched lengths: {len(queries)} queries but {len(candidate_papers_list)} candidate lists"
+        )
+
+    # Auto-detect max_workers based on model and context limits
+    if max_workers is None:
+        max_workers = int(os.getenv("LLM_BATCH_MAX_WORKERS", "5"))
+
+    # Get model info for context limit checking
+    use_openai = closed_source or os.getenv("USE_OPENAI_RERANKER", "false").lower() in ["true", "1", "yes"]
+    inference_engine = os.getenv("INFERENCE_ENGINE", "ollama").lower()
+
+    if use_openai or inference_engine == "openai":
+        model_name = os.getenv("OPENAI_RERANKER_MODEL", "gpt-5-mini-2025-08-07")
+        inference_engine = "openai"
+    else:
+        model_name = os.getenv("LOCAL_LLM", "gemma3:4b")
+
+    # Check if cached model is available
+    if resources.get("llm_reranker") and "llm_model" in resources["llm_reranker"]:
+        cached_model_name = resources["llm_reranker"].get("model_name", model_name)
+        logger.info(f"🚀 Batch LLM Reranker using cached model: {cached_model_name}")
+    else:
+        logger.info(f"🚀 Batch LLM Reranker using model: {model_name}")
+
+    # Get context limit for this model
+    context_limit = get_model_context_limit(model_name, inference_engine)
+
+    # Estimate token usage for a typical query
+    if queries and candidate_papers_list:
+        sample_tokens = estimate_rerank_tokens(queries[0], candidate_papers_list[0])
+        max_safe_parallel = max(1, int((context_limit * 0.8) / sample_tokens))  # 80% safety margin
+
+        # Adjust max_workers if needed
+        if max_workers > max_safe_parallel:
+            logger.warning(
+                f"⚠️  Reducing max_workers from {max_workers} to {max_safe_parallel} "
+                f"to respect {model_name} context limit ({context_limit:,} tokens)"
+            )
+            max_workers = max_safe_parallel
+
+    logger.info(f"   Processing {len(queries)} queries with {max_workers} parallel workers")
+    logger.info(f"   Model context limit: {context_limit:,} tokens (~{sample_tokens} tokens/query)")
+
+    # Validate resources contain LLM model
+    if not resources.get("llm_reranker") or "llm_model" not in resources["llm_reranker"]:
+        logger.warning("⚠️  No cached LLM model in resources - batching will be slower")
+        logger.warning("   💡 Tip: Enable llm_reranker in build_inmemory_resources for better performance")
+
+    start_time = time.time()
+    results = [None] * len(queries)
+    total_tokens_estimate = sum(
+        estimate_rerank_tokens(q, c) for q, c in zip(queries, candidate_papers_list)
+    )
+
+    logger.info(f"   Estimated total tokens: {total_tokens_estimate:,}")
+
+    # Define worker function
+    def process_single_query(idx: int, query: str, candidates: List[Dict[str, Any]]) -> tuple:
+        """Process a single query and return (index, result)"""
+        try:
+            # Create state for single query
+            state = {
+                "query": query,
+                "candidate_papers": candidates,
+                "resources": resources
+            }
+
+            # Run single query reranking
+            result = llm_reranker(state, closed_source=closed_source)
+            ranked_papers = result.get("ranked_papers", [])
+
+            return (idx, ranked_papers)
+
+        except Exception as e:
+            logger.error(f"❌ Error processing query {idx}: {e}")
+            # Return candidates with fallback score
+            fallback = [dict(p) for p in candidates]
+            for p in fallback:
+                p["rerank_score"] = 0.1
+            return (idx, fallback)
+
+    # Process queries in parallel
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Submit all tasks
+        futures = {
+            executor.submit(process_single_query, i, q, c): i
+            for i, (q, c) in enumerate(zip(queries, candidate_papers_list))
+        }
+
+        # Collect results as they complete
+        completed = 0
+        for future in as_completed(futures):
+            idx, ranked_papers = future.result()
+            results[idx] = ranked_papers
+            completed += 1
+
+            if completed % 10 == 0:
+                elapsed = time.time() - start_time
+                rate = completed / elapsed
+                eta = (len(queries) - completed) / rate if rate > 0 else 0
+                logger.info(
+                    f"   Progress: {completed}/{len(queries)} queries "
+                    f"({rate:.1f} queries/sec, ETA: {eta:.1f}s)"
+                )
+
+    elapsed = time.time() - start_time
+    avg_time = elapsed / len(queries)
+    throughput = len(queries) / elapsed
+
+    logger.info(f"✅ Batch reranking complete!")
+    logger.info(f"   Total time: {elapsed:.2f}s")
+    logger.info(f"   Avg per query: {avg_time:.2f}s")
+    logger.info(f"   Throughput: {throughput:.1f} queries/sec")
+    logger.info(f"   Speedup vs sequential: ~{max_workers * 0.8:.1f}x (theoretical)")
+
+    return results
